@@ -3,7 +3,7 @@ from peewee import (Model, MySQLDatabase, Proxy)
 
 
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                           'schema.sql'))
+                                           'data.sql'))
 
 SCRIPT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                            'initial_sql.sql'))
