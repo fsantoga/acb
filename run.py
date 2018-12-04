@@ -1,5 +1,5 @@
 import argparse, os, re
-from models.basemodel import DATABASE, reset_database
+from models.basemodel import DATABASE, reset_database, delete_records
 from models.game import Game
 from models.team import TeamName, Team
 from models.actor import Actor
@@ -115,6 +115,9 @@ def main(args):
     if args.r:  # reset the database.
         reset_database()
 
+    if args.k:
+        delete_records()
+
     first_season = args.first_season
     last_season = args.last_season+1
 
@@ -137,6 +140,7 @@ if __name__ == "__main__":
     parser.add_argument("-r", action='store_true', default=False)
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
+    parser.add_argument("-k", action='store_true', default=False)
     parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
 

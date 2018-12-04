@@ -45,25 +45,36 @@ from src.mysql_connection import *
 
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                            'data.sql'))
+SCRIPT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                           'initial_sql.sql'))
 
-conn=mysqlConenct()
 DB_PROXY = Proxy()
 DATABASE = MySQLDatabase("acb",host="localhost", port=3306, user="root", passwd="root")
 DB_PROXY.initialize(DATABASE)
 
 
 def reset_database():
-    try:
-        conn.close()
-    except Exception as e:
-        print (e)
-        pass
+    conn = mysqlConenct()
     with open(SCHEMA_PATH) as f:
         query = f.read()
 
     try:
         cursor=conn.cursor()
-        cursor.execute(query)
+        cursor.execute(query,multi=True)
+        conn.commit()
+    except Exception as e:
+        print(e)
+    finally:
+        conn.close()
+
+
+def delete_records():
+    conn = mysqlConenct()
+    with open(SCRIPT_PATH) as f:
+        query = f.read()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query,multi=True)
         conn.commit()
     except Exception as e:
         print(e)
