@@ -95,14 +95,14 @@ class Participant(BaseModel):
         except Actor.DoesNotExist:
             pass
 
-    #@staticmethod
-    #def fix_participants():
-        #Participant._fix_acbid('Esteban, Màxim', '2CH')
-        #Participant._fix_acbid('Sharabidze, G.', 'Y9G')
-        #Participant._fix_participations('Tavares, W.', 'T2Z', 'SHP')
-        #Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
-        #Participant._fix_participations('Olaizola, Julen', 'T86', '162')
-        #Participant._fix_participations('Izquierdo, Antonio', '773', 'YHK')
+    @staticmethod
+    def fix_participants():
+        Participant._fix_acbid('Esteban, Màxim', '2CH')
+        Participant._fix_acbid('Sharabidze, G.', 'Y9G')
+        Participant._fix_participations('Tavares, W.', 'T2Z', 'SHP')
+        Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
+        Participant._fix_participations('Olaizola, Julen', 'T86', '162')
+        Participant._fix_participations('Izquierdo, Antonio', '773', 'YHK')
 
     @staticmethod
     def _create_players_and_coaches(raw_game, game):
