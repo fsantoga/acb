@@ -1,11 +1,8 @@
-import mysql.connector
+import pymysql
 
 def mysqlConnect():
-    mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="root",
-    database="acb"
-    )
-    return mydb
+    conn = pymysql.connect(host='localhost',
+                           user='root',
+                           password='root')
+    return conn
 

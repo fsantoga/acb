@@ -1,41 +1,37 @@
-"""
+
 import os.path
-from peewee import (Model, SqliteDatabase, Proxy)
+from peewee import (Model, MySQLDatabase, Proxy)
+import pymysql
 
-DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                       '..', 'data', 'database.db'))
-SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                           'schema.sql'))
-DB_PROXY = Proxy()
-DATABASE = SqliteDatabase(DB_PATH)
-DB_PROXY.initialize(DATABASE)
+SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'mysql_schema.sql'))
 
+db = MySQLDatabase("acb", host="localhost", port=3306, user="root", passwd="root")
 
 def reset_database():
-    try:
-        DATABASE.close()
-    except:
-        pass
-    try:
-        os.remove(DB_PATH)
-    except FileNotFoundError:
-        pass
+
+    # Create database
+    conn = pymysql.connect(host='localhost',
+                           user='root',
+                           password='root')
+
+    conn.cursor().execute('DROP DATABASE IF EXISTS acb;')
+    conn.cursor().execute('CREATE DATABASE acb;')
+    conn.close()
+
+
     with open(SCHEMA_PATH) as f:
-        query = f.read()
+        script = f.read()
+        db.connect(reuse_if_open=True)
+        for statement in script.split(';'):
+            if len(statement) > 0:
+                db.execute_sql(statement + ';')
+        db.close()
 
 
-    c =DATABASE.cursor()
-    c.executescript(query)
-    DATABASE.commit()
-    DATABASE.close()
-
-    #DATABASE.init(DB_PATH)
-    #DATABASE.connect()
-    #DATABASE.execute("CREATE TABLE team (id INTEGER PRIMARY KEY, acbid TEXT UNIQUE NOT NULL, founded_year INTEGER);")
 
 class BaseModel(Model):
     class Meta:
-        database = DB_PROXY
+        database = db
 
 
 """
@@ -44,9 +40,9 @@ from peewee import (Model, MySQLDatabase, Proxy)
 from src.mysql_connection import *
 
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                           'data.sql'))
+                                           'mysql_schema.sql'))
 
-conn=mysqlConenct()
+conn=mysqlConnect()
 DB_PROXY = Proxy()
 DATABASE = MySQLDatabase("acb",host="localhost", port=3306, user="root", passwd="root")
 DB_PROXY.initialize(DATABASE)
@@ -73,3 +69,4 @@ def reset_database():
 class BaseModel(Model):
     class Meta:
         database = DB_PROXY
+"""

@@ -19,7 +19,7 @@ def save_content(file_path, content):
     :param content: String
     :return: content of the page
     """
-    with open(file_path, 'w') as file:
+    with open(file_path, 'w', encoding="utf-8") as file:
         file.write(content)
         return content
 
@@ -33,7 +33,7 @@ def open_or_download(file_path, url):
     :return: content of the file.
     """
     if os.path.isfile(file_path):
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding="utf-8") as file:
             return file.read()
     else:
         html_file = get_page(url)
@@ -64,7 +64,7 @@ def sanity_check(directory_name, logging_level=logging.INFO):
     errors = []
     directory = os.fsencode(directory_name)
     for file in os.listdir(directory):
-        with open(os.path.join(directory, file)) as f:
+        with open(os.path.join(directory, file), encoding="utf-8") as f:
             raw_html = f.read()
 
             doc = pq(raw_html)

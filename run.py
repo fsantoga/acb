@@ -1,5 +1,5 @@
 import argparse, os, re
-from models.basemodel import DATABASE, reset_database
+from models.basemodel import db, reset_database
 from models.game import Game
 from models.team import TeamName, Team
 from models.actor import Actor
@@ -25,8 +25,7 @@ def insert_games(season):
     if season.season == 1994:  # the 1994 season doesn't have standing page.
         TeamName.create_harcoded_teams()
 
-    #conn=mysqlConenct()
-    #with DATABASE.atomic():
+    #with db.atomic():
     # Create the instances of Team.
     Team.create_instances(season)
 
@@ -34,15 +33,12 @@ def insert_games(season):
     competition_phase = 'regular'
     round_phase = None
     for id_game_number in range(1, season.get_number_games_regular_season() + 1):
-        with open(os.path.join('.', 'data', str(season.season), 'games', str(id_game_number) + '.html'),
-                  'r') as f:
+        with open(os.path.join('.', 'data', str(season.season), 'games', str(id_game_number) + '.html'), 'r', encoding='utf-8') as f:
             raw_game = f.read()
-
             game = Game.create_instance(raw_game=raw_game, id_game_number=id_game_number,
                                         season=season,
                                         competition_phase=competition_phase,
                                         round_phase=round_phase)
-
             Participant.create_instances(raw_game=raw_game, game=game)
 
     # Playoff
@@ -59,8 +55,7 @@ def insert_games(season):
 
     while id_game_number < playoff_end:
         id_game_number += 1
-        with open(os.path.join('.', 'data', str(season.season), 'games', str(id_game_number) + '.html'),
-                  'r') as f:
+        with open(os.path.join('.', 'data', str(season.season), 'games', str(id_game_number) + '.html'), 'r', encoding='utf-8') as f:
             raw_game = f.read()
 
             # A playoff game might be blank if the series ends before the last game.
@@ -105,7 +100,7 @@ def update_games():
     Actor.save_actors()
     Actor.sanity_check()
 
-    with DATABASE.atomic():
+    with db.atomic():
         Team.update_content()
         Participant.fix_participants()  # there were a few errors in acb. Manually fix them.
         Actor.update_content()

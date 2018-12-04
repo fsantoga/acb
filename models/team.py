@@ -4,7 +4,7 @@ from peewee import ForeignKeyField
 from src.download import open_or_download
 from models.basemodel import BaseModel
 from src.season import Season
-from peewee import (PrimaryKeyField, TextField, IntegerField)
+from peewee import (PrimaryKeyField, TextField, CharField, IntegerField)
 from src.mysql_connection import *
 
 
@@ -17,56 +17,24 @@ class Team(BaseModel):
     Because the name of a team can change between seasons (and even in a same season).
     """
     id = PrimaryKeyField()
-    acbid = TextField(index=True)
+    acbid = CharField(max_length=3, unique=True, index=True)
     founded_year = IntegerField(null=True)
 
 
     def create_instances(season):
         """
         Create the database instances of the teams.
-
         :param season: int
         :return:
         """
         teams_ids = season.get_teams_ids()
         teams_names = []
         for name, acbid in teams_ids.items():
-            try:
-                conn=mysqlConenct()
-                mycursor = conn.cursor()
-                try:
-                    sql = "INSERT INTO team (acbid) VALUES (%s)"
-                    val = [acbid]
-                    mycursor.execute(sql,val)
-                    conn.commit()
-                    print("ENTRO")
-                except Exception as e:
-                    print(e)
-                    conn.rollback()
-                    pass
-            except Exception as e:
-                print(e)
-            finally:
-                conn.close()
+            team = Team.get_or_create(**{'acbid': acbid})[0]
+            teams_names.append({'team': team, 'name': name, 'season': season.season})
 
-            teams_names.append({'team_id': acbid, 'season': season.season,'name': name})
+        TeamName.insert_many(teams_names).on_conflict('IGNORE').execute()
 
-        try:
-            conn=mysqlConenct()
-            mycursor=conn.cursor()
-            try:
-                sql="insert ignore into teamname (team_id,season,name) values (%(team_id)s,%(season)s,%(name)s)"#https://stackoverflow.com/questions/36491684/insert-list-of-dict-into-mysql-using-python
-                val=teams_names
-                mycursor.executemany(sql,val)
-                conn.commit()
-            except Exception as e:
-                    print(e)
-                    conn.rollback()
-        except Exception as e:
-            print(e)
-
-        finally:
-            conn.close()
 
     @staticmethod
     def get_harcoded_teams():
