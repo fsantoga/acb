@@ -42,12 +42,10 @@ class Season:
     def get_number_teams(self):
         content = self.save_teams()
         teams_match = re.findall(r'<td class="rojo" align="right"><b>([0-9]+)</b>', content, re.DOTALL)
-        """
         if len(teams_match) == 0:  # from 1994 and backward there isn't standings, we just count the games
             return len(re.findall(r'http://www.acb.com/imgs//flechitaroja.gif', content, re.DOTALL))*2
         else:
-        """
-        return len(teams_match)
+            return len(teams_match)
 
     def get_teams_ids(self):
         content = self.save_teams()

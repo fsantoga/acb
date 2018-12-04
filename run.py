@@ -107,7 +107,7 @@ def update_games():
 
     with DATABASE.atomic():
         Team.update_content()
-        Participant.fix_participants()  # there were a few errors in acb. Manually fix them.
+        #Participant.fix_participants()  # there were a few errors in acb. Manually fix them.
         Actor.update_content()
 
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-k", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2004, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2015, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2015, type=int)
 
     main(parser.parse_args())

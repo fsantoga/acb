@@ -110,6 +110,7 @@ class TeamName(BaseModel):
     """
     id = PrimaryKeyField()
     team = ForeignKeyField(Team, related_name='names', index=True)
+    #team_identifier = TextField()
     name = TextField()
     season = IntegerField()
 

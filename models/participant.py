@@ -95,9 +95,9 @@ class Participant(BaseModel):
         except Actor.DoesNotExist:
             pass
 
-    @staticmethod
-    def fix_participants():
-        Participant._fix_acbid('Esteban, Màxim', '2CH')
+    #@staticmethod
+    #def fix_participants():
+        #Participant._fix_acbid('Esteban, Màxim', '2CH')
         #Participant._fix_acbid('Sharabidze, G.', 'Y9G')
         #Participant._fix_participations('Tavares, W.', 'T2Z', 'SHP')
         #Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
