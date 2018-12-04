@@ -13,8 +13,8 @@ def download_games(season):
     Download locally the games of a certain season
     :param season: Season object.
     """
-    Game.save_games(season)
-    Game.sanity_check(season)
+    #Game.save_games(season)
+    #Game.sanity_check(season)
 
 
 def insert_games(season):
@@ -102,8 +102,8 @@ def update_games():
     Update the information about teams and actors and correct errors.
     """
     # Download actor's page.
-    Actor.save_actors()
-    Actor.sanity_check()
+    #Actor.save_actors()
+    #Actor.sanity_check()
 
     with DATABASE.atomic():
         Team.update_content()

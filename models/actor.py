@@ -95,7 +95,10 @@ class Actor(BaseModel):
         twitter = self._get_twitter(content)
         if twitter:
             personal_info.update({'twitter': twitter})
-        Actor.update(**personal_info).where(Actor.acbid == self.acbid).execute()
+        if personal_info is None:
+            pass
+        else:
+            Actor.update(**personal_info).where(Actor.acbid == self.acbid).execute()
 
     def _get_personal_info(self, raw_doc):
         """
@@ -119,6 +122,7 @@ class Actor(BaseModel):
                     personal_info['birthdate'] = datetime.datetime(year=int(year), month=int(month), day=int(day))
                 except:
                     logging.error('The actor {} has an error in the birthdate and birthplace. Msg: {}'.format(personal_info['full_name'], data[0]))
+                    return None
 
             elif header[0].startswith('posic'):
                 for i, field in enumerate(header):
@@ -129,7 +133,8 @@ class Actor(BaseModel):
                     elif field.startswith('peso'):
                         personal_info['weight'] = data[i].split(" ")[0]
                     else:
-                        raise Exception("Actor's field not found: {}".format(field))
+                        logging.error("Actor's field not found: {}".format(field))
+                        return None
 
             elif header[0].startswith('nacionalidad'):
                 for i, field in enumerate(header):
@@ -138,14 +143,20 @@ class Actor(BaseModel):
                     elif field.startswith('licencia'):
                         personal_info['license'] = data[i]
                     else:
-                        raise Exception("Actor's field not found: {}".format(field))
+                        logging.error("Actor's field not found: {}".format(field))
+                        return None
 
             elif header[0].startswith('debut en ACB'):
-                day, month, year = re.search(r'([0-9]+)/([0-9]+)/([0-9]+)', data[0]).groups()
-                personal_info['debut_acb'] = datetime.datetime(year=int(year), month=int(month), day=int(day))
+                try:
+                    day, month, year = re.search(r'([0-9]+)/([0-9]+)/([0-9]+)', data[0]).groups()
+                    personal_info['debut_acb'] = datetime.datetime(year=int(year), month=int(month), day=int(day))
+                except:
+                    logging.error('The actor {} has an error in the debut_acb. Msg: {}'.format(personal_info['full_name'], data[0]))
+                    return None
+
             else:
-                raise Exception('A field of the personal information does not match our patterns: '
-                                '{} in {}'.format(td.text(), personal_info['full_name']))
+                logging.error('A field of the personal information does not match our patterns: ''{} in {}'.format(td.text(), personal_info['full_name']))
+                return None
 
         return personal_info
 
