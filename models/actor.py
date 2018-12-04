@@ -10,7 +10,6 @@ class Actor(BaseModel):
 
     """
     Class representing an Actor.
-
     An actor can be either a player or a coach.
     """
     id = PrimaryKeyField()
@@ -33,7 +32,6 @@ class Actor(BaseModel):
         from src.season import BASE_URL, PLAYERS_PATH, COACHES_PATH
         """
         Method for saving locally the actors.
-
         :param logging_level: logging object
         """
         logging.basicConfig(level=logging_level)

@@ -1,4 +1,3 @@
-
 import os.path
 from peewee import (Model, MySQLDatabase, Proxy)
 
