@@ -50,6 +50,7 @@ def delete_records():
 
 
 
+
 class BaseModel(Model):
     class Meta:
         database = DB_PROXY
