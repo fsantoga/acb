@@ -1,9 +1,11 @@
 import os.path, re, datetime, difflib, logging
-from src.download import open_or_download, sanity_check, get_page
+from src.download import open_or_download, sanity_check, get_page,save_content
 from models.basemodel import BaseModel, db
 from src.utils import convert_time
 from peewee import (PrimaryKeyField, TextField, IntegerField,
                     DateTimeField, ForeignKeyField, BooleanField)
+from selenium import webdriver
+
 
 legend_dict = {
     'Asistencia': 'assist',
@@ -125,7 +127,7 @@ class Event(BaseModel):
     away_score = IntegerField(null=True)
 
     @staticmethod
-    def save_events(season, logging_level=logging.INFO):
+    def save_events(season, chrome_driver_path, logging_level=logging.INFO):
         """
         Method for saving locally the games of a season.
 
@@ -155,10 +157,19 @@ class Event(BaseModel):
         logger.info('Starting downloading...')
 
         for i, (fls_id, game_id) in enumerate(fibalivestats_ids.items()):
-            eventURL="http://jv.acb.com/partido.php?c={}".format(fls_id)
             filename = os.path.join(season.EVENTS_PATH, str(game_id) + ".html")
-
-            open_or_download(file_path=filename, url=eventURL)
+            eventURL="http://www.fibalivestats.com/u/ACBS/{}/pbp.html".format(fls_id)
+            if not os.path.isfile(filename):
+                chrome_options = webdriver.ChromeOptions()
+                chrome_options.add_argument('--headless')
+                chrome_options.add_argument(
+                    '--no-sandbox')  # required when running as root user. otherwise you would get no sandbox errors.
+                driver = webdriver.Chrome(executable_path=chrome_driver_path+'chromedriver',
+                                          chrome_options=chrome_options,
+                                          service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
+                driver.get(eventURL)
+                html = driver.page_source
+                save_content(filename,html)
 
             # Debugging
             if i % (round(len(fibalivestats_ids) / 3)) == 0:
@@ -210,8 +221,8 @@ class Event(BaseModel):
                                  "elapsed_time": elapsed_time,
                                  "display_name": display_name,
                                  "jersey": jersey,
-                                 "home_score": int(home_score),
-                                 "away_score": int(away_score)}
+                                 "home_score": home_score,
+                                 "away_score": away_score}
                 cont += 1
 
         with db.atomic():

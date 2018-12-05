@@ -17,12 +17,13 @@ def download_games(season):
     Game.save_games(season)
     Game.sanity_check(season)
 
-def download_events(season):
+
+def download_events(season,chrome_driver_path):
     """
     Download locally the games of a certain season
     :param season: Season object.
     """
-    Event.save_events(season)
+    Event.save_events(season,chrome_driver_path)
     Event.sanity_check(season)
 
 
@@ -118,29 +119,37 @@ def update_games():
             pass
         Actor.update_content()
 
+
 def insert_events(season):
-    game_id_first = 62001
-    game_id_last = 62180
     year=season.season;
-    for game_id in range(game_id_first, game_id_last + 1):
-        with open('./data/2017/events/{}.html'.format(game_id), 'r', encoding='utf-8') as f:
-            content = f.read()
-            doc = pyquery.PyQuery(content)
-            playbyplay = doc('#playbyplay')
-            team_code_1 = doc('.id_aj_1_code').text()
-            team_code_2 = doc('.id_aj_2_code').text()
-            Event.scrap_and_insert(game_id, playbyplay, team_code_1, team_code_2)
+    if year >= 2016:
+        for game_id_file in os.listdir(season.EVENTS_PATH):
+            with open('./data/{}/events/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
+                game_id = os.path.splitext(game_id_file)[0]
+                content = f.read()
+                doc = pyquery.PyQuery(content)
+                playbyplay = doc('#playbyplay')
+                team_code_1 = doc('.id_aj_1_code').text()
+                team_code_2 = doc('.id_aj_2_code').text()
+                try:
+                    Event.scrap_and_insert(game_id, playbyplay, team_code_1, team_code_2)
+                except Exception as e:
+                    print (e)
+    else:
+        pass
+
 
 def main(args):
-    if args.c:  # reset the database.
+    if args.r: #reset the database and create the schema.
         reset_database()
         create_schema()
 
-    if args.r: #delete previous records from DB and set auto_increment=1
+    if args.c: #clean previous records from DB and set auto_increment=1
         delete_records()
 
     first_season = args.first_season
     last_season = args.last_season+1
+    chrome_driver_path=args.chrome_driver_path
 
     if args.d:  # download the games.
         for year in reversed(range(first_season, last_season)):
@@ -150,7 +159,7 @@ def main(args):
             else:
                 season = Season(year)
                 download_games(season)
-                download_events(season)
+                download_events(season,chrome_driver_path)
 
     if args.i:
         # Extract and insert the information in the database.
@@ -172,8 +181,9 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("-a", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2010, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
+    parser.add_argument("--chromedriverpath", action='store', dest="chrome_driver_path", default="/usr/bin/", type=str)
+
 
     main(parser.parse_args())
