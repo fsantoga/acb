@@ -47,7 +47,7 @@ def validate_dir(folder):
     :param folder: String
     """
     if not os.path.exists(folder):
-        print(folder)
+        #print(folder)
         os.makedirs(folder)
 
 

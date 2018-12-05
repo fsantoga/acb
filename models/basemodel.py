@@ -1,33 +1,54 @@
 
-import os.path
+import os.path, logging
 from peewee import (Model, MySQLDatabase, Proxy)
-import pymysql
 
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'mysql_schema.sql'))
+SCRIPT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'initial_sql.sql'))
+db = MySQLDatabase("acb2", host="localhost", port=3306, user="root", passwd="root")
 
-db = MySQLDatabase("acb", host="localhost", port=3306, user="root", passwd="root")
 
-def reset_database():
+def reset_database(logging_level=logging.INFO):
 
-    # Create database
-    conn = pymysql.connect(host='localhost',
-                           user='root',
-                           password='root')
-
-    conn.cursor().execute('DROP DATABASE IF EXISTS acb;')
-    conn.cursor().execute('CREATE DATABASE acb;')
-    conn.close()
-
+    logging.basicConfig(level=logging_level)
+    logger = logging.getLogger(__name__)
 
     with open(SCHEMA_PATH) as f:
-        script = f.read()
-        db.connect(reuse_if_open=True)
-        for statement in script.split(';'):
-            if len(statement) > 0:
-                db.execute_sql(statement + ';')
+        query = f.read()
+
+    try:
+        db.connect()
+        try:
+            logger.info('Creating Database and Database Schema...\n')
+            db.execute_sql(query)
+            db.commit()
+        except Exception as e:
+            print(e)
+    except Exception as e:
+        print(e)
+    finally:
         db.close()
 
 
+def delete_records(logging_level=logging.INFO):
+
+    logging.basicConfig(level=logging_level)
+    logger = logging.getLogger(__name__)
+
+    with open(SCRIPT_PATH) as f:
+        query = f.read()
+    try:
+        db.connect()
+        try:
+            logger.info('Deleting previous records...')
+            logger.info('Set auto_increment=1...\n')
+            db.execute_sql(query)
+            db.commit()
+        except Exception as e:
+            print(e)
+    except Exception as e:
+        print(e)
+    finally:
+        db.close()
 
 class BaseModel(Model):
     class Meta:

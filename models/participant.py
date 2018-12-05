@@ -98,11 +98,11 @@ class Participant(BaseModel):
     @staticmethod
     def fix_participants():
         Participant._fix_acbid('Esteban, Màxim', '2CH')
-        #Participant._fix_acbid('Sharabidze, G.', 'Y9G')
-        #Participant._fix_participations('Tavares, W.', 'T2Z', 'SHP')
-        #Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
-        #Participant._fix_participations('Olaizola, Julen', 'T86', '162')
-        #Participant._fix_participations('Izquierdo, Antonio', '773', 'YHK')
+        Participant._fix_acbid('Sharabidze, G.', 'Y9G')
+        Participant._fix_participations('Tavares, W.', 'T2Z', 'SHP')
+        Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
+        Participant._fix_participations('Olaizola, Julen', 'T86', '162')
+        Participant._fix_participations('Izquierdo, Antonio', '773', 'YHK')
 
     @staticmethod
     def _create_players_and_coaches(raw_game, game):
@@ -215,7 +215,7 @@ class Participant(BaseModel):
                     elif cont == 0:  # first cell number of the player
                         number = td.text() if td.text() else 'Equipo'
                         if number in stats[current_team]:  # preventing from errors with the number.
-                            wrong_pages_first = ['55313', '54017', '54026', '61072', '61076', '61107']  # if the good one is the first.
+                            wrong_pages_first = ['55313', '54017', '54026', '61072', '61076', '61107','62177']  # if the good one is the first.
                             wrong_pages_second = ['53154', '61218']  # if the good one is the second.
                             if game.acbid in wrong_pages_first:  # acb error... >:(
                                 pass

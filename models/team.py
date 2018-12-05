@@ -3,10 +3,7 @@ from pyquery import PyQuery as pq
 from peewee import ForeignKeyField
 from src.download import open_or_download
 from models.basemodel import BaseModel
-from src.season import Season
 from peewee import (PrimaryKeyField, TextField, CharField, IntegerField)
-from src.mysql_connection import *
-
 
 
 class Team(BaseModel):
