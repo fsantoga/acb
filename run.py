@@ -134,6 +134,7 @@ def insert_events(season):
 def main(args):
     if args.r:  # reset the database.
         reset_database()
+        create_schema()
 
     if args.c: #create DB schema
         create_schema()
