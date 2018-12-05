@@ -1,6 +1,7 @@
 import argparse, os, re
 from models.basemodel import db, reset_database, delete_records, create_schema
 from models.game import Game
+from models.event import Event
 from models.team import TeamName, Team
 from models.actor import Actor
 from models.participant import Participant
@@ -14,6 +15,14 @@ def download_games(season):
     """
     Game.save_games(season)
     Game.sanity_check(season)
+
+def download_events(season):
+    """
+    Download locally the games of a certain season
+    :param season: Season object.
+    """
+    Event.save_events(season)
+    Event.sanity_check(season)
 
 
 def insert_games(season):
@@ -124,14 +133,24 @@ def main(args):
 
     if args.d:  # download the games.
         for year in reversed(range(first_season, last_season)):
-            season = Season(year)
-            download_games(season)
+            if year < 2016:
+                season = Season(year)
+                download_games(season)
+            else:
+                season = Season(year)
+                download_games(season)
+                download_events(season)
 
     if args.i:
         # Extract and insert the information in the database.
         for year in reversed(range(first_season, last_season)):
-            season = Season(year)
-            insert_games(season)
+            if year < 2016:
+                season = Season(year)
+                insert_games(season)
+            else:
+                season = Season(year)
+                insert_games(season)
+                #insert_events(season)
 
         # Update missing info about actors, teams and participants.
         update_games()
@@ -143,7 +162,7 @@ if __name__ == "__main__":
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
     parser.add_argument("-a", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2010, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
 
     main(parser.parse_args())
