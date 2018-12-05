@@ -1,11 +1,12 @@
 import argparse, os, re
 from models.basemodel import db, reset_database, delete_records, create_schema
 from models.game import Game
-from models.event import Event
+from models.event import *
 from models.team import TeamName, Team
 from models.actor import Actor
 from models.participant import Participant
 from src.season import Season
+import pyquery
 
 
 def download_games(season):
@@ -117,6 +118,18 @@ def update_games():
             pass
         Actor.update_content()
 
+def insert_events(season):
+    game_id_first = 62001
+    game_id_last = 62180
+    year=season.season;
+    for game_id in range(game_id_first, game_id_last + 1):
+        with open('./data/2017/events/{}.html'.format(game_id), 'r', encoding='utf-8') as f:
+            content = f.read()
+            doc = pyquery.PyQuery(content)
+            playbyplay = doc('#playbyplay')
+            team_code_1 = doc('.id_aj_1_code').text()
+            team_code_2 = doc('.id_aj_2_code').text()
+            Event.scrap_and_insert(game_id, playbyplay, team_code_1, team_code_2)
 
 def main(args):
     if args.r:  # reset the database.
@@ -150,7 +163,7 @@ def main(args):
             else:
                 season = Season(year)
                 insert_games(season)
-                #insert_events(season)
+                insert_events(season)
 
         # Update missing info about actors, teams and participants.
         update_games()
@@ -162,7 +175,7 @@ if __name__ == "__main__":
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
     parser.add_argument("-a", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2010, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
 
     main(parser.parse_args())

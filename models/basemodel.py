@@ -1,6 +1,6 @@
 import os.path, logging
 from peewee import (Model, MySQLDatabase, Proxy)
-import mysql.connector
+import pymysql
 
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'mysql_schema.sql'))
 SCRIPT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'initial_sql.sql'))
@@ -13,20 +13,21 @@ def reset_database(logging_level=logging.INFO):
     logger = logging.getLogger(__name__)
 
     try:
-        database = mysql.connector.connect(host="localhost", port=3306, user="root", passwd="root")
-        cursor=database.cursor()
+        conn=pymysql.connect(host="localhost", port=3306, user="root", passwd="root")
+        cursor=conn.cursor()
         try:
             logger.info('Creating Database...\n')
             cursor.execute("DROP DATABASE IF EXISTS acb;")
             cursor.execute("CREATE DATABASE acb;")
-            database.commit()
+            conn.commit()
+            cursor.close()
+            conn.close()
         except Exception as e:
             print(e)
-            database.rollback()
+            conn.rollback()
     except Exception as e:
         print(e)
-    finally:
-        database.close()
+
 
 
 def create_schema(logging_level=logging.INFO):
