@@ -98,7 +98,11 @@ class Actor(BaseModel):
         if personal_info is None:
             pass
         else:
-            Actor.update(**personal_info).where(Actor.acbid == self.acbid).execute()
+            try:
+                Actor.update(**personal_info).where(Actor.acbid == self.acbid).execute()
+            except Exception as e:
+                print(e)
+                pass
 
     def _get_personal_info(self, raw_doc):
         """

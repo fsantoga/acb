@@ -1,8 +1,10 @@
+USE acb;
 
-DROP DATABASE IF EXISTS acb2;
-CREATE DATABASE acb2;
-
-USE acb2;
+DROP TABLE IF EXISTS participant;
+DROP TABLE IF EXISTS actor;
+DROP TABLE IF EXISTS game;
+DROP TABLE IF EXISTS teamname;
+DROP TABLE IF EXISTS team;
 
 -- Table with all the teams uniquely identified
 CREATE TABLE team (
