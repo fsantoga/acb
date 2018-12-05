@@ -1,5 +1,6 @@
 import os.path, logging
 from peewee import (Model, MySQLDatabase, Proxy)
+import sqlparse
 import pymysql
 
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'mysql_schema.sql'))
@@ -35,13 +36,16 @@ def create_schema(logging_level=logging.INFO):
     logging.basicConfig(level=logging_level)
     logger = logging.getLogger(__name__)
 
-    with open(SCHEMA_PATH) as f:
+    with open(SCHEMA_PATH,'rb') as f:
         query = f.read()
 
     try:
         db.connect()
-        logger.info('Creating Database and Database Schema...\n')
-        db.execute_sql(query)
+        logger.info('Creating Database Schema...\n')
+        for statement in sqlparse.split(query):
+            if not statement:
+                continue
+            db.execute_sql(statement)
         db.commit()
     except Exception as e:
         print(e)
@@ -61,7 +65,10 @@ def delete_records(logging_level=logging.INFO):
         try:
             logger.info('Deleting previous records...')
             logger.info('Set auto_increment=1...\n')
-            db.execute_sql(query)
+            for statement in sqlparse.split(query):
+                if not statement:
+                    continue
+                db.execute_sql(statement)
             db.commit()
         except Exception as e:
             print(e)

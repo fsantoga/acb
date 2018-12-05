@@ -132,14 +132,11 @@ def insert_events(season):
             Event.scrap_and_insert(game_id, playbyplay, team_code_1, team_code_2)
 
 def main(args):
-    if args.r:  # reset the database.
+    if args.c:  # reset the database.
         reset_database()
         create_schema()
 
-    if args.c: #create DB schema
-        create_schema()
-
-    if args.a: #delete previous records from DB and set auto_increment=1
+    if args.r: #delete previous records from DB and set auto_increment=1
         delete_records()
 
     first_season = args.first_season
