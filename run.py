@@ -6,6 +6,7 @@ from models.actor import Actor
 from models.participant import Participant
 from src.season import Season
 
+
 def download_games(season):
     """
     Download locally the games of a certain season
