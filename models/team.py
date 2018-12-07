@@ -40,7 +40,7 @@ class Team(BaseModel):
         where the name of the team changes with respect to its official name. Hence, we cannot find an exact coincidence.
 
         The first decision was to find the closest name in terms of distance similarity. For instance, if the official
-        name is 'F.C. BARCELONA' and the name in the match is 'FC BARCELONA' the probability of being the same team is
+        name isFFFF 'F.C. BARCELONA' and the name in the match is 'FC BARCELONA' the probability of being the same team is
         high. We track every dismatch observing if they are correct or not.
 
         In case we find out a wrong match, we hardcode the actual correspondance. Example: The 'C.B CANARIAS' in 2013

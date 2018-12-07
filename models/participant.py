@@ -173,7 +173,7 @@ class Participant(BaseModel):
                              "offensive_reb": "offensive_reb"})
 
         """
-        We create a dictionary that contains, for each of the teams, and for each of the player, and for each of the stats
+        We create a dictionary that contains, for each of the teams, and for each of the players, and for each of the stats
         the value of such stat for such player of such team.
 
         > stats[team][player][stat]
@@ -194,7 +194,8 @@ class Participant(BaseModel):
             else:  # players, equipo, and coach.
                 number = None
                 for cont, td in enumerate(tr('td').items()):  # iterate over each cell (stat)
-                    if td.text() == "5f":  # 5f nor Total are not players.
+
+                    if td.text() == "5f":
                         break
 
                     elif td.text() == 'Total' or number == 'Total':
@@ -214,8 +215,10 @@ class Participant(BaseModel):
 
                     elif cont == 0:  # first cell number of the player
                         number = td.text() if td.text() else 'Equipo'
-                        if number in stats[current_team]:  # preventing from errors with the number.
-                            wrong_pages_first = ['55313', '54017', '54026', '61072', '61076', '61107','62177']  # if the good one is the first.
+                        if number == 'Equipo': #¿Queremos que las stats de equipo en un partido se metan en paerticipantes????
+                            break
+                        elif number in stats[current_team]:  # preventing from errors with the number.
+                            wrong_pages_first = ['55313', '54017', '54026', '61072', '61076', '61107']  # if the good one is the first.
                             wrong_pages_second = ['53154', '61218']  # if the good one is the second.
                             if game.acbid in wrong_pages_first:  # acb error... >:(
                                 pass

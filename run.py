@@ -181,8 +181,8 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2010, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2015, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2015, type=int)
     parser.add_argument("--chromedriverpath", action='store', dest="chrome_driver_path", default="/usr/bin/", type=str)
 
 
