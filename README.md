@@ -36,3 +36,20 @@ This dataset includes statistics about the games, teams, players and coaches. It
 * **TeamName**: the name of a team can change between seasons (and even within the same season). 
 
 In summation, this database contains the stats from games such as http://www.acb.com/fichas/LACB61295.php
+
+
+# Por hacer:
+Arreglar IDs
+¿Metemos los equipos en la tabla participantes?¿tiene info relevante?
+¿Que hacemos con los participantes?
+        def fix_participants():
+        Participant._fix_acbid('Esteban, Màxim', '2CH')
+        Participant._fix_acbid('Sharabidze, G.', 'Y9G')
+        Participant._fix_participations('Tavares, W.', 'T2Z', 'SHP')
+        Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
+        Participant._fix_participations('Olaizola, Julen', 'T86', '162')
+        Participant._fix_participations('Izquierdo, Antonio', '773', 'YHK')
+
+¿hardcodear o pillar de wikipedia algunos equipos que no tienen año de fundacion?
+arreglar años <= 1994 no tiene tabla de clasificacion
+arreglar años >= 2018 y partidos dia a dia
