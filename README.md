@@ -53,3 +53,12 @@ Arreglar IDs
 ¿hardcodear o pillar de wikipedia algunos equipos que no tienen año de fundacion?
 arreglar años <= 1994 no tiene tabla de clasificacion
 arreglar años >= 2018 y partidos dia a dia
+tablas y relaciones
+    porque en game el acbid es un varchar? renombrar a game_acbid? renombrar resto de a game_acbid para no confundir con el id de la tabla que suele ser nombreTabla_id
+    relacionar tabla eventos con game -- por game_id?
+    revisar todos lo atributos de las tablas para que tengan sentido.
+    porque CREATE INDEX game_kickoff_time_idx ON game(kickoff_time)?
+    en tabla event relacionar teamid con algo? en vez del varchar el id numerico del equipo?
+    renombrar todos los atrinutoid a atributo_id
+
+posibles errores con first_season <= last season o last_season >= first_season
