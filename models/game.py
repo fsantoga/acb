@@ -121,38 +121,33 @@ class Game(BaseModel):
         for i in [0, 2]:
             team_data = info_teams_data('.estverde').eq(i)('td').eq(0).text()
             team_name = re.search("(.*) [0-9]", team_data).groups()[0]
-            """
-            We create a team per season since a team can have different names along its history. Anyway, same teams
-            will have same acbid.
 
-            Note: ACB doesn't agree in teams names and sometimes write the same name in different ways.
+            """
+            In general we only have one official name for a single team and season. However the ACB sometimes doesn't agree in teams names 
+            and write it in different ways depending on the game (sometimes taking older names or making some small changes).
             E.g.:
 
              - VALENCIA BASKET instead of VALENCIA BASKET CLUB
              - C.B. OURENSE instead of CB OURENSE
             """
-            try:
-                if len(teams_ids):  # if the standing page exists.
-                    team_acbid = teams_ids[team_name]
-                else:
-                    team_acbid = TeamName.get(TeamName.name == team_name).team.acbid
+            try:  ## In case the name of the team is exactly the same as one stated in our database for a season
+                team_acbid = TeamName.get(TeamName.name == team_name).team_id.acbid
                 team = Team.get(Team.acbid == team_acbid)
 
-            except KeyError:  # we don't find an exact correspondance, let's find the closest match.
-                if season.season in list(Team.get_harcoded_teams().keys()) \
-                        and team_name in list(Team.get_harcoded_teams()[season.season].keys()):  # harcoded team?
-                    team = Team.get(Team.acbid == Team.get_harcoded_teams()[season.season][team_name])
-                else:
-                    most_likely_team = difflib.get_close_matches(team_name, teams_ids.keys(), 1, 0.4)[0]
-                    team = Team.get(Team.acbid == teams_ids[most_likely_team])
+            except TeamName.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
+                query = TeamName.select(TeamName.team_id, TeamName.name)
+                teams_names_ids = dict()
+                for q in query:
+                    teams_names_ids[q.name] = q.team_id.id
 
-                    if most_likely_team not in season.mismatched_teams:  # debug info to check the correctness.
-                        season.mismatched_teams.append(most_likely_team)
-                        logger.info('Season {} -> {} has been matched to: {}'.format(season.season,
-                                                                                     team_name,
-                                                                                     most_likely_team))
+                most_likely_team = difflib.get_close_matches(team_name, teams_names_ids.keys(), 1, 0.4)[0]
+                team = Team.get(Team.id == teams_names_ids[most_likely_team])
 
-            TeamName.get_or_create(**{'team': team, 'name': team_name, 'season': season.season})
+                if most_likely_team not in season.mismatched_teams:  # debug info to check the correctness.
+                    season.mismatched_teams.append(most_likely_team)
+                    logger.info('Season {} -> {} has been matched to: {}'.format(season.season, team_name, most_likely_team))
+
+            # TeamName.get_or_create(**{'team': team, 'name': team_name, 'season': season.season})
             game_dict['team_home_id' if i == 0 else 'team_away_id'] = team
             home_team_name = team_name if i == 0 else home_team_name
             away_team_name = team_name if i != 0 else away_team_name

@@ -5,6 +5,7 @@ from src.download import validate_dir, open_or_download
 
 
 FIRST_SEASON = 1956
+LAST_SEASON = 2018
 BASE_URL = 'http://www.acb.com/'
 DATA_PATH = './data/'
 TEAMS_PATH = os.path.join(DATA_PATH, 'teams/')
@@ -57,10 +58,10 @@ class Season:
         teams_tag = '.resultados2'
         teams_info = teams_doc(teams_tag)('tr')('a')
 
-        teams_ids = dict()
+        teams_ids = []
         for team in teams_info.items():
             id = re.search(r'id=(.*)', team.attr('href')).group(1)
-            teams_ids[team.text().upper()] = id
+            teams_ids+=[id]
 
         return teams_ids
 

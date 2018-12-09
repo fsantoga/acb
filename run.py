@@ -32,11 +32,9 @@ def insert_games(season):
     Extract and insert the information regarding the games of a season.
     :param season: Season object.
     """
-    if season.season == 1994:  # the 1994 season doesn't have standing page.
-        TeamName.create_harcoded_teams()
 
     with db.atomic():
-        # Create the instances of Team.
+        # Create the instances of Team and TeamNames.
         Team.create_instances(season)
 
         # Regular season
@@ -81,9 +79,9 @@ def insert_games(season):
                                             round_phase=round_phase)
 
                 home_team_name = TeamName.get(
-                    (TeamName.team == game.team_home) & (TeamName.season == season.season)).name
+                    (TeamName.team_id == game.team_home) & (TeamName.season == season.season)).name
                 away_team_name = TeamName.get(
-                    (TeamName.team == game.team_away) & (TeamName.season == season.season)).name
+                    (TeamName.team_id == game.team_away) & (TeamName.season == season.season)).name
 
                 if (home_team_name or away_team_name) in relegation_teams:
                     game.competition_phase = 'relegation_playoff'
@@ -181,8 +179,8 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2015, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2015, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
     parser.add_argument("--chromedriverpath", action='store', dest="chrome_driver_path", default="/usr/bin/", type=str)
 
 

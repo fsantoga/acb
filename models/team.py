@@ -4,6 +4,7 @@ from peewee import ForeignKeyField
 from src.download import open_or_download
 from models.basemodel import BaseModel
 from peewee import (PrimaryKeyField, TextField, CharField, IntegerField)
+from src.season import BASE_URL, TEAMS_PATH, FIRST_SEASON, LAST_SEASON
 
 
 class Team(BaseModel):
@@ -17,7 +18,6 @@ class Team(BaseModel):
     acbid = CharField(max_length=3, unique=True, index=True)
     founded_year = IntegerField(null=True)
 
-
     def create_instances(season):
         """
         Create the database instances of the teams.
@@ -25,36 +25,24 @@ class Team(BaseModel):
         :return:
         """
         teams_ids = season.get_teams_ids()
-        teams_names = []
-        for name, acbid in teams_ids.items():
-            team = Team.get_or_create(**{'acbid': acbid})[0]
-            teams_names.append({'team': team, 'name': name, 'season': season.season})
-
-        TeamName.insert_many(teams_names).on_conflict('IGNORE').execute()
-
-
-    @staticmethod
-    def get_harcoded_teams():
-        """
-        Extract automatically the ids of the teams based on their names in a game. However, there are some cases
-        where the name of the team changes with respect to its official name. Hence, we cannot find an exact coincidence.
-
-        The first decision was to find the closest name in terms of distance similarity. For instance, if the official
-        name isFFFF 'F.C. BARCELONA' and the name in the match is 'FC BARCELONA' the probability of being the same team is
-        high. We track every dismatch observing if they are correct or not.
-
-        In case we find out a wrong match, we hardcode the actual correspondance. Example: The 'C.B CANARIAS' in 2013
-        had also the name 'IBEROSTAR TENERIFE'.
-
-        :return: list of harcoded teams
-        """
-        harcoded_teams = {
-            2013: {'CB CANARIAS': 'CAN'},
-            2012: {'CAJA LABORAL': 'BAS', 'B&AGRAVE;SQUET MANRESA': 'MAN', 'BÀSQUET MANRESA': 'MAN'},
-            2011: {'BIZKAIA BILBAO BASKET': 'BLB'},
-            2009: {'VALENCIA BASKET CLUB': 'PAM'}
-        }
-        return harcoded_teams
+        for acbid in teams_ids:
+            team, created = Team.get_or_create(**{'acbid': acbid})
+            """
+            Whenever we introduce a new Team in our database we will also store all its historical names in team names.
+            Note that we have a TeamName for a single team and season, as those may change due to the sponsors.  
+            However, the same teams always have the same acbid and we can link them.
+            """
+            if created:
+                teams_names = []
+                for s in range(1, LAST_SEASON - FIRST_SEASON + 2):
+                    filename = os.path.join(TEAMS_PATH, acbid + str(s) + '.html')
+                    url = os.path.join(BASE_URL, 'club.php?cod_competicion=LACB&cod_edicion={}&id={}'.format(s, acbid))
+                    content = open_or_download(file_path=filename, url=url)
+                    doc = pq(content)
+                    team_name_season = doc('#portadadertop').eq(0).text().upper()
+                    if team_name_season != '':
+                        teams_names.append({'team_id': team.id, 'name': str(team_name_season), 'season': FIRST_SEASON + s - 1})
+                TeamName.insert_many(teams_names).on_conflict('IGNORE').execute()
 
     @staticmethod
     def update_content(logging_level=logging.INFO):
@@ -113,8 +101,8 @@ class TeamName(BaseModel):
     The name of a team depends on the season. And even within a season can have several names.
     """
     id = PrimaryKeyField()
-    team = ForeignKeyField(Team, related_name='names', index=True)
-    name = TextField()
+    team_id = ForeignKeyField(Team, related_name='names', index=True)
+    name = CharField(max_length=255)
     season = IntegerField()
 
     class Meta:
@@ -134,16 +122,3 @@ class TeamName(BaseModel):
         team = Team.get(Team.acbid == acbid)
         TeamName.get_or_create(**{'name': team_name, 'team': team, 'season': season})
 
-    @staticmethod
-    def create_harcoded_teams():
-        """
-        The season 2004 doesn't provide a standing page to extract the ids of the teams. We have tried to reused
-        previous teams' name but there are a few that are not in the database.
-        :return:
-        """
-        TeamName.create_instance('BREOGÁN LUGO', 'BRE', 2004)
-        TeamName.create_instance('C. BALONCESTO MURCIA', 'MUR', 2004)
-        TeamName.create_instance('ESTUDIANTES CAJA POSTAL', 'EST', 2004)
-        TeamName.create_instance('COREN ORENSE', 'ORE', 2004)
-        TeamName.create_instance('SOMONTANO HUESCA', 'HUE', 2004)
-        TeamName.create_instance('7UP JOVENTUT', 'JOV', 2004)
