@@ -218,7 +218,7 @@ class Participant(BaseModel):
                         if number == 'Equipo': #¿Queremos que las stats de equipo en un partido se metan en paerticipantes????
                             break
                         elif number in stats[current_team]:  # preventing from errors with the number.
-                            wrong_pages_first = ['55313', '54017', '54026', '61072', '61076', '61107']  # if the good one is the first.
+                            wrong_pages_first = ['55313', '54017', '54026', '61072', '61076', '61107','62177']  # if the good one is the first.
                             wrong_pages_second = ['53154', '61218']  # if the good one is the second.
                             if game.acbid in wrong_pages_first:  # acb error... >:(
                                 pass
