@@ -146,11 +146,11 @@ def main(args):
         delete_records()
 
     first_season = args.first_season
-    last_season = args.last_season+1
+    last_season = args.last_season
     chrome_driver_path=args.chrome_driver_path
 
     if args.d:  # download the games.
-        for year in reversed(range(first_season, last_season)):
+        for year in reversed(range(first_season, last_season + 1)):
             if year < 2016:
                 season = Season(year)
                 download_games(season)
@@ -161,7 +161,7 @@ def main(args):
 
     if args.i:
         # Extract and insert the information in the database.
-        for year in reversed(range(first_season, last_season)):
+        for year in reversed(range(first_season, last_season + 1)):
             if year < 2016:
                 season = Season(year)
                 insert_games(season)
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
     parser.add_argument("--chromedriverpath", action='store', dest="chrome_driver_path", default="/usr/bin/", type=str)
 

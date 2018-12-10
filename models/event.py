@@ -156,17 +156,14 @@ class Event(BaseModel):
         logger = logging.getLogger(__name__)
         logger.info('Starting downloading...')
 
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        driver = webdriver.Chrome(executable_path=chrome_driver_path, chrome_options=options)
+
         for i, (fls_id, game_id) in enumerate(fibalivestats_ids.items()):
             filename = os.path.join(season.EVENTS_PATH, str(game_id) + ".html")
             eventURL="http://www.fibalivestats.com/u/ACBS/{}/pbp.html".format(fls_id)
             if not os.path.isfile(filename):
-                chrome_options = webdriver.ChromeOptions()
-                chrome_options.add_argument('--headless')
-                chrome_options.add_argument(
-                    '--no-sandbox')  # required when running as root user. otherwise you would get no sandbox errors.
-                driver = webdriver.Chrome(executable_path=chrome_driver_path+'chromedriver',
-                                          chrome_options=chrome_options,
-                                          service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
                 driver.get(eventURL)
                 html = driver.page_source
                 save_content(filename,html)

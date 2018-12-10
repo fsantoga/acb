@@ -29,8 +29,8 @@ class Team(BaseModel):
         for acbid in teams_ids:
             team, created = Team.get_or_create(**{'acbid': acbid})
             """
-            Whenever we introduce a new Team in our database we will also store all its historical names in team names.
-            Note that we have a TeamName for a single team and season, as those may change due to the sponsors.  
+            Whenever we introduce a new Team in our database we will also store all its historical names in teamnames.
+            Note that we have a teamname for a single team and season, as those may change due to the sponsors.  
             However, the same teams always have the same acbid and we can link them.
             """
             if created:
