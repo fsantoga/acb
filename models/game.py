@@ -15,7 +15,7 @@ class Game(BaseModel):
     A game only contains basic information about the game and the scores.
     """
     id = PrimaryKeyField()
-    acbid = TextField(unique=True, index=True)
+    game_id = TextField(unique=True, index=True)
     team_home = ForeignKeyField(Team, related_name='games_home', index=True, null=True)
     team_away = ForeignKeyField(Team, related_name='games_away', index=True, null=True)
     competition_phase = TextField(null=True)
@@ -100,7 +100,7 @@ class Game(BaseModel):
 
         This id can be used to access the concrete game within the link 'http://www.acb.com/fichas/LACBXXYYY.php'
         """
-        game_dict['acbid'] = str(season.season_id).zfill(2) + str(id_game_number).zfill(3)
+        game_dict['game_id'] = str(season.season_id).zfill(2) + str(id_game_number).zfill(3)
         game_dict['competition_phase'] = competition_phase
         game_dict['round_phase'] = round_phase
 
@@ -204,7 +204,7 @@ class Game(BaseModel):
                     pass
 
         try:
-            game = Game.get(Game.acbid == game_dict['acbid'])
+            game = Game.get(Game.game_id == game_dict['game_id'])
         except:
             game = Game.create(**game_dict)
         return game

@@ -115,9 +115,9 @@ extra_legend_dict = {
 
 class Event(BaseModel):
     id = PrimaryKeyField()
-    eventid = IntegerField()
-    gameid = IntegerField(index=True)
-    teamid = TextField(null=True)
+    event_id = IntegerField()
+    game_id = IntegerField(index=True)
+    team_id = TextField(null=True)
     legend = TextField(null=True)
     extra_info = TextField(null=True)
     elapsed_time = IntegerField(null=True)
@@ -213,9 +213,9 @@ class Event(BaseModel):
                     jersey = -1
 
                 elapsed_time = convert_time(time, period[1:])
-                actions[cont] = {"eventid": cont,
-                                 "gameid": game_id,
-                                 "teamid": team_id,
+                actions[cont] = {"event_id": cont,
+                                 "game_id": game_id,
+                                 "team_id": team_id,
                                  "legend": legend_dict[legend],
                                  "extra_info": extra_legend_dict.setdefault(legend, None),
                                  "elapsed_time": elapsed_time,
