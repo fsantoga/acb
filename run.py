@@ -1,7 +1,7 @@
 import argparse, os, re
 from models.basemodel import db, reset_database, delete_records, create_schema
 from models.game import Game
-from models.event import *
+from models.event import Event
 from models.team import TeamName, Team
 from models.actor import Actor
 from models.participant import Participant
@@ -119,7 +119,7 @@ def update_games():
 
 
 def insert_events(season):
-    year=season.season;
+    year=season.season
     if year >= 2016:
         for game_id_file in os.listdir(season.EVENTS_PATH):
             with open('./data/{}/events/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
@@ -179,8 +179,8 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
     parser.add_argument("--chromedriverpath", action='store', dest="chrome_driver_path", default="/usr/bin/", type=str)
 
 

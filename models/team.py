@@ -18,6 +18,7 @@ class Team(BaseModel):
     acbid = CharField(max_length=3, unique=True, index=True)
     founded_year = IntegerField(null=True)
 
+    @staticmethod
     def create_instances(season):
         """
         Create the database instances of the teams.
