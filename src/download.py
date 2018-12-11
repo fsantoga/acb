@@ -104,8 +104,9 @@ def sanity_check_events(driver_path,directory_name, logging_level=logging.INFO):
             filename=file.decode("utf-8")
             statinfo=os.stat(directory_name+filename)
 
-            #we assume that the event files with a size lower than 100kB need to be revised and download again.
+            #we assume that the event files with a size lower than 50kB need to be revised and download again.
             if statinfo.st_size <50000:
+                logger.info(filename+' was not properly downladed. Missing data.')
                 game_event_id = os.path.splitext(filename)[0]
                 event_id=game_event_id.split("-")[1]
                 eventURL = "http://www.fibalivestats.com/u/ACBS/{}/pbp.html".format(event_id)

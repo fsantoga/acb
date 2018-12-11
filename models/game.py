@@ -50,17 +50,18 @@ class Game(BaseModel):
         logging.basicConfig(level=logging_level)
         logger = logging.getLogger(__name__)
 
-        logger.info('Starting downloading...')
+        logger.info('Starting the download of games...')
         n_games = season.get_number_games()
-        for game_acbid in range(1, n_games + 1):
-            filename = os.path.join(season.GAMES_PATH, str(game_acbid) + '.html')
-            url = BASE_URL + "stspartido.php?cod_competicion=LACB&cod_edicion={}&partido={}".format(season.season_id,
-                                                                                                    game_acbid)
+        n_checkpoints = 4
+        checkpoints = [round(i*float(n_games)/n_checkpoints) for i in range(n_checkpoints+1)]
+        for i in range(1, n_games + 1):
+            filename = os.path.join(season.GAMES_PATH, str(i) + '.html')
+            url = BASE_URL + "stspartido.php?cod_competicion=LACB&cod_edicion={}&partido={}".format(season.season_id, i)
             open_or_download(file_path=filename, url=url)
-            if game_acbid % (round(n_games / 3)) == 0:
-                logger.info('{}% already downloaded'.format(round(float(game_acbid) / n_games * 100)))
+            if i in checkpoints:
+                logger.info('{}% already downloaded'.format(round(float(i*100) / n_games)))
 
-        logger.info('Downloading finished! (new {} games in {})'.format(n_games, season.GAMES_PATH))
+        logger.info('Download finished! (new {} games in {})'.format(n_games, season.GAMES_PATH))
 
     @staticmethod
     def sanity_check(season, logging_level=logging.INFO):

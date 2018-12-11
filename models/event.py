@@ -147,7 +147,7 @@ class Event(BaseModel):
         logging.basicConfig(level=logging_level)
         logger = logging.getLogger(__name__)
 
-        logger.info('Taking all games-events...')
+        logger.info('Taking all the ids for the events-games...')
 
         fibalivestats_ids = {}
         for i in range(from_journey, to_journey + 1):
@@ -158,28 +158,30 @@ class Event(BaseModel):
             game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
             fibalivestats_ids.update(dict(zip(fls_ids, game_ids)))
 
-        logging.basicConfig(level=logging.INFO)
-        logger = logging.getLogger(__name__)
-        logger.info('Starting downloading...')
+        logger.info('Starting the download of events...')
 
         driver = create_driver(driver_path)
-
+        n_checkpoints = 10
+        checkpoints = [int(i * float(len(fibalivestats_ids)) / n_checkpoints) for i in range(n_checkpoints + 1)]
         for i, (fls_id, game_id) in enumerate(fibalivestats_ids.items()):
             filename = os.path.join(season.EVENTS_PATH, str(game_id)+"-"+str(fls_id) + ".html")
             eventURL="http://www.fibalivestats.com/u/ACBS/{}/pbp.html".format(fls_id)
             if not os.path.isfile(filename):
-
-                driver.get(eventURL)
-                html = driver.page_source
-                time.sleep(1)
-                save_content(filename,html)
+                try:
+                    driver.get(eventURL)
+                    time.sleep(1)
+                    html = driver.page_source
+                    save_content(filename,html)
+                except Exception as e:
+                    logger.info(str(e) + ' when trying to retrieve ' + filename)
+                    pass
 
             # Debugging
-            if i % (round(len(fibalivestats_ids) / 3)) == 0:
-                logger.info('{}% already downloaded'.format(round(float(i) / len(fibalivestats_ids) * 100)))
+            if i-1 in checkpoints:
+                logger.info('{}% already downloaded'.format(round(float(i-1) / len(fibalivestats_ids) * 100)))
 
         driver.close()
-        logger.info('Downloading finished!)')
+        logger.info('Download finished!)')
 
     @staticmethod
     def sanity_check_events(driver_path,season, logging_level=logging.INFO):

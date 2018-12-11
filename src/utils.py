@@ -1,6 +1,5 @@
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-
+from selenium.webdriver.firefox.options import Options, FirefoxProfile
 
 def replace_nth_ocurrence(source, n, letter, new_value):
     """
@@ -38,10 +37,15 @@ def convert_time(time, period):
     return 60*minutes+seconds
 
 
-def create_driver(chrome_driver_path):
+def create_driver(driver_path):
     options = Options()
     options.headless = True
-    driver = webdriver.Firefox(options=options,
-                               executable_path=chrome_driver_path)
+    #fp = webdriver.FirefoxProfile()
+    #fp.set_preference("http.response.timeout", 30)
+    #fp.set_preference("dom.max_script_run_time", 30)
+    #driver = webdriver.Firefox(options=options, firefox_profile=fp, executable_path=chrome_driver_path)
+    driver = webdriver.Firefox(options=options, executable_path=driver_path)
+    driver.implicitly_wait(30)
+    driver.set_page_load_timeout(300)
 
     return driver
