@@ -1,3 +1,7 @@
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+
+
 def replace_nth_ocurrence(source, n, letter, new_value):
     """
     Replace the nth ocurrence from an array
@@ -10,6 +14,7 @@ def replace_nth_ocurrence(source, n, letter, new_value):
     source[ind] = new_value
     return source
 
+
 def fill_dict(array):
     """
     Fill a dictionary with default values.
@@ -21,6 +26,7 @@ def fill_dict(array):
         to_return[i] = None if i in none_list else 0
     return to_return
 
+
 def convert_time(time, period):
     try:
         period = int(period)
@@ -30,3 +36,12 @@ def convert_time(time, period):
     seconds = 60 - seconds if seconds != 0 else 0
     minutes = 10*(period-1) + 9 - minutes if seconds != 0 else 10*(period-1) + 10 - minutes # carry
     return 60*minutes+seconds
+
+
+def create_driver(chrome_driver_path):
+    options = Options()
+    options.headless = True
+    driver = webdriver.Firefox(options=options,
+                               executable_path=chrome_driver_path)
+
+    return driver

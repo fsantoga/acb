@@ -1,7 +1,7 @@
 import argparse, os, re
 from models.basemodel import db, reset_database, delete_records, create_schema
 from models.game import Game
-from models.event import Event
+from models.event import *
 from models.team import TeamName, Team
 from models.actor import Actor
 from models.participant import Participant
@@ -18,13 +18,13 @@ def download_games(season):
     Game.sanity_check(season)
 
 
-def download_events(season,chrome_driver_path):
+def download_events(season,driver_path):
     """
     Download locally the games of a certain season
     :param season: Season object.
     """
-    Event.save_events(season,chrome_driver_path)
-    Event.sanity_check(season)
+    Event.save_events(season,driver_path)
+    Event.sanity_check_events(driver_path,season)
 
 
 def insert_games(season):
@@ -32,9 +32,11 @@ def insert_games(season):
     Extract and insert the information regarding the games of a season.
     :param season: Season object.
     """
+    #if season.season == 1994:  # the 1994 season doesn't have standing page.
+    #    TeamName.create_harcoded_teams()
 
     with db.atomic():
-        # Create the instances of Team and TeamNames.
+        # Create the instances of Team.
         Team.create_instances(season)
 
         # Regular season
@@ -123,7 +125,8 @@ def insert_events(season):
     if year >= 2016:
         for game_id_file in os.listdir(season.EVENTS_PATH):
             with open('./data/{}/events/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
-                game_id = os.path.splitext(game_id_file)[0]
+                game_event_id = os.path.splitext(game_id_file)[0]
+                game_id=game_event_id.split("-")[0]
                 content = f.read()
                 doc = pyquery.PyQuery(content)
                 playbyplay = doc('#playbyplay')
@@ -138,6 +141,16 @@ def insert_events(season):
 
 
 def main(args):
+
+    first_season = args.first_season
+    last_season = args.last_season+1
+    driver_path=args.driver_path
+
+    if not driver_path:
+        print("ERROR: no --driverpath argument. Specify a driver path")
+        print("USAGE: --driverpath 'path/to/driver'")
+        exit(1)
+
     if args.r: #reset the database and create the schema.
         reset_database()
         create_schema()
@@ -145,23 +158,19 @@ def main(args):
     if args.c: #clean previous records from DB and set auto_increment=1
         delete_records()
 
-    first_season = args.first_season
-    last_season = args.last_season
-    chrome_driver_path=args.chrome_driver_path
-
     if args.d:  # download the games.
-        for year in reversed(range(first_season, last_season + 1)):
+        for year in reversed(range(first_season, last_season)):
             if year < 2016:
                 season = Season(year)
                 download_games(season)
             else:
                 season = Season(year)
                 download_games(season)
-                download_events(season,chrome_driver_path)
+                download_events(season,driver_path)
 
     if args.i:
         # Extract and insert the information in the database.
-        for year in reversed(range(first_season, last_season + 1)):
+        for year in reversed(range(first_season, last_season)):
             if year < 2016:
                 season = Season(year)
                 insert_games(season)
@@ -179,9 +188,8 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
-    parser.add_argument("--chromedriverpath", action='store', dest="chrome_driver_path", default="/usr/bin/", type=str)
-
+    parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())

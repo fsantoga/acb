@@ -24,8 +24,8 @@ class Season:
         self.season = season
         self.season_id = season - FIRST_SEASON + 1  # First season in 1956 noted as 1.
         self.SEASON_PATH = os.path.join(DATA_PATH, str(self.season))
-        self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games')
-        self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events')
+        self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games/')
+        self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events/')
 
         validate_dir(self.SEASON_PATH)
         validate_dir(self.GAMES_PATH)

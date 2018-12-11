@@ -1,10 +1,12 @@
 import os.path, re, datetime, difflib, logging
-from src.download import open_or_download, sanity_check, get_page,save_content
+from src.download import open_or_download, sanity_check, get_page,save_content,sanity_check_events
 from models.basemodel import BaseModel, db
-from src.utils import convert_time
+from src.utils import convert_time, create_driver
 from peewee import (PrimaryKeyField, TextField, IntegerField,
                     DateTimeField, ForeignKeyField, BooleanField)
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+import time
 
 
 legend_dict = {
@@ -127,10 +129,9 @@ class Event(BaseModel):
     away_score = IntegerField(null=True)
 
     @staticmethod
-    def save_events(season, chrome_driver_path, logging_level=logging.INFO):
+    def save_events(season, driver_path, logging_level=logging.INFO):
         """
         Method for saving locally the games of a season.
-
         :param season: int
         :param logging_level: logging object
         :return:
@@ -156,27 +157,28 @@ class Event(BaseModel):
         logger = logging.getLogger(__name__)
         logger.info('Starting downloading...')
 
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        driver = webdriver.Chrome(executable_path=chrome_driver_path, chrome_options=options)
+        driver = create_driver(driver_path)
 
         for i, (fls_id, game_id) in enumerate(fibalivestats_ids.items()):
-            filename = os.path.join(season.EVENTS_PATH, str(game_id) + ".html")
+            filename = os.path.join(season.EVENTS_PATH, str(game_id)+"-"+str(fls_id) + ".html")
             eventURL="http://www.fibalivestats.com/u/ACBS/{}/pbp.html".format(fls_id)
             if not os.path.isfile(filename):
+
                 driver.get(eventURL)
                 html = driver.page_source
+                time.sleep(1)
                 save_content(filename,html)
 
             # Debugging
             if i % (round(len(fibalivestats_ids) / 3)) == 0:
                 logger.info('{}% already downloaded'.format(round(float(i) / len(fibalivestats_ids) * 100)))
 
+        driver.close()
         logger.info('Downloading finished!)')
 
     @staticmethod
-    def sanity_check(season, logging_level=logging.INFO):
-        sanity_check(season.EVENTS_PATH, logging_level)
+    def sanity_check_events(driver_path,season, logging_level=logging.INFO):
+        sanity_check_events(driver_path,season.EVENTS_PATH, logging_level)
 
     @staticmethod
     def scrap_and_insert(game_id, playbyplay, team_code_1, team_code_2):
@@ -225,4 +227,3 @@ class Event(BaseModel):
         with db.atomic():
             for event in actions.values():
                 Event.create(**event)
-
