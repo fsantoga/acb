@@ -15,7 +15,7 @@ class Team(BaseModel):
     Because the name of a team can change between seasons (and even in a same season).
     """
     id = PrimaryKeyField()
-    acbid = CharField(max_length=3, unique=True, index=True)
+    team_acbid = CharField(max_length=3, unique=True, index=True)
     founded_year = IntegerField(null=True)
 
     @staticmethod
@@ -26,8 +26,8 @@ class Team(BaseModel):
         :return:
         """
         teams_ids = season.get_teams_ids()
-        for acbid in teams_ids:
-            team, created = Team.get_or_create(**{'acbid': acbid})
+        for team_acbid in teams_ids:
+            team, created = Team.get_or_create(**{'team_acbid': team_acbid})
             """
             Whenever we introduce a new Team in our database we will also store all its historical names in teamnames.
             Note that we have a teamname for a single team and season, as those may change due to the sponsors.  
@@ -36,8 +36,8 @@ class Team(BaseModel):
             if created:
                 teams_names = []
                 for s in range(1, LAST_SEASON - FIRST_SEASON + 2):
-                    filename = os.path.join(TEAMS_PATH, acbid + str(s) + '.html')
-                    url = os.path.join(BASE_URL, 'club.php?cod_competicion=LACB&cod_edicion={}&id={}'.format(s, acbid))
+                    filename = os.path.join(TEAMS_PATH, team_acbid + str(s) + '.html')
+                    url = os.path.join(BASE_URL, 'club.php?cod_competicion=LACB&cod_edicion={}&id={}'.format(s, team_acbid))
                     content = open_or_download(file_path=filename, url=url)
                     doc = pq(content)
                     team_name_season = doc('#portadadertop').eq(0).text().upper()
@@ -72,8 +72,8 @@ class Team(BaseModel):
         :return:
         """
         from src.season import BASE_URL, TEAMS_PATH
-        filename = os.path.join(TEAMS_PATH, self.acbid + '.html')
-        url = os.path.join(BASE_URL, 'club.php?cod_competicion=LACB&id={}'.format(self.acbid))
+        filename = os.path.join(TEAMS_PATH, self.team_acbid + '.html')
+        url = os.path.join(BASE_URL, 'club.php?cod_competicion=LACB&id={}'.format(self.team_acbid))
         content = open_or_download(file_path=filename, url=url)
         try:
             self.founded_year = self._get_founded_year(content)
@@ -112,7 +112,7 @@ class TeamName(BaseModel):
         )
 
     @staticmethod
-    def create_instance(team_name, acbid, season):
+    def create_instance(team_name, team_acbid, season):
         """
         Create an instance of a TeamName
 
@@ -120,6 +120,6 @@ class TeamName(BaseModel):
         :param acbid: String
         :param season: int
         """
-        team = Team.get(Team.acbid == acbid)
+        team = Team.get(Team.team_acbid == team_acbid)
         TeamName.get_or_create(**{'name': team_name, 'team': team, 'season': season})
 

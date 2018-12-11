@@ -6,6 +6,7 @@ from models.team import TeamName, Team
 from models.actor import Actor
 from models.participant import Participant
 from src.season import Season
+import platform
 import pyquery
 
 
@@ -144,12 +145,6 @@ def main(args):
 
     first_season = args.first_season
     last_season = args.last_season+1
-    driver_path=args.driver_path
-
-    if not driver_path:
-        print("ERROR: no --driverpath argument. Specify a driver path")
-        print("USAGE: --driverpath 'path/to/driver'")
-        exit(1)
 
     if args.r: #reset the database and create the schema.
         reset_database()
@@ -159,6 +154,20 @@ def main(args):
         delete_records()
 
     if args.d:  # download the games.
+        system = platform.system()
+        if system == "Linux":
+            driver_path = "./geckodriver"
+        elif system == "Windows":
+            driver_path = "./geckodriver.exe"
+        else:
+            driver_path = args.driver_path
+            if not driver_path:
+                print("ERROR: no --driverpath. Specify a driver path. If using a system different from Linux/Windows set driver path")
+                print("USAGE: --driverpath 'path/to/driver'")
+                exit(1)
+
+        print(driver_path)
+        print(system)
         for year in reversed(range(first_season, last_season)):
             if year < 2016:
                 season = Season(year)
@@ -188,7 +197,7 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=1995, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 

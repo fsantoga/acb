@@ -15,7 +15,7 @@ class Game(BaseModel):
     A game only contains basic information about the game and the scores.
     """
     id = PrimaryKeyField()
-    game_id = TextField(unique=True, index=True)
+    game_acbid = TextField(unique=True, index=True)
     team_home = ForeignKeyField(Team, related_name='games_home', index=True, null=True)
     team_away = ForeignKeyField(Team, related_name='games_away', index=True, null=True)
     competition_phase = TextField(null=True)
@@ -52,13 +52,13 @@ class Game(BaseModel):
 
         logger.info('Starting downloading...')
         n_games = season.get_number_games()
-        for game_id in range(1, n_games + 1):
-            filename = os.path.join(season.GAMES_PATH, str(game_id) + '.html')
+        for game_acbid in range(1, n_games + 1):
+            filename = os.path.join(season.GAMES_PATH, str(game_acbid) + '.html')
             url = BASE_URL + "stspartido.php?cod_competicion=LACB&cod_edicion={}&partido={}".format(season.season_id,
-                                                                                                    game_id)
+                                                                                                    game_acbid)
             open_or_download(file_path=filename, url=url)
-            if game_id % (round(n_games / 3)) == 0:
-                logger.info('{}% already downloaded'.format(round(float(game_id) / n_games * 100)))
+            if game_acbid % (round(n_games / 3)) == 0:
+                logger.info('{}% already downloaded'.format(round(float(game_acbid) / n_games * 100)))
 
         logger.info('Downloading finished! (new {} games in {})'.format(n_games, season.GAMES_PATH))
 
@@ -100,7 +100,7 @@ class Game(BaseModel):
 
         This id can be used to access the concrete game within the link 'http://www.acb.com/fichas/LACBXXYYY.php'
         """
-        game_dict['game_id'] = str(season.season_id).zfill(2) + str(id_game_number).zfill(3)
+        game_dict['game_acbid'] = str(season.season_id).zfill(2) + str(id_game_number).zfill(3)
         game_dict['competition_phase'] = competition_phase
         game_dict['round_phase'] = round_phase
 
@@ -131,8 +131,8 @@ class Game(BaseModel):
              - C.B. OURENSE instead of CB OURENSE
             """
             try:  ## In case the name of the team is exactly the same as one stated in our database for a season
-                team_acbid = TeamName.get(TeamName.name == team_name).team_id.acbid
-                team = Team.get(Team.acbid == team_acbid)
+                team_acbid = TeamName.get(TeamName.name == team_name).team_id.team_acbid
+                team = Team.get(Team.team_acbid == team_acbid)
 
             except TeamName.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
                 query = TeamName.select(TeamName.team_id, TeamName.name)
@@ -204,7 +204,7 @@ class Game(BaseModel):
                     pass
 
         try:
-            game = Game.get(Game.game_id == game_dict['game_id'])
+                    game = Game.get(Game.game_acbid == game_dict['game_acbid'])
         except:
             game = Game.create(**game_dict)
         return game
