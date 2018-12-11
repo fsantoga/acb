@@ -104,8 +104,8 @@ def sanity_check_events(driver_path,directory_name, logging_level=logging.INFO):
             filename=file.decode("utf-8")
             statinfo=os.stat(directory_name+filename)
 
-            #we assume that the event files with a size lower than 50kB need to be revised and download again.
-            if statinfo.st_size <50000:
+            #we assume that the event files with a size lower than 100kB need to be revised and download again.
+            if statinfo.st_size <100000:
                 logger.info(filename+' was not properly downladed. Missing data.')
                 game_event_id = os.path.splitext(filename)[0]
                 event_id=game_event_id.split("-")[1]
@@ -115,6 +115,18 @@ def sanity_check_events(driver_path,directory_name, logging_level=logging.INFO):
                 time.sleep(1)
                 save_content(directory_name+filename, html)
                 errors.append(filename)
+
+            statinfo2=os.stat(directory_name+filename)
+            if statinfo2.st_size < 250000:
+                logger.info('The game-event ' + filename +' data is not correct. Missing data. Deleting game-event...')
+                try:
+                    os.remove(directory_name+filename)
+                    logger.info('game-event ' + filename + ' deleted...')
+                    continue
+
+                except:
+                    logger.info('game-event ' + filename + ' cannot be deleted...')
+                    continue
 
     #recursive call to sanity_check to check if there are more errors with the html
     if errors:

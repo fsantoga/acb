@@ -82,9 +82,9 @@ def insert_games(season):
                                             round_phase=round_phase)
 
                 home_team_name = TeamName.get(
-                    (TeamName.team_id == game.team_home) & (TeamName.season == season.season)).name
+                    (TeamName.team_id == game.team_home_id) & (TeamName.season == season.season)).name
                 away_team_name = TeamName.get(
-                    (TeamName.team_id == game.team_away) & (TeamName.season == season.season)).name
+                    (TeamName.team_id == game.team_away_id) & (TeamName.season == season.season)).name
 
                 if (home_team_name or away_team_name) in relegation_teams:
                     game.competition_phase = 'relegation_playoff'
@@ -136,7 +136,7 @@ def insert_events(season):
                 try:
                     Event.scrap_and_insert(game_id, playbyplay, team_code_1, team_code_2)
                 except Exception as e:
-                    print (e)
+                    print(e,game_id_file)
     else:
         pass
 
@@ -169,7 +169,7 @@ def main(args):
                 print("USAGE: --driverpath 'path/to/driver'")
                 exit(-1)
 
-            logger.info('No driver specified, using the one by default...')
+            logger.info('No driver specified, using the system one by default ({})...'.format(driver_path))
 
         for year in reversed(range(first_season, last_season)):
             logger.info('Retrieving data for season '+str(year)+'...')
@@ -202,8 +202,8 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2018, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())

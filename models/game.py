@@ -16,8 +16,8 @@ class Game(BaseModel):
     """
     id = PrimaryKeyField()
     game_acbid = TextField(unique=True, index=True)
-    team_home = ForeignKeyField(Team, related_name='games_home', index=True, null=True)
-    team_away = ForeignKeyField(Team, related_name='games_away', index=True, null=True)
+    team_home_id = ForeignKeyField(Team, related_name='games_home', index=True, null=True)
+    team_away_id = ForeignKeyField(Team, related_name='games_away', index=True, null=True)
     competition_phase = TextField(null=True)
     round_phase = TextField(null=True)
     journey = IntegerField(null=True)
