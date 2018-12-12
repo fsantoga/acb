@@ -244,6 +244,7 @@ def main(args):
         Event.save_current_events(season, driver_path)
         Event.sanity_check_events(driver_path,season)
 
+        insert_teams(season)
         insert_games(season)
         insert_events(season)
 
