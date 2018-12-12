@@ -13,13 +13,13 @@ class Actor(BaseModel):
     An actor can be either a player or a coach.
     """
     id = PrimaryKeyField()
-    acbid = TextField(index=True)
+    actor_acbid = TextField(index=True)
     is_coach = BooleanField(null=True)
     display_name = TextField(index=True, null=True)
     full_name = TextField(null=True)
     nationality = TextField(null=True)
-    birthplace = TextField(null=True)
-    birthdate = DateTimeField(null=True)
+    birth_place = TextField(null=True)
+    birth_date = DateTimeField(null=True)
     position = TextField(null=True)
     height = DoubleField(null=True)
     weight = DoubleField(null=True)
@@ -43,8 +43,8 @@ class Actor(BaseModel):
             folder = COACHES_PATH if actor.is_coach else PLAYERS_PATH
             url_tag = 'entrenador' if actor.is_coach else 'jugador'
 
-            filename = os.path.join(folder, actor.acbid + '.html')
-            url = os.path.join(BASE_URL, '{}.php?id={}'.format(url_tag, actor.acbid))
+            filename = os.path.join(folder, actor.actor_acbid + '.html')
+            url = os.path.join(BASE_URL, '{}.php?id={}'.format(url_tag, actor.actor_acbid))
             open_or_download(file_path=filename, url=url)
 
             if cont % (round(len(actors) / 3)) == 0:
@@ -87,8 +87,8 @@ class Actor(BaseModel):
         folder = COACHES_PATH if self.is_coach else PLAYERS_PATH
         url_tag = 'entrenador' if self.is_coach else 'jugador'
 
-        filename = os.path.join(folder, self.acbid + '.html')
-        url = os.path.join(BASE_URL, '{}.php?id={}'.format(url_tag, self.acbid))
+        filename = os.path.join(folder, self.actor_acbid + '.html')
+        url = os.path.join(BASE_URL, '{}.php?id={}'.format(url_tag, self.actor_acbid))
         content = open_or_download(file_path=filename, url=url)
 
         personal_info = self._get_personal_info(content)
@@ -99,7 +99,7 @@ class Actor(BaseModel):
             pass
         else:
             try:
-                Actor.update(**personal_info).where(Actor.acbid == self.acbid).execute()
+                Actor.update(**personal_info).where(Actor.actor_acbid == self.actor_acbid).execute()
             except Exception as e:
                 print(e)
                 pass
@@ -122,8 +122,8 @@ class Actor(BaseModel):
             elif header[0].startswith("lugar y fecha"):
                 try:
                     place, day, month, year = re.search(r'(.*), ([0-9]+)/([0-9]+)/([0-9]+)', data[0]).groups()
-                    personal_info['birthplace'] = place.strip()
-                    personal_info['birthdate'] = datetime.datetime(year=int(year), month=int(month), day=int(day))
+                    personal_info['birth_place'] = place.strip()
+                    personal_info['birth_date'] = datetime.datetime(year=int(year), month=int(month), day=int(day))
                 except:
                     logging.error('The actor {} has an error in the birthdate and birthplace. Msg: {}'.format(personal_info['full_name'], data[0]))
                     return None

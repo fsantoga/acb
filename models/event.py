@@ -1,11 +1,8 @@
-import os.path, re, datetime, difflib, logging
-from src.download import open_or_download, sanity_check, get_page,save_content,sanity_check_events
+import os.path, re, logging
+from src.download import get_page,save_content,sanity_check_events
 from models.basemodel import BaseModel, db
 from src.utils import convert_time, create_driver
-from peewee import (PrimaryKeyField, TextField, IntegerField,
-                    DateTimeField, ForeignKeyField, BooleanField)
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
+from peewee import (PrimaryKeyField, TextField, IntegerField)
 import time
 
 
@@ -17,14 +14,18 @@ legend_dict = {
     'Pérdida en el manejo del balón': 'turnover',
     'Pérdida por campo atrás': 'turnover',
     'Pérdida por 3 segundos': 'turnover',
+    'Pérdida por 3seg.': 'turnover',
     'Pérdida por 5 segundos': 'turnover',
+    'Pérdida por 5seg.': 'turnover',
     'Pérdida por falta en ataque': 'turnover',
     'Pérdida por fuera de banda': 'turnover',
     'Pérdida por mal pase': 'turnover',
     'Pérdida por pasos': 'turnover',
     'Pérdida por interferencia en ataque': 'turnover',
     'Pérdida por 24 segundos': 'turnover',
+    'Pérdida por 24seg.': 'turnover',
     'Pérdida por 8 segundos': 'turnover',
+    'Pérdida por 8seg.': 'turnover',
     'Pérdida por dobles': 'turnover',
     'TIEMPO MUERTO': 'timeout',
     'TIEMPO MUERTO TV': 'timeout_tv',
@@ -63,6 +64,7 @@ legend_dict = {
     'Mate convertido': 'made2',
     '2PT tiro fallado': 'miss2',
     '2PT Alley oop convertido': 'made2',
+    '2PT Alley-oop convertido': 'made2',
     '3PT convertido': 'made3',
     '3PT fallado': 'miss3',
     'Salto ganado': 'tipoff_won',
@@ -70,7 +72,14 @@ legend_dict = {
     'COMIENZA EL PARTIDO': 'game_start',
     'PARTIDO FINALIZADO': 'game_end',
     'INICIO PERIODO': 'quarter_start',
+    'jumpball.unclearposs': 'jumpball_unclearposs',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT convertido': 'BASKETBALL_ACTION_3PT_JUMPSHOT_converted',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT_converted',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'BASKETBALL_ACTION_2PT_HOOKSHOT_converted',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'BASKETBALL_ACTION_3PT_JUMPSHOT_failed',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'BASKETBALL_ACTION_2PT_HOOKSHOT_failed',
     'PERIODO FINALIZADO': 'quarter_end',
+
 }
 
 extra_legend_dict = {
@@ -122,9 +131,9 @@ extra_legend_dict = {
 
 class Event(BaseModel):
     id = PrimaryKeyField()
-    event_id = IntegerField()
-    game_id = IntegerField(index=True)
-    team_id = TextField(null=True)
+    event_acbid = IntegerField(index=True)
+    game_acbid = IntegerField(index=True)
+    team_acbid = TextField(null=True)
     legend = TextField(null=True)
     extra_info = TextField(null=True)
     elapsed_time = IntegerField(null=True)
@@ -163,8 +172,8 @@ class Event(BaseModel):
         driver = create_driver(driver_path)
         n_checkpoints = 10
         checkpoints = [int(i * float(len(fibalivestats_ids)) / n_checkpoints) for i in range(n_checkpoints + 1)]
-        for i, (fls_id, game_id) in enumerate(fibalivestats_ids.items()):
-            filename = os.path.join(season.EVENTS_PATH, str(game_id)+"-"+str(fls_id) + ".html")
+        for i, (fls_id, game_acbid) in enumerate(fibalivestats_ids.items()):
+            filename = os.path.join(season.EVENTS_PATH, str(game_acbid)+"-"+str(fls_id) + ".html")
             eventURL="http://www.fibalivestats.com/u/ACBS/{}/pbp.html".format(fls_id)
             if not os.path.isfile(filename):
                 try:
@@ -188,7 +197,7 @@ class Event(BaseModel):
         sanity_check_events(driver_path,season.EVENTS_PATH, logging_level)
 
     @staticmethod
-    def scrap_and_insert(game_id, playbyplay, team_code_1, team_code_2):
+    def scrap_and_insert(game_acbid, playbyplay, team_code_1, team_code_2):
         periods = set()
         actions = {}
         cont = 1
@@ -197,7 +206,7 @@ class Event(BaseModel):
             if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
 
                 tag = elem.attr['class']
-                team_id = team_code_1 if "pbpt1" in tag else team_code_2 if "pbpt2" in tag else None
+                team_acbid = team_code_1 if "pbpt1" in tag else team_code_2 if "pbpt2" in tag else None
 
                 try:
                     legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
@@ -219,9 +228,9 @@ class Event(BaseModel):
                     jersey = -1
 
                 elapsed_time = convert_time(time, period[1:])
-                actions[cont] = {"event_id": cont,
-                                 "game_id": game_id,
-                                 "team_id": team_id,
+                actions[cont] = {"event_acbid": cont,
+                                 "game_acbid": game_acbid,
+                                 "team_acbid": team_acbid,
                                  "legend": legend_dict[legend],
                                  "extra_info": extra_legend_dict.setdefault(legend, None),
                                  "elapsed_time": elapsed_time,

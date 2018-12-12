@@ -1,4 +1,4 @@
-import os, re
+import os, re, logging
 import numpy as np
 from pyquery import PyQuery as pq
 from src.download import validate_dir, open_or_download
@@ -18,6 +18,8 @@ validate_dir(ACTORS_PATH)
 validate_dir(PLAYERS_PATH)
 validate_dir(COACHES_PATH)
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Season:
     def __init__(self, season):
@@ -82,9 +84,26 @@ class Season:
             content = open_or_download(file_path=filename, url=url)
 
             playoff_format = list()
-            playoff_format.append(self.get_playoff_round_format(content, "#columnacuartos"))
-            playoff_format.append(self.get_playoff_round_format(content, "#columnasemi"))
-            playoff_format.append(self.get_playoff_round_format(content, "#columnafinal"))
+            try:
+                playoff_format.append(self.get_playoff_round_format(content, "#columnacuartos"))
+            except Exception as e:
+                logger.info('Aun no se han jugado los cuartos...')
+                #print(e)
+                pass
+
+            try:
+                playoff_format.append(self.get_playoff_round_format(content, "#columnasemi"))
+            except Exception as e:
+                logger.info('Aun no se han jugado las semis...')
+                #print(e)
+                pass
+            try:
+                playoff_format.append(self.get_playoff_round_format(content, "#columnafinal"))
+            except Exception as e:
+                logger.info('Aun no se han jugado la final...')
+                #print(e)
+                pass
+
             return playoff_format
 
     def get_number_games_regular_season(self):
@@ -92,7 +111,12 @@ class Season:
 
     def get_number_games_playoff(self):
         games_per_round = [4, 2, 1]  # Quarter-finals, semifinals, final.
-        return sum(np.array(self.playoff_format) * np.array(games_per_round))  # Element-wise multiplication.
+        try:
+            return sum(np.array(self.playoff_format) * np.array(games_per_round))  # Element-wise multiplication.
+        except Exception as e:
+            logger.info('No se ha jugadon ningun partido de playoff...')
+            #print(e)
+            return 0
 
     def get_number_games(self):
         return self.get_number_games_regular_season() + self.get_number_games_playoff() + self.get_number_games_relegation_playoff()

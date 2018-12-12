@@ -61,7 +61,7 @@ class Participant(BaseModel):
         Participant._create_referees(raw_game, game)
 
     @staticmethod
-    def _fix_acbid(actor_name, acbid):
+    def _fix_acbid(actor_name, actor_acbid):
         """
         Modify the acbid of an actor.
 
@@ -69,7 +69,7 @@ class Participant(BaseModel):
         :param acbid: String
         """
         actor = Actor.get(Actor.display_name == actor_name)
-        actor.acbid = acbid
+        actor.actor_acbid = actor_acbid
         actor.save()
 
     @staticmethod
@@ -83,10 +83,10 @@ class Participant(BaseModel):
         :param wrong_acbid: String
         :return:
         """
-        actor = Actor.get((Actor.display_name == actor_name) & (Actor.acbid == actual_acbid))
+        actor = Actor.get((Actor.display_name == actor_name) & (Actor.actor_acbid == actual_acbid))
 
         try:
-            wrong_actor = Actor.get((Actor.display_name == actor_name) & (Actor.acbid == wrong_acbid))
+            wrong_actor = Actor.get((Actor.display_name == actor_name) & (Actor.actor_acbid == wrong_acbid))
 
             for participation in wrong_actor.participations:
                 participation.actor = actor
@@ -205,8 +205,15 @@ class Participant(BaseModel):
                             continue
                         elif score_flag == 2:
                             score_flag += 1
-                            game.score_home = int(td.text()) if current_team == 0 else game.score_home
-                            game.score_away = int(td.text()) if current_team == 1 else game.score_away
+                            try:
+                                game.score_home = int(td.text()) if current_team == 0 else game.score_home
+                            except Exception as e:
+                                print(e)
+                            try:
+                                game.score_away = int(td.text()) if current_team == 1 else game.score_away
+                            except Exception as e:
+                                print(e)
+                                pass
                             game.save()
                             continue
                         else:
@@ -232,7 +239,7 @@ class Participant(BaseModel):
                             stats[current_team][number] = fill_dict(header_to_db.values())
                             stats[current_team][number]['is_starter'] = 1 if td('.gristit') else 0
                             stats[current_team][number]['game'] = game
-                            stats[current_team][number]['team'] = game.team_home if current_team == 0 else game.team_away
+                            stats[current_team][number]['team'] = game.team_home_id if current_team == 0 else game.team_away_id
 
                     elif cont == 1 and td('a'):  # second cell player id
                         href_attribute = td('a').attr('href').split("=")  # the acb id is in the href attribute.
@@ -258,13 +265,29 @@ class Participant(BaseModel):
 
                     elif '/' in td.text():  # T1, T2 or T3 in format success/attempts.
                         success, attempts = td.text().split("/")
-                        stats[current_team][number][header_to_db[header[cont]]] = int(success)
-                        stats[current_team][number][header_to_db[header[cont]] + "_attempt"] = int(attempts)
+                        try:
+                            stats[current_team][number][header_to_db[header[cont]]] = int(success)
+                        except Exception as e:
+                            print(e)
+                            pass
+                        try:
+                            stats[current_team][number][header_to_db[header[cont]] + "_attempt"] = int(attempts)
+                        except Exception as e:
+                            print(e)
+                            pass
 
                     elif '+' in td.text():  # defensive and offensive rebounds in format D+O
                         defensive, offensive = td.text().split("+")
-                        stats[current_team][number]["defensive_reb"] = int(defensive)
-                        stats[current_team][number]["offensive_reb"] = int(offensive)
+                        try:
+                            stats[current_team][number]["defensive_reb"] = int(defensive)
+                        except Exception as e:
+                            print(e)
+                            pass
+                        try:
+                            stats[current_team][number]["offensive_reb"] = int(offensive)
+                        except Exception as e:
+                            print(e)
+                            pass
 
                     elif ':' in td.text():  # minutes in format minutes:seconds
                         minutes, seconds = td.text().split(":")
@@ -291,7 +314,7 @@ class Participant(BaseModel):
         for team, team_dict in stats.items():
             for player, player_stats in team_dict.items():
                 try:
-                    actor = Actor.get_or_create(acbid=stats[team][player]['id'])
+                    actor = Actor.get_or_create(actor_acbid=stats[team][player]['id'])
                     if actor[1]:
                         actor[0].display_name = stats[team][player]['display_name']
                         actor[0].is_coach = stats[team][player]['is_coach']
