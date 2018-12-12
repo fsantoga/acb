@@ -67,7 +67,7 @@ CREATE TABLE actor (
     actor_acbid VARCHAR(255) NOT NULL,  -- ACB player / coach ID.
     is_coach BOOLEAN DEFAULT null,
     display_name VARCHAR(255) DEFAULT null,
-    full_name VARCHAR(255) DEFAULT null,
+    full_name VARCHAR(255) CHARACTER SET utf8mb4,
     nationality VARCHAR(255) DEFAULT null,
     birth_place VARCHAR(255) DEFAULT null,
     birth_date DATETIME DEFAULT null,  -- Date of birth. In number of seconds since UNIX epoch, UTC timezone.
