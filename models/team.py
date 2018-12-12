@@ -3,7 +3,7 @@ from pyquery import PyQuery as pq
 from peewee import ForeignKeyField
 from src.download import open_or_download
 from models.basemodel import BaseModel
-from peewee import (PrimaryKeyField, TextField, CharField, IntegerField)
+from peewee import (PrimaryKeyField, CharField, IntegerField)
 from src.season import BASE_URL, TEAMS_PATH, FIRST_SEASON, LAST_SEASON
 
 
@@ -22,19 +22,18 @@ class Team(BaseModel):
     def create_instances(season):
         """
         Create the database instances of the teams.
+        Whenever we introduce a new Team in our database we will also store all its historical names in teamnames.
+        Note that we have a teamname for a single team and season, as those may change due to the sponsors.
+        However, the same teams always have the same acbid so we can link them.
+        Besides we will add the founded year.
         :param season: int
         :return:
         """
         teams_ids = season.get_teams_ids()
         for team_acbid in teams_ids:
             team, created = Team.get_or_create(**{'team_acbid': team_acbid})
-            """
-            Whenever we introduce a new Team in our database we will also store all its historical names in teamnames.
-            Note that we have a teamname for a single team and season, as those may change due to the sponsors.  
-            However, the same teams always have the same acbid and we can link them.
-            """
-            if created:
-                teams_names = []
+            if created:  # If the team was not in our database before
+                teams_names = []  # Look for all historical team names and save them
                 for s in range(1, LAST_SEASON - FIRST_SEASON + 2):
                     filename = os.path.join(TEAMS_PATH, team_acbid + str(s) + '.html')
                     url = os.path.join(BASE_URL, 'club.php?cod_competicion=LACB&cod_edicion={}&id={}'.format(s, team_acbid))
@@ -44,56 +43,10 @@ class Team(BaseModel):
                     if team_name_season != '':
                         teams_names.append({'team_id': team.id, 'name': str(team_name_season), 'season': FIRST_SEASON + s - 1})
                 TeamName.insert_many(teams_names).on_conflict('IGNORE').execute()
-
-    @staticmethod
-    def update_content(logging_level=logging.INFO):
-        """
-        First we insert the instances in the database with basic information and later we update the rest of fields.
-        We update the information of the teams that have not been filled yet in the database.
-        """
-        logging.basicConfig(level=logging_level)
-        logger = logging.getLogger(__name__)
-
-        logger.info('Starting to update the teams that have not been filled yet...')
-        teams = Team.select().where(Team.founded_year >> None)
-        for cont, team in enumerate(teams):
-            team._update_content()
-            try:
-                if len(teams) and cont % (round(len(teams) / 3)) == 0:
-                    logger.info('{}% already updated'.format(round(float(cont) / len(teams) * 100)))
-            except ZeroDivisionError:
-                pass
-
-        logger.info('Update finished! ({} teams)\n'.format(len(teams)))
-
-    def _update_content(self):
-        """
-        First we insert the instances in the database with basic information and later we update the rest of fields.
-        :return:
-        """
-        from src.season import BASE_URL, TEAMS_PATH
-        filename = os.path.join(TEAMS_PATH, self.team_acbid + '.html')
-        url = os.path.join(BASE_URL, 'club.php?cod_competicion=LACB&id={}'.format(self.team_acbid))
-        content = open_or_download(file_path=filename, url=url)
-        try:
-            self.founded_year = self._get_founded_year(content)
-            self.save()
-        except ValueError:
-            pass
-
-    def _get_founded_year(self, raw_team):
-        """
-        Extract the founded year of a team.
-        :param raw_team: String
-        :return: founded year
-        """
-        doc = pq(raw_team)
-
-        if doc('.titulojug').eq(0).text().startswith('Año de fundac'):
-            return int(doc('.datojug').eq(0).text())
-        else:
-            raise Exception('The first field is not the founded year.')
-
+                # Add the year of foundation (from last url content)
+                if doc('.titulojug').eq(0).text().startswith('Año de fundac'):
+                    team.founded_year = int(doc('.datojug').eq(0).text())
+                    team.save()
 
 class TeamName(BaseModel):
     """

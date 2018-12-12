@@ -115,7 +115,7 @@ class Season:
         try:
             return sum(np.array(self.playoff_format) * np.array(games_per_round))  # Element-wise multiplication.
         except Exception as e:
-            logger.info('No se ha jugadon ningun partido de playoff...')
+            logger.info('No se ha jugado ningun partido de playoff...')
             #print(e)
             return 0
 

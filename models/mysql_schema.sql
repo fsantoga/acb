@@ -51,6 +51,10 @@ CREATE TABLE game (
     score_home_extra INTEGER,
     score_away_extra INTEGER,
 
+    referee_1 VARCHAR(255) DEFAULT null,
+    referee_2 VARCHAR(255) DEFAULT null,
+    referee_3 VARCHAR(255) DEFAULT null,
+
     FOREIGN KEY (team_home_id) REFERENCES team(id),
     FOREIGN KEY (team_away_id) REFERENCES team(id),
 
@@ -97,8 +101,6 @@ CREATE TABLE participant (
     number INTEGER DEFAULT null,
     -- True if the actor is the coach.
     is_coach BOOLEAN DEFAULT null,
-    -- True if the actor is a referee.
-    is_referee BOOLEAN DEFAULT null,
     -- True if the player starts the game.
     is_starter BOOLEAN DEFAULT null,
 

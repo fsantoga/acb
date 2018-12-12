@@ -4,8 +4,7 @@ from src.download import open_or_download, sanity_check, sanity_check_game
 from src.season import BASE_URL
 from models.basemodel import BaseModel
 from models.team import Team, TeamName
-from peewee import (PrimaryKeyField, TextField, IntegerField,
-                    DateTimeField, ForeignKeyField, BooleanField)
+from peewee import (PrimaryKeyField, IntegerField, DateTimeField, ForeignKeyField, BooleanField, CharField)
 
 
 class Game(BaseModel):
@@ -15,13 +14,13 @@ class Game(BaseModel):
     A game only contains basic information about the game and the scores.
     """
     id = PrimaryKeyField()
-    game_acbid = TextField(unique=True, index=True)
+    game_acbid = IntegerField(unique=True, index=True)
     team_home_id = ForeignKeyField(Team, related_name='games_home', index=True, null=True)
     team_away_id = ForeignKeyField(Team, related_name='games_away', index=True, null=True)
-    competition_phase = TextField(null=True)
-    round_phase = TextField(null=True)
+    competition_phase = CharField(max_length=255, null=True)
+    round_phase = CharField(max_length=255, null=True)
     journey = IntegerField(null=True)
-    venue = TextField(null=True)
+    venue = CharField(max_length=255, null=True)
     attendance = IntegerField(null=True)
     kickoff_time = DateTimeField(index=True)
     score_home = IntegerField(null=True)
@@ -36,6 +35,9 @@ class Game(BaseModel):
     score_away_fourth = IntegerField(null=True)
     score_home_extra = IntegerField(null=True)
     score_away_extra = IntegerField(null=True)
+    referee_1 = CharField(max_length=255, null=True)
+    referee_2 = CharField(max_length=255, null=True)
+    referee_3 = CharField(max_length=255, null=True)
     db_flag = BooleanField(null=True)
 
     @staticmethod
@@ -116,8 +118,7 @@ class Game(BaseModel):
         There are two different statistics table in acb.com.
         I assume they created the new one to introduce the +/- stat.
         """
-        estadisticas_tag = '.estadisticasnew' if re.search(r'<table class="estadisticasnew"',
-                                                           raw_game) else '.estadisticas'
+        estadisticas_tag = '.estadisticasnew' if re.search(r'<table class="estadisticasnew"', raw_game) else '.estadisticas'
 
         doc = pq(raw_game)
         game_dict = dict()
@@ -232,8 +233,18 @@ class Game(BaseModel):
                 except ValueError:
                     pass
 
+        referees_data = info_game_data('.estnaranja')('td').eq(0).text()
+        if referees_data:
+            referees = referees_data.split(":")[1].strip().split(",")
+            referees = list(filter(None, referees))
+            referees = list(map(lambda x: x.strip(), referees))
+            n_ref = 1
+            for referee in referees:
+                game_dict['referee_'+str(n_ref)] = referee
+                n_ref+=1
+
         try:
-                    game = Game.get(Game.game_acbid == game_dict['game_acbid'])
+            game = Game.get(Game.game_acbid == game_dict['game_acbid'])
         except:
             game = Game.create(**game_dict)
         return game
