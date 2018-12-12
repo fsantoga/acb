@@ -1,7 +1,7 @@
 import os, re, logging
 import numpy as np
 from pyquery import PyQuery as pq
-from src.download import validate_dir, open_or_download
+from src.download import validate_dir, open_or_download,download
 
 
 FIRST_SEASON = 1956
@@ -33,12 +33,13 @@ class Season:
         validate_dir(self.GAMES_PATH)
         validate_dir(self.EVENTS_PATH)
 
-
+        self.current_journey=self.get_current_journey(season)
         self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
         self.missing_playoff_format = [1994, 1995]
         self.num_teams = self.get_number_teams()
         self.playoff_format = self.get_playoff_format()
         self.mismatched_teams = []
+
 
     def save_teams(self):
         filename = os.path.join(self.SEASON_PATH, 'teams' + '.html')
@@ -137,3 +138,12 @@ class Season:
                 relegation_teams.append(doc('.negro').eq(team_id).text().upper())
 
             return relegation_teams
+
+    def get_current_journey(self,season):
+        filename = os.path.join(self.SEASON_PATH, 'next_journeys_calendar.html')
+        url = BASE_URL + "resulcla.php"
+        content = download(file_path=filename, url=url)
+        doc = pq(content)
+        prox_journey=doc('.estnegro')('td').eq(1).text()
+        current_journey=(re.findall('\d+', prox_journey ))
+        return int(current_journey[0])

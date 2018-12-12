@@ -8,6 +8,8 @@ from models.participant import Participant
 from src.season import Season
 import platform
 import pyquery
+import datetime
+from src.utils import get_driver_path, get_current_season
 
 
 def download_games(season):
@@ -143,15 +145,16 @@ def insert_events(season):
     if year >= 2016:
         for game_id_file in os.listdir(season.EVENTS_PATH):
             with open('./data/{}/events/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
-                game_event_id = os.path.splitext(game_id_file)[0]
-                game_id=game_event_id.split("-")[0]
+                game_event_acbid = os.path.splitext(game_id_file)[0]
+                game_acbid=game_event_acbid.split("-")[0]
+                event_acbid = game_event_acbid.split("-")[1]
                 content = f.read()
                 doc = pyquery.PyQuery(content)
                 playbyplay = doc('#playbyplay')
                 team_code_1 = doc('.id_aj_1_code').text()
                 team_code_2 = doc('.id_aj_2_code').text()
                 try:
-                    Event.scrap_and_insert(game_id, playbyplay, team_code_1, team_code_2)
+                    Event.scrap_and_insert(event_acbid,game_acbid, playbyplay, team_code_1, team_code_2)
                 except Exception as e:
                     print(e,game_id_file)
     else:
@@ -162,9 +165,16 @@ def main(args):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
+    current_season=get_current_season()
 
     first_season = args.first_season
     last_season = args.last_season+1
+
+    if args.u:
+        if args.first_season == current_season or args.last_season == current_season:
+            print("ERROR: first season or last season can't be equal to the current season {} if using argument -u".format(current_season))
+            print("USAGE: use -u option to download and insert data for the current season")
+            exit(-1)
 
     if args.r: #reset the database and create the schema.
         reset_database()
@@ -173,20 +183,12 @@ def main(args):
     if args.c: #clean previous records from DB and set auto_increment=1
         delete_records()
 
-    if args.d:  # download the games.
-        system = platform.system()
-        driver_path = args.driver_path
-        if not driver_path:
-            if system == "Linux":
-                driver_path = "./geckodriver_linux"
-            elif system == "Windows":
-                driver_path = "./geckodriver_windows"
-            else:
-                print("ERROR: no --driverpath. When using a system different from Linux/Windows a driver path must be set")
-                print("USAGE: --driverpath 'path/to/driver'")
-                exit(-1)
+    if args.d:  # download the games and events.
 
-            logger.info('No driver specified, using the system one by default ({})...'.format(driver_path))
+        driver_path = args.driver_path
+
+        if not driver_path:
+            driver_path = get_driver_path(driver_path)
 
         for year in reversed(range(first_season, last_season)):
             logger.info('Retrieving data for season '+str(year)+'...')
@@ -213,6 +215,26 @@ def main(args):
         # Update missing info about actors, teams and participants.
         update_games()
 
+    if args.u:
+
+        current_season=get_current_season()
+
+        driver_path = args.driver_path
+
+        if not driver_path:
+            driver_path = get_driver_path(driver_path)
+
+        season = Season(current_season)
+
+        Game.save_current_games(season)
+        Game.sanity_check(season)
+
+        Event.save_current_events(season, driver_path)
+        Event.sanity_check_events(driver_path,season)
+
+        insert_games(season)
+        insert_events(season)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-r", action='store_true', default=False)
@@ -220,8 +242,8 @@ if __name__ == "__main__":
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
     parser.add_argument("-u", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2015, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2010, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())

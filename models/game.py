@@ -63,6 +63,34 @@ class Game(BaseModel):
 
         logger.info('Download finished! (new {} games in {})'.format(n_games, season.GAMES_PATH))
 
+
+    @staticmethod
+    def save_current_games(season, logging_level=logging.INFO):
+        """
+        Method for saving locally the games of a season.
+
+        :param season: int
+        :param logging_level: logging object
+        :return:
+        """
+        logging.basicConfig(level=logging_level)
+        logger = logging.getLogger(__name__)
+
+        logger.info('Starting the download of games...')
+        current_journey=season.get_current_journey(season)
+        number_teams=season.get_number_teams()
+        n_games = int((current_journey*number_teams)/2)
+        n_checkpoints = 4
+        checkpoints = [round(i*float(n_games)/n_checkpoints) for i in range(n_checkpoints+1)]
+        for i in range(1, n_games + 1):
+            filename = os.path.join(season.GAMES_PATH, str(i) + '.html')
+            url = BASE_URL + "stspartido.php?cod_competicion=LACB&cod_edicion={}&partido={}".format(season.season_id, i)
+            open_or_download(file_path=filename, url=url)
+            if i in checkpoints:
+                logger.info('{}% already downloaded'.format(round(float(i*100) / n_games)))
+
+        logger.info('Download finished! (new {} games in {})'.format(n_games, season.GAMES_PATH))
+
     @staticmethod
     def sanity_check(season, logging_level=logging.INFO):
         sanity_check_game(season.GAMES_PATH, logging_level)

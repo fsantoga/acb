@@ -1,5 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options, FirefoxProfile
+import platform
+import logging
+import datetime
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def replace_nth_ocurrence(source, n, letter, new_value):
     """
@@ -49,3 +56,34 @@ def create_driver(driver_path):
     driver.set_page_load_timeout(300)
 
     return driver
+
+
+def get_driver_path(driver_path):
+    system = platform.system()
+    if not driver_path:
+        if system == "Linux":
+            driver_path = "./geckodriver_linux"
+        elif system == "Windows":
+            driver_path = "./geckodriver_windows"
+        else:
+            print("ERROR: no --driverpath. When using a system different from Linux/Windows a driver path must be set")
+            print("USAGE: --driverpath 'path/to/driver'")
+            exit(-1)
+
+        logger.info('No driver specified, using the system one by default ({})...'.format(driver_path))
+    return driver_path
+
+
+def get_current_season():
+    now = datetime.datetime.now()
+    current_year = now.year
+    next_year = current_year + 1
+    first_day_current_season = datetime.datetime(current_year, 9, 1)
+    last_day_current_season = datetime.datetime(next_year, 8, 1)
+
+    if first_day_current_season < now < last_day_current_season:
+        current_season = now.year
+    else:
+        current_season = now.year + 1
+
+    return current_season

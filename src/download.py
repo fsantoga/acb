@@ -24,6 +24,7 @@ def save_content(file_path, content):
     """
     with open(file_path, 'w', encoding="utf-8") as file:
         file.write(content)
+        file.close()
         return content
 
 
@@ -42,6 +43,22 @@ def open_or_download(file_path, url):
         html_file = get_page(url)
         return save_content(file_path, html_file)
 
+
+def download(file_path, url):
+    """
+    Open or download a file.
+
+    :param file_path: String
+    :param url: String
+    :return: content of the file.
+    """
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+        html_file = get_page(url)
+        return save_content(file_path, html_file)
+    else:
+        html_file = get_page(url)
+        return save_content(file_path, html_file)
 
 def validate_dir(folder):
     """
@@ -101,6 +118,7 @@ def sanity_check_game(directory_name, logging_level=logging.INFO):
 
             filename=file.decode("utf-8")
             statinfo2=os.stat(directory_name+filename)
+            f.close()
             if statinfo2.st_size < 20000:
                 logger.info('The game ' + filename +' data is not correct. Missing data. Deleting game-event...')
                 try:
@@ -154,6 +172,7 @@ def sanity_check_events(driver_path,directory_name, logging_level=logging.INFO):
                 errors.append(filename)
 
             statinfo2=os.stat(directory_name+filename)
+            f.close()
             if statinfo2.st_size < 250000:
                 logger.info('The game-event ' + filename +' data is not correct. Missing data. Deleting game-event...')
                 try:
