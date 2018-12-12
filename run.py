@@ -36,9 +36,9 @@ def insert_teams(season):
 
     with db.atomic():
         # Create the instances of Team and TeamName.
-        logger.info('Retrieving new teams and their historical names.')
+        logger.info('Retrieving new teams and their historical names.\n')
         Team.create_instances(season)
-        logger.info('All teams for the season are now in the database.')
+        logger.info('All teams for the season are now in the database.\n')
 
 
 def insert_games(season):
@@ -54,7 +54,7 @@ def insert_games(season):
 
     with db.atomic():
         # Games iformation
-        logger.info('Retrieving all data from games and store it.')
+        logger.info('Retrieving all data from games and store it.\n')
 
         # Regular season
         competition_phase = 'regular'
@@ -68,7 +68,8 @@ def insert_games(season):
                                                 competition_phase=competition_phase,
                                                 round_phase=round_phase)
                     Participant.create_instances(raw_game=raw_game, game=game)
-            except:
+            except Exception as e:
+                #print(e)
                 logger.info("Game {} could not be inserted as it didn't exist or had some errors...".format(id_game_number))
 
         # Playoff
@@ -151,7 +152,13 @@ def update_games():
 
 
 def insert_events(season):
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
     year=season.season
+
+    logger.info('Retrieving all data from events and store it.\n')
+
     if year >= 2016:
         for game_id_file in os.listdir(season.EVENTS_PATH):
             with open('./data/{}/events/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
@@ -164,7 +171,11 @@ def insert_events(season):
                 team_code_1 = doc('.id_aj_1_code').text()
                 team_code_2 = doc('.id_aj_2_code').text()
                 try:
-                    Event.scrap_and_insert(event_acbid,game_acbid, playbyplay, team_code_1, team_code_2)
+                    query = Event.select().where(Event.event_acbid == event_acbid)
+                    if not query:
+                        Event.scrap_and_insert(event_acbid,game_acbid, playbyplay, team_code_1, team_code_2)
+                    else:
+                        continue
                 except Exception as e:
                     print(e,game_id_file)
     else:
@@ -201,7 +212,7 @@ def main(args):
             driver_path = get_driver_path(driver_path)
 
         for year in reversed(range(first_season, last_season)):
-            logger.info('Retrieving data for season '+str(year)+'...')
+            logger.info('Retrieving data for season '+str(year)+'...\n')
             if year < 2016:
                 season = Season(year)
                 download_games(season)
@@ -213,7 +224,7 @@ def main(args):
     if args.i:
         # Extract and insert the information in the database.
         for year in reversed(range(first_season, last_season)):
-            logger.info('Inserting data into database for season '+str(year)+'...')
+            logger.info('Inserting data into database for season '+str(year)+'...\n')
             if year < 2016:
                 season = Season(year)
                 insert_teams(season)
@@ -246,7 +257,9 @@ def main(args):
 
         insert_teams(season)
         insert_games(season)
+        update_games()
         insert_events(season)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

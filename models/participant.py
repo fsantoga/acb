@@ -247,7 +247,6 @@ class Participant(BaseModel):
                         stats[current_team][number]['number'] = None if is_coach else int(number)
 
                         display_name = td.text()
-                        stats[current_team][number]['display_name'] = display_name
                         if ',' in display_name:
                             last_name, first_name = list(map(lambda x: x.strip(), td.text().split(",")))
                         else:  # E.g. San Emeterio
@@ -255,6 +254,9 @@ class Participant(BaseModel):
                             last_name = display_name
                         stats[current_team][number]['first_name'] = first_name
                         stats[current_team][number]['last_name'] = last_name
+
+                        new_display_name = first_name[0] + '. ' + last_name
+                        stats[current_team][number]['display_name'] = new_display_name
 
                     elif '%' in header[cont]:  # discard percentages.
                         continue

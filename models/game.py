@@ -175,7 +175,7 @@ class Game(BaseModel):
 
                 if most_likely_team not in season.mismatched_teams:  # debug info to check the correctness.
                     season.mismatched_teams.append(most_likely_team)
-                    logger.info('Season {} -> {} has been matched to: {}'.format(season.season, team_name, most_likely_team))
+                    logger.info('Season {} -> {} has been matched to: {}\n'.format(season.season, team_name, most_likely_team))
 
             # TeamName.get_or_create(**{'team': team, 'name': team_name, 'season': season.season})
             game_dict['team_home_id' if i == 0 else 'team_away_id'] = team

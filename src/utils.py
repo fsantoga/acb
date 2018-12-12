@@ -70,7 +70,7 @@ def get_driver_path(driver_path):
             print("USAGE: --driverpath 'path/to/driver'")
             exit(-1)
 
-        logger.info('No driver specified, using the system one by default ({})...'.format(driver_path))
+        logger.info('No driver specified, using the system one by default ({})...\n'.format(driver_path))
     return driver_path
 
 

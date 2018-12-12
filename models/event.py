@@ -248,10 +248,14 @@ class Event(BaseModel):
 
     @staticmethod
     def scrap_and_insert(event_acbid,game_acbid, playbyplay, team_code_1, team_code_2):
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+
         periods = set()
         actions = {}
         cont = 1
         home_score = away_score = 0
+
         for elem in reversed(list(playbyplay('div').items())):
             if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
 
@@ -289,6 +293,7 @@ class Event(BaseModel):
                                  "home_score": home_score,
                                  "away_score": away_score}
                 cont += 1
+
 
         with db.atomic():
             for event in actions.values():
