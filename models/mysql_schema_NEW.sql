@@ -72,7 +72,7 @@ CREATE TABLE player (
 
     -- General player info
     display_name VARCHAR(255) DEFAULT null,
-    full_name VARCHAR(255) DEFAULT null,
+    full_name VARCHAR(255) CHARACTER SET utf8mb4,
     nationality VARCHAR(255) DEFAULT null,
     birth_place VARCHAR(255) DEFAULT null,
     birth_date DATETIME DEFAULT null,  -- Date of birth. In number of seconds since UNIX epoch, UTC timezone.
@@ -155,7 +155,7 @@ CREATE TABLE coach (
 
     -- General coach information
     display_name VARCHAR(255) DEFAULT null,
-    full_name VARCHAR(255) DEFAULT null,
+    full_name VARCHAR(255) CHARACTER SET utf8mb4,
     nationality VARCHAR(255) DEFAULT null,
     birth_place VARCHAR(255) DEFAULT null,
     birth_date DATETIME DEFAULT null,  -- Date of birth. In number of seconds since UNIX epoch, UTC timezone.
