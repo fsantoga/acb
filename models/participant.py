@@ -205,8 +205,15 @@ class Participant(BaseModel):
                             continue
                         elif score_flag == 2:
                             score_flag += 1
-                            game.score_home = int(td.text()) if current_team == 0 else game.score_home
-                            game.score_away = int(td.text()) if current_team == 1 else game.score_away
+                            try:
+                                game.score_home = int(td.text()) if current_team == 0 else game.score_home
+                            except Exception as e:
+                                print(e)
+                            try:
+                                game.score_away = int(td.text()) if current_team == 1 else game.score_away
+                            except Exception as e:
+                                print(e)
+                                pass
                             game.save()
                             continue
                         else:
@@ -258,13 +265,29 @@ class Participant(BaseModel):
 
                     elif '/' in td.text():  # T1, T2 or T3 in format success/attempts.
                         success, attempts = td.text().split("/")
-                        stats[current_team][number][header_to_db[header[cont]]] = int(success)
-                        stats[current_team][number][header_to_db[header[cont]] + "_attempt"] = int(attempts)
+                        try:
+                            stats[current_team][number][header_to_db[header[cont]]] = int(success)
+                        except Exception as e:
+                            print(e)
+                            pass
+                        try:
+                            stats[current_team][number][header_to_db[header[cont]] + "_attempt"] = int(attempts)
+                        except Exception as e:
+                            print(e)
+                            pass
 
                     elif '+' in td.text():  # defensive and offensive rebounds in format D+O
                         defensive, offensive = td.text().split("+")
-                        stats[current_team][number]["defensive_reb"] = int(defensive)
-                        stats[current_team][number]["offensive_reb"] = int(offensive)
+                        try:
+                            stats[current_team][number]["defensive_reb"] = int(defensive)
+                        except Exception as e:
+                            print(e)
+                            pass
+                        try:
+                            stats[current_team][number]["offensive_reb"] = int(offensive)
+                        except Exception as e:
+                            print(e)
+                            pass
 
                     elif ':' in td.text():  # minutes in format minutes:seconds
                         minutes, seconds = td.text().split(":")

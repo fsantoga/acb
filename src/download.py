@@ -79,6 +79,43 @@ def sanity_check(directory_name, logging_level=logging.INFO):
     return errors
 
 
+def sanity_check_game(directory_name, logging_level=logging.INFO):
+    """
+    Checks if thes file within a directoy have been correctly downloaded
+
+    :param directory_name: String
+    :param logging_level: logging object
+    """
+    logging.basicConfig(level=logging_level)
+    logger = logging.getLogger(__name__)
+
+    errors = []
+    directory = os.fsencode(directory_name)
+    for file in os.listdir(directory):
+        with open(os.path.join(directory, file), encoding="utf-8") as f:
+            raw_html = f.read()
+
+            doc = pq(raw_html)
+            if doc("title").text() == '404 Not Found':
+                errors.append(os.fsdecode(file))
+
+            filename=file.decode("utf-8")
+            statinfo2=os.stat(directory_name+filename)
+            if statinfo2.st_size < 20000:
+                logger.info('The game ' + filename +' data is not correct. Missing data. Deleting game-event...')
+                try:
+                    os.remove(directory_name+filename)
+                    logger.info('game ' + filename + ' deleted...')
+                    continue
+
+                except:
+                    logger.info('game ' + filename + ' cannot be deleted...')
+
+    if errors: raise Exception('There are {} errors in the downloads!'.format(len(errors)))
+    logger.info('Sanity check of {} correctly finished!\n'.format(os.fsdecode(directory)))
+    return errors
+
+
 def sanity_check_events(driver_path,directory_name, logging_level=logging.INFO):
     """
     Checks if thes file within a directoy have been correctly downloaded

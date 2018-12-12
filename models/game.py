@@ -1,6 +1,6 @@
 import os.path, re, datetime, difflib, logging
 from pyquery import PyQuery as pq
-from src.download import open_or_download, sanity_check
+from src.download import open_or_download, sanity_check, sanity_check_game
 from src.season import BASE_URL
 from models.basemodel import BaseModel
 from models.team import Team, TeamName
@@ -65,7 +65,7 @@ class Game(BaseModel):
 
     @staticmethod
     def sanity_check(season, logging_level=logging.INFO):
-        sanity_check(season.GAMES_PATH, logging_level)
+        sanity_check_game(season.GAMES_PATH, logging_level)
 
     @staticmethod
     def create_instance(raw_game, id_game_number, season, competition_phase='regular', round_phase=None):

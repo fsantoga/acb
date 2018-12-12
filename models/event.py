@@ -1,11 +1,8 @@
-import os.path, re, datetime, difflib, logging
-from src.download import open_or_download, sanity_check, get_page,save_content,sanity_check_events
+import os.path, re, logging
+from src.download import get_page,save_content,sanity_check_events
 from models.basemodel import BaseModel, db
 from src.utils import convert_time, create_driver
-from peewee import (PrimaryKeyField, TextField, IntegerField,
-                    DateTimeField, ForeignKeyField, BooleanField)
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
+from peewee import (PrimaryKeyField, TextField, IntegerField)
 import time
 
 
@@ -75,7 +72,14 @@ legend_dict = {
     'COMIENZA EL PARTIDO': 'game_start',
     'PARTIDO FINALIZADO': 'game_end',
     'INICIO PERIODO': 'quarter_start',
+    'jumpball.unclearposs': 'jumpball_unclearposs',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT convertido': 'BASKETBALL_ACTION_3PT_JUMPSHOT_converted',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT_converted',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'BASKETBALL_ACTION_2PT_HOOKSHOT_converted',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'BASKETBALL_ACTION_3PT_JUMPSHOT_failed',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'BASKETBALL_ACTION_2PT_HOOKSHOT_failed',
     'PERIODO FINALIZADO': 'quarter_end',
+
 }
 
 extra_legend_dict = {
