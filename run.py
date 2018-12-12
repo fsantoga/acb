@@ -28,20 +28,28 @@ def download_events(season,driver_path):
     Event.sanity_check_events(driver_path,season)
 
 
+def insert_teams(season):
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    with db.atomic():
+        # Create the instances of Team and TeamName.
+        logger.info('Retrieving new teams and their historical names.')
+        Team.create_instances(season)
+        logger.info('All teams for the season are now in the database.')
+
+
 def insert_games(season):
     """
     Extract and insert the information regarding the games of a season.
     :param season: Season object.
     """
-    #if season.season == 1994:  # the 1994 season doesn't have standing page.
-    #    TeamName.create_harcoded_teams()
-
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
     with db.atomic():
-        # Create the instances of Team.
-        Team.create_instances(season)
+        # Games iformation
+        logger.info('Retrieving all data from games and store it.')
 
         # Regular season
         competition_phase = 'regular'
@@ -56,7 +64,7 @@ def insert_games(season):
                                                 round_phase=round_phase)
                     Participant.create_instances(raw_game=raw_game, game=game)
             except:
-                logger.info("No se ha podido insertar el partido {} porque no existe o contiene errores...".format(id_game_number))
+                logger.info("Game {} could not be inserted as it didn't exist or had some errors...".format(id_game_number))
 
         # Playoff
         competition_phase = 'playoff'
@@ -129,7 +137,6 @@ def update_games():
     Actor.sanity_check()
 
     with db.atomic():
-        Team.update_content()
         try:
             Participant.fix_participants()  # there were a few errors in acb. Manually fix them.
         except Exception as e:
@@ -204,9 +211,11 @@ def main(args):
             logger.info('Inserting data into database for season '+str(year)+'...')
             if year < 2016:
                 season = Season(year)
+                insert_teams(season)
                 insert_games(season)
             else:
                 season = Season(year)
+                insert_teams(season)
                 insert_games(season)
                 insert_events(season)
 
@@ -219,8 +228,8 @@ if __name__ == "__main__":
     parser.add_argument("-d", action='store_true', default=False)
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2015, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())

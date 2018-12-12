@@ -102,7 +102,7 @@ def sanity_check_game(directory_name, logging_level=logging.INFO):
             filename=file.decode("utf-8")
             statinfo2=os.stat(directory_name+filename)
             if statinfo2.st_size < 20000:
-                logger.info('The game ' + filename +' data is not correct. Missing data. Deleting game-event...')
+                logger.info('The game ' + filename +' data is not correct. Missing data. Deleting game html...')
                 try:
                     os.remove(directory_name+filename)
                     logger.info('game ' + filename + ' deleted...')
@@ -111,7 +111,7 @@ def sanity_check_game(directory_name, logging_level=logging.INFO):
                 except:
                     logger.info('game ' + filename + ' cannot be deleted...')
 
-    if errors: raise Exception('There are {} errors in the downloads!'.format(len(errors)))
+    if errors: raise Exception('There were {} errors in the downloads!'.format(len(errors)))
     logger.info('Sanity check of {} correctly finished!\n'.format(os.fsdecode(directory)))
     return errors
 
@@ -167,7 +167,7 @@ def sanity_check_events(driver_path,directory_name, logging_level=logging.INFO):
 
     #recursive call to sanity_check to check if there are more errors with the html
     if errors:
-        logger.info('There are {} errors in the downloads!'.format(len(errors)))
+        logger.info('There were {} errors in the downloads!'.format(len(errors)))
         sanity_check_events(driver_path,directory_name, logging_level=logging.INFO)
 
     driver.close()

@@ -25,7 +25,6 @@ class Participant(BaseModel):
     last_name = TextField(null=True)
     number = IntegerField(null=True)
     is_coach = BooleanField(null=True)
-    is_referee = BooleanField(null=True)
     is_starter = BooleanField(null=True)
     minutes = IntegerField(null=True)
     point = IntegerField(null=True)
@@ -58,7 +57,6 @@ class Participant(BaseModel):
         :param game: Game instance
         """
         Participant._create_players_and_coaches(raw_game, game)
-        Participant._create_referees(raw_game, game)
 
     @staticmethod
     def _fix_acbid(actor_name, actor_acbid):
@@ -159,7 +157,6 @@ class Participant(BaseModel):
         We add extra attributes that are not inferred directly from the stats, but from the context.
         """
         header_to_db.update({"is_coach": "is_coach",
-                             "is_referee": "is_referee",
                              "is_starter": "is_starter",
                              "first_name": "first_name",
                              "last_name": "last_name",
@@ -247,7 +244,6 @@ class Participant(BaseModel):
 
                         is_coach = re.search(r'entrenador', href_attribute[0])
                         stats[current_team][number]['is_coach'] = 1 if is_coach else 0
-                        stats[current_team][number]['is_referee'] = 0
                         stats[current_team][number]['number'] = None if is_coach else int(number)
 
                         display_name = td.text()
@@ -328,29 +324,3 @@ class Participant(BaseModel):
 
         participants = Participant.insert_many(to_insert_many_participants)
         participants.execute()
-
-
-    @staticmethod
-    def _create_referees(raw_game, game):
-        """
-        Extract and introduce in the database the referees of the game.
-
-        :param raw_game: String
-        :return: List of Referee objects
-        """
-        estadisticas_tag = '.estadisticasnew' if re.search(r'<table class="estadisticasnew"',
-                                                           raw_game) else '.estadisticas'
-        doc = pq(raw_game)
-        info_game_data = doc(estadisticas_tag).eq(0)
-        referees_data = info_game_data('.estnaranja')('td').eq(0).text()
-        referees = None
-        if referees_data:
-            referees = referees_data.split(":")[1].strip().split(",")
-            referees = list(filter(None, referees))
-            referees = list(map(lambda x: x.strip(), referees))
-
-        """
-        We only have information about the name of a referee.
-        """
-        for referee in referees:
-            Participant.create(**{'display_name': referee, 'game': game, 'is_referee': 1})
