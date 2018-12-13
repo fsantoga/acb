@@ -24546,3 +24546,63 @@ JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats
 1544720390665	Marionette	DEBUG	[2147483649] Frame script registered
 1544720398966	Marionette	INFO	Stopped listening on port 33517
 [Parent 17644, Gecko_IOThread] WARNING: pipe error (41): Connection reset by peer: file /build/firefox-8oo9jx/firefox-62.0+build2/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+1544720457462	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.hFDrZIk4UqOD"
+*** You are running in headless mode.
+1544720461495	Marionette	INFO	Listening on port 39121
+1544720461578	Marionette	WARN	TLS certificate errors will be ignored for this session
+1544720461613	Marionette	DEBUG	[2147483649] Frame script loaded
+1544720461614	Marionette	DEBUG	[2147483649] Frame script registered
+1544720461625	Marionette	DEBUG	[2147483649] Received DOM event beforeunload for about:blank
+1544720461947	Marionette	DEBUG	[2147483649] Received DOM event pagehide for about:blank
+1544720465325	Marionette	DEBUG	[2147483649] Received DOM event DOMContentLoaded for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720465498	Marionette	DEBUG	[2147483649] Received DOM event pageshow for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720466548	Marionette	DEBUG	[2147483649] Received DOM event beforeunload for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720466864	Marionette	DEBUG	[2147483649] Received DOM event pagehide for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720466866	Marionette	DEBUG	[2147483649] Received DOM event unload for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720466957	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483654
+1544720466958	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483653
+1544720466958	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483658
+1544720468692	Marionette	DEBUG	[2147483649] Received DOM event DOMContentLoaded for http://www.fibalivestats.com/u/ACBS/333408/pbp.html
+1544720468916	Marionette	DEBUG	[2147483649] Received DOM event pageshow for http://www.fibalivestats.com/u/ACBS/333408/pbp.html
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+1544720469932	Marionette	DEBUG	[2147483649] Received DOM event beforeunload for http://www.fibalivestats.com/u/ACBS/333408/pbp.html
+1544720470272	Marionette	DEBUG	[2147483649] Received DOM event pagehide for http://www.fibalivestats.com/u/ACBS/333408/pbp.html
+1544720470274	Marionette	DEBUG	[2147483649] Received DOM event unload for http://www.fibalivestats.com/u/ACBS/333408/pbp.html
+1544720470382	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483662
+1544720470383	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483661
+1544720470383	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483668
+1544720470383	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483673
+1544720470383	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483666
+1544720470383	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483671
+1544720470505	Marionette	DEBUG	[2147483649] Received DOM event DOMContentLoaded for http://www.fibalivestats.com/u/ACBS/333453/pbp.html
+1544720470866	Marionette	DEBUG	[2147483649] Received DOM event pageshow for http://www.fibalivestats.com/u/ACBS/333453/pbp.html
+1544720471895	Marionette	INFO	Stopped listening on port 39121
+1544720473489	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.4EVJCMeOxipd"
+*** You are running in headless mode.
+1544720479316	Marionette	INFO	Listening on port 41433
+1544720479412	Marionette	WARN	TLS certificate errors will be ignored for this session
+1544720479472	Marionette	DEBUG	[2147483649] Frame script loaded
+1544720479472	Marionette	DEBUG	[2147483649] Frame script registered
+1544720479703	Marionette	DEBUG	[2147483649] Received DOM event beforeunload for about:blank
+1544720479754	Marionette	DEBUG	[2147483649] Received DOM event pagehide for about:blank
+1544720481825	Marionette	DEBUG	[2147483649] Received DOM event DOMContentLoaded for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720483141	Marionette	DEBUG	[2147483649] Received DOM event pageshow for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720490912	Marionette	DEBUG	[2147483649] Received DOM event beforeunload for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720490974	Marionette	DEBUG	[2147483649] Received DOM event pagehide for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720490974	Marionette	DEBUG	[2147483649] Received DOM event unload for http://www.fibalivestats.com/u/ACBS/333399/pbp.html
+1544720491037	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483654
+1544720491037	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483653
+1544720491037	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483660
+1544720491037	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483662
+1544720491038	Marionette	DEBUG	[2147483649] Received observer notification outer-window-destroyed for 2147483658
+1544720491251	Marionette	DEBUG	[2147483649] Received DOM event DOMContentLoaded for http://www.fibalivestats.com/u/ACBS/333408/pbp.html
+1544720491572	Marionette	DEBUG	[2147483649] Received DOM event pageshow for http://www.fibalivestats.com/u/ACBS/333408/pbp.html
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+1544720492887	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.EKXXauzhKJV1"
+*** You are running in headless mode.
+1544720499124	Marionette	INFO	Listening on port 39475
+1544720499213	Marionette	WARN	TLS certificate errors will be ignored for this session
+1544720499285	Marionette	DEBUG	[2147483649] Frame script loaded
+1544720499286	Marionette	DEBUG	[2147483649] Frame script registered
+1544720507068	Marionette	INFO	Stopped listening on port 39475
+1544720508452	Marionette	INFO	Stopped listening on port 41433
