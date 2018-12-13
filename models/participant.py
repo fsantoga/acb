@@ -223,14 +223,16 @@ class Participant(BaseModel):
                         #    break
                         if number in stats[current_team]:  # preventing from errors with the number.
                             wrong_pages_first = ['55313', '54017', '54026', '61072', '61076', '61107','62177']  # if the good one is the first.
-                            wrong_pages_second = ['53154', '61218']  # if the good one is the second.
+                            wrong_pages_second = ['53154', '61218','62177']  # if the good one is the second.
                             if game.game_acbid in wrong_pages_first:  # acb error... >:(
                                 pass
                             elif game.game_acbid in wrong_pages_second:
                                 stats[current_team][number] = acb_error_player
                                 break
                             else:  # sometimes th acb has some duplicated players (error).
-                                raise ValueError('Number {} does already exist in game {}!'.format(number, game.game_acbid))
+                                continue
+                                #raise ValueError('Number {} does already exist in game {}!'.format(number, game.game_acbid))
+
                         else:
                             # Create the dict with default attributes.
                             stats[current_team][number] = fill_dict(header_to_db.values())
@@ -255,9 +257,8 @@ class Participant(BaseModel):
                         stats[current_team][number]['first_name'] = first_name
                         stats[current_team][number]['last_name'] = last_name
 
-                        new_display_name = first_name[0] + '. ' + last_name
+                        new_display_name = str(first_name)[0] + '. ' + last_name
                         stats[current_team][number]['display_name'] = new_display_name
-
                     elif '%' in header[cont]:  # discard percentages.
                         continue
 

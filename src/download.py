@@ -60,6 +60,7 @@ def download(file_path, url):
         html_file = get_page(url)
         return save_content(file_path, html_file)
 
+
 def validate_dir(folder):
     """
     Creates a directory if it doesn't already exist.

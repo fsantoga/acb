@@ -150,22 +150,13 @@ class Event(BaseModel):
         :param logging_level: logging object
         :return:
         """
-        from_journey = 1
-        to_journey = 54
 
         logging.basicConfig(level=logging_level)
         logger = logging.getLogger(__name__)
 
         logger.info('Taking all the ids for the events-games...')
 
-        fibalivestats_ids = {}
-        for i in range(from_journey, to_journey + 1):
-            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,season.season_id)
-            content = get_page(url)
-
-            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
-            game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
-            fibalivestats_ids.update(dict(zip(fls_ids, game_ids)))
+        fibalivestats_ids = season.get_game_events_ids()
 
         logger.info('Starting the download of events...')
 
@@ -190,7 +181,7 @@ class Event(BaseModel):
                 logger.info('{}% already downloaded'.format(round(float(i-1) / len(fibalivestats_ids) * 100)))
 
         driver.close()
-        logger.info('Download finished!)')
+        logger.info('Download finished!)\n')
 
     @staticmethod
     def save_current_events(season, driver_path, logging_level=logging.INFO):
@@ -200,24 +191,15 @@ class Event(BaseModel):
         :param logging_level: logging object
         :return:
         """
-        from_journey = 1
-        to_journey = 54
 
         logging.basicConfig(level=logging_level)
         logger = logging.getLogger(__name__)
 
         logger.info('Taking all the ids for the events-games...')
 
-        fibalivestats_ids = {}
-        for i in range(from_journey, to_journey + 1):
-            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,season.season_id)
-            content = get_page(url)
+        fibalivestats_ids = season.get_current_game_events_ids()
 
-            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
-            game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
-            fibalivestats_ids.update(dict(zip(fls_ids, game_ids)))
-
-        logger.info('Starting the download of events...')
+        logger.info('Starting the download of events...\n')
 
         driver = create_driver(driver_path)
         n_checkpoints = 10
@@ -240,7 +222,7 @@ class Event(BaseModel):
                 logger.info('{}% already downloaded'.format(round(float(i-1) / len(fibalivestats_ids) * 100)))
 
         driver.close()
-        logger.info('Download finished!)')
+        logger.info('Download finished!)\n')
 
     @staticmethod
     def sanity_check_events(driver_path,season, logging_level=logging.INFO):
@@ -255,6 +237,7 @@ class Event(BaseModel):
         actions = {}
         cont = 1
         home_score = away_score = 0
+
 
         for elem in reversed(list(playbyplay('div').items())):
             if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):

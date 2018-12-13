@@ -1,6 +1,6 @@
 import os.path, re, datetime, difflib, logging
 from pyquery import PyQuery as pq
-from src.download import open_or_download, sanity_check, sanity_check_game
+from src.download import open_or_download, get_page, sanity_check_game
 from src.season import BASE_URL
 from models.basemodel import BaseModel
 from models.team import Team, TeamName
@@ -53,17 +53,41 @@ class Game(BaseModel):
         logger = logging.getLogger(__name__)
 
         logger.info('Starting the download of games...')
-        n_games = season.get_number_games()
-        n_checkpoints = 4
-        checkpoints = [round(i*float(n_games)/n_checkpoints) for i in range(n_checkpoints+1)]
-        for i in range(1, n_games + 1):
-            filename = os.path.join(season.GAMES_PATH, str(i) + '.html')
-            url = BASE_URL + "stspartido.php?cod_competicion=LACB&cod_edicion={}&partido={}".format(season.season_id, i)
-            open_or_download(file_path=filename, url=url)
-            if i in checkpoints:
-                logger.info('{}% already downloaded'.format(round(float(i*100) / n_games)))
 
-        logger.info('Download finished! (new {} games in {})'.format(n_games, season.GAMES_PATH))
+        n_checkpoints = 4
+
+        if season.season < 2016:
+            game_ids_list=season.get_game_ids()
+            checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
+
+            for i in range(len(game_ids_list)):
+
+                game_id=int(game_ids_list[i]) % 1000
+                url2 = BASE_URL + "/fichas/LACB{}.php".format(game_ids_list[i])
+                filename = os.path.join(season.GAMES_PATH, str(game_id)+"-" +str(game_ids_list[i]) + '.html')
+
+                open_or_download(file_path=filename, url=url2)
+                if i in checkpoints:
+                    logger.info('{}% already downloaded'.format(round(float(i * 100) / len(game_ids_list))))
+
+            logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_PATH))
+
+        else:
+            game_events_ids=season.get_game_events_ids()
+            game_ids_list=list(game_events_ids.values())
+            checkpoints = [round(i*float(len(game_ids_list))/n_checkpoints) for i in range(n_checkpoints+1)]
+
+            for i in range(len(game_ids_list)):
+
+                game_id=int(game_ids_list[i]) % 1000
+                url2 = BASE_URL + "/fichas/LACB{}.php".format(game_ids_list[i])
+                filename = os.path.join(season.GAMES_PATH, str(game_id)+"-"+ str(game_ids_list[i]) + '.html')
+
+                open_or_download(file_path=filename, url=url2)
+                if i in checkpoints:
+                        logger.info('{}% already downloaded'.format(round(float(i*100) / len(game_ids_list))))
+
+            logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_PATH))
 
 
     @staticmethod
@@ -79,26 +103,30 @@ class Game(BaseModel):
         logger = logging.getLogger(__name__)
 
         logger.info('Starting the download of games...')
-        current_journey=season.get_current_journey(season)
-        number_teams=season.get_number_teams()
-        n_games = int((current_journey*number_teams)/2)
-        n_checkpoints = 4
-        checkpoints = [round(i*float(n_games)/n_checkpoints) for i in range(n_checkpoints+1)]
-        for i in range(1, n_games + 1):
-            filename = os.path.join(season.GAMES_PATH, str(i) + '.html')
-            url = BASE_URL + "stspartido.php?cod_competicion=LACB&cod_edicion={}&partido={}".format(season.season_id, i)
-            open_or_download(file_path=filename, url=url)
-            if i in checkpoints:
-                logger.info('{}% already downloaded'.format(round(float(i*100) / n_games)))
 
-        logger.info('Download finished! (new {} games in {})'.format(n_games, season.GAMES_PATH))
+        n_checkpoints = 4
+        current_game_events_ids=season.get_current_game_events_ids()
+        current_game_ids_list=list(current_game_events_ids.values())
+        checkpoints = [round(i*float(len(current_game_ids_list))/n_checkpoints) for i in range(n_checkpoints+1)]
+
+        for i in range(len(current_game_ids_list)):
+
+            game_id = int(current_game_ids_list[i]) % 1000
+            url2 = BASE_URL + "/fichas/LACB{}.php".format(current_game_ids_list[i])
+            filename = os.path.join(season.GAMES_PATH, str(game_id)+"-"+ str(current_game_ids_list[i]) + '.html')
+
+            open_or_download(file_path=filename, url=url2)
+            if i in checkpoints:
+                    logger.info('{}% already downloaded'.format(round(float(i*100) / len(current_game_ids_list))))
+
+        logger.info('Download finished! (new {} games in {})\n'.format(len(current_game_ids_list), season.GAMES_PATH))
 
     @staticmethod
     def sanity_check(season, logging_level=logging.INFO):
         sanity_check_game(season.GAMES_PATH, logging_level)
 
     @staticmethod
-    def create_instance(raw_game, id_game_number, season, competition_phase='regular', round_phase=None):
+    def create_instance(raw_game, id_game_number, season, competition_phase, round_phase=None):
         """
         Extract all the information regarding the game such as the date, attendance, venue, score per quarter or teams.
         Therefore, we need first to extract and insert the teams in the database in order to get the references to the db.
@@ -130,7 +158,7 @@ class Game(BaseModel):
 
         This id can be used to access the concrete game within the link 'http://www.acb.com/fichas/LACBXXYYY.php'
         """
-        game_dict['game_acbid'] = str(season.season_id).zfill(2) + str(id_game_number).zfill(3)
+        game_dict['game_acbid'] = id_game_number
         game_dict['competition_phase'] = competition_phase
         game_dict['round_phase'] = round_phase
 
@@ -175,7 +203,7 @@ class Game(BaseModel):
 
                 if most_likely_team not in season.mismatched_teams:  # debug info to check the correctness.
                     season.mismatched_teams.append(most_likely_team)
-                    logger.info('Season {} -> {} has been matched to: {}\n'.format(season.season, team_name, most_likely_team))
+                    logger.info('Season {} -> {} has been matched to: {}'.format(season.season, team_name, most_likely_team))
 
             # TeamName.get_or_create(**{'team': team, 'name': team_name, 'season': season.season})
             game_dict['team_home_id' if i == 0 else 'team_away_id'] = team

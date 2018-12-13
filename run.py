@@ -1,4 +1,4 @@
-import argparse, os, re
+import argparse, os, re,glob
 from models.basemodel import db, reset_database, delete_records, create_schema
 from models.game import Game
 from models.event import *
@@ -36,7 +36,7 @@ def insert_teams(season):
 
     with db.atomic():
         # Create the instances of Team and TeamName.
-        logger.info('Retrieving new teams and their historical names.\n')
+        logger.info('Retrieving new teams and their historical names.')
         Team.create_instances(season)
         logger.info('All teams for the season are now in the database.\n')
 
@@ -53,24 +53,29 @@ def insert_games(season):
     logger = logging.getLogger(__name__)
 
     with db.atomic():
+
         # Games iformation
         logger.info('Retrieving all data from games and store it.\n')
 
         # Regular season
         competition_phase = 'regular'
         round_phase = None
-        for id_game_number in range(1, season.get_number_games_regular_season() + 1):
+
+        list_files=sorted(os.listdir(season.GAMES_PATH))
+        for i in range(len(list_files)):
+            game_id_file= list_files[i].split("-")[1]
+            game_id=game_id_file.split(".")[0]
             try:
-                with open(os.path.join('.', 'data', str(season.season), 'games', str(id_game_number) + '.html'), 'r', encoding='utf-8') as f:
+                with open(os.path.join(season.GAMES_PATH, str(list_files[i])), 'r', encoding='utf-8') as f:
                     raw_game = f.read()
-                    game = Game.create_instance(raw_game=raw_game, id_game_number=id_game_number,
+                    game = Game.create_instance(raw_game=raw_game, id_game_number=game_id,
                                                 season=season,
                                                 competition_phase=competition_phase,
                                                 round_phase=round_phase)
                     Participant.create_instances(raw_game=raw_game, game=game)
             except Exception as e:
-                #print(e)
-                logger.info("Game {} could not be inserted as it didn't exist or had some errors...".format(id_game_number))
+                print(e)
+                logger.info("Game {} could not be inserted as it didn't exist or had some errors...".format(game_id))
 
         # Playoff
         competition_phase = 'playoff'
@@ -91,49 +96,144 @@ def insert_games(season):
         cont = 0
         id_game_number = season.get_number_games_regular_season()
         playoff_end = season.get_number_games()
-
         while id_game_number < playoff_end:
             id_game_number += 1
-            try:
-                with open(os.path.join('.', 'data', str(season.season), 'games', str(id_game_number) + '.html'), 'r', encoding='utf-8') as f:
-                    raw_game = f.read()
+            for file in glob.glob(season.GAMES_PATH+str(id_game_number)+"-*"):
+                    try:
+                        game_id_file = file.split("-")[1]
+                        game_id = game_id_file.split(".")[0]
+                        with open(os.path.join(str(file)), 'r', encoding='utf-8') as f:
+                            raw_game = f.read()
 
-                    # A playoff game might be blank if the series ends before the last game.
-                    if re.search(r'<title>ACB.COM</title>', raw_game) \
-                            and (re.search(r'"estverdel"> <', raw_game)
-                                 or re.search(r'<font style="font-size : 12pt;">0 |', raw_game)):
-                        cont += 1
-                        continue
+                            # A playoff game might be blank if the series ends before the last game.
+                            if re.search(r'<title>ACB.COM</title>', raw_game) \
+                                    and (re.search(r'"estverdel"> <', raw_game)
+                                         or re.search(r'<font style="font-size : 12pt;">0 |', raw_game)):
+                                cont += 1
+                                continue
 
-                    game = Game.create_instance(raw_game=raw_game, id_game_number=id_game_number,
-                                                season=season,
-                                                competition_phase=competition_phase,
-                                                round_phase=round_phase)
+                            game = Game.create_instance(raw_game=raw_game, id_game_number=game_id,
+                                                        season=season,
+                                                        competition_phase=competition_phase,
+                                                        round_phase=round_phase)
 
-                    home_team_name = TeamName.get(
-                        (TeamName.team_id == game.team_home_id) & (TeamName.season == season.season)).name
-                    away_team_name = TeamName.get(
-                        (TeamName.team_id == game.team_away_id) & (TeamName.season == season.season)).name
+                            home_team_name = TeamName.get(
+                                (TeamName.team_id == game.team_home_id) & (TeamName.season == season.season)).name
+                            away_team_name = TeamName.get(
+                                (TeamName.team_id == game.team_away_id) & (TeamName.season == season.season)).name
 
-                    if (home_team_name or away_team_name) in relegation_teams:
-                        game.competition_phase = 'relegation_playoff'
-                    else:
-                        if cont < quarter_finals_limit:
-                            game.round_phase = 'quarter_final'
-                        elif cont < semifinals_limit:
-                            game.round_phase = 'semifinal'
-                        else:
-                            game.round_phase = 'final'
-                        cont += 1
+                            if (home_team_name or away_team_name) in relegation_teams:
+                                game.competition_phase = 'relegation_playoff'
+                            else:
+                                if cont < quarter_finals_limit:
+                                    game.round_phase = 'quarter_final'
+                                elif cont < semifinals_limit:
+                                    game.round_phase = 'semifinal'
+                                else:
+                                    game.round_phase = 'final'
+                                cont += 1
 
-                    game.save()
+                            game.save()
 
-                    # Create the instances of Participant
-                    Participant.create_instances(raw_game=raw_game, game=game)
-            except:
-                logger.info("No se ha podido insertar el partido {} porque no existe o contiene errores...".format(id_game_number))
+                            # Create the instances of Participant
+                            Participant.create_instances(raw_game=raw_game, game=game)
+                    except Exception as e:
+                        print(e)
+                        logger.info("Game {} could not be inserted as it didn't exist or had some errors...".format(game_id))
+        """
+        else:
+                # Games iformation
+                logger.info('Retrieving all data from games and store it.\n')
 
+                # Regular season
+                competition_phase = 'regular'
+                round_phase = None
 
+                game_events_ids = season.get_game_events_ids()
+
+                game_ids_list = list(game_events_ids.values())
+
+                for i in range(len(game_ids_list)):
+                    try:
+                        with open(
+                                os.path.join('.', 'data', str(season.season), 'games', str(game_ids_list[i]) + '.html'),
+                                'r', encoding='utf-8') as f:
+                            raw_game = f.read()
+                            game = Game.create_instance(raw_game=raw_game, id_game_number=game_ids_list[i],
+                                                        season=season,
+                                                        competition_phase=competition_phase,
+                                                        round_phase=round_phase)
+                            Participant.create_instances(raw_game=raw_game, game=game)
+                    except Exception as e:
+                        print(e)
+                        logger.info("Game {} could not be inserted as it didn't exist or had some errors...".format(
+                            game_ids_list[i]))
+
+                # Playoff
+                competition_phase = 'playoff'
+                round_phase = None
+                playoff_format = season.get_playoff_format()
+                try:
+                    quarter_finals_limit = 4 * playoff_format[0]
+                    try:
+                        semifinals_limit = quarter_finals_limit + 2 * playoff_format[1]
+                    except Exception as e:
+                        # print(e)
+                        pass
+                except Exception as e:
+                    # print(e)
+                    pass
+
+                relegation_teams = season.get_relegation_teams()  # in some seasons there was a relegation playoff.
+                cont = 0
+                id_game_number = season.get_number_games_regular_season()
+                playoff_end = season.get_number_games()
+
+                while id_game_number < playoff_end:
+                    id_game_number += 1
+                    try:
+                        with open(os.path.join('.', 'data', str(season.season), 'games', str(id_game_number) + '.html'),
+                                  'r', encoding='utf-8') as f:
+                            raw_game = f.read()
+
+                            # A playoff game might be blank if the series ends before the last game.
+                            if re.search(r'<title>ACB.COM</title>', raw_game) \
+                                    and (re.search(r'"estverdel"> <', raw_game)
+                                         or re.search(r'<font style="font-size : 12pt;">0 |', raw_game)):
+                                cont += 1
+                                continue
+
+                            game = Game.create_instance(raw_game=raw_game, id_game_number=id_game_number,
+                                                        season=season,
+                                                        competition_phase=competition_phase,
+                                                        round_phase=round_phase)
+
+                            home_team_name = TeamName.get(
+                                (TeamName.team_id == game.team_home_id) & (TeamName.season == season.season)).name
+                            away_team_name = TeamName.get(
+                                (TeamName.team_id == game.team_away_id) & (TeamName.season == season.season)).name
+
+                            if (home_team_name or away_team_name) in relegation_teams:
+                                game.competition_phase = 'relegation_playoff'
+                            else:
+                                if cont < quarter_finals_limit:
+                                    game.round_phase = 'quarter_final'
+                                elif cont < semifinals_limit:
+                                    game.round_phase = 'semifinal'
+                                else:
+                                    game.round_phase = 'final'
+                                cont += 1
+
+                            game.save()
+
+                            # Create the instances of Participant
+                            Participant.create_instances(raw_game=raw_game, game=game)
+                    except Exception as e:
+                        print(e)
+                        logger.info("Game {} could not be inserted as it didn't exist or had some errors...".format(
+                            game_ids_list[i]))
+
+            """
 def update_games():
     """
     Update the information about teams and actors and correct errors.
@@ -186,6 +286,8 @@ def main(args):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
+    logger.info('STARTING...')
+
     current_season=get_current_season()
 
     first_season = args.first_season
@@ -214,6 +316,7 @@ def main(args):
         for year in reversed(range(first_season, last_season)):
             logger.info('Retrieving data for season '+str(year)+'...\n')
             if year < 2016:
+                logger.info('Creating and downloading the season: {}.\n'.format(year))
                 season = Season(year)
                 download_games(season)
             else:
@@ -222,6 +325,7 @@ def main(args):
                 download_events(season,driver_path)
 
     if args.i:
+
         # Extract and insert the information in the database.
         for year in reversed(range(first_season, last_season)):
             logger.info('Inserting data into database for season '+str(year)+'...\n')
@@ -268,7 +372,7 @@ if __name__ == "__main__":
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
     parser.add_argument("-u", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2010, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 

@@ -39,7 +39,6 @@ In summation, this database contains the stats from games such as http://www.acb
 
 
 # Por hacer:
-Arreglar IDs
 ¿Metemos los equipos en la tabla participantes?¿tiene info relevante?
 ¿Que hacemos con los participantes?
         def fix_participants():
@@ -49,10 +48,8 @@ Arreglar IDs
         Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
         Participant._fix_participations('Olaizola, Julen', 'T86', '162')
         Participant._fix_participations('Izquierdo, Antonio', '773', 'YHK')
-
+Arreglar nombres de games --> game_acbid
 ¿hardcodear o pillar de wikipedia algunos equipos que no tienen año de fundacion?
-arreglar años <= 1994 no tiene tabla de clasificacion
-arreglar años >= 2018 y partidos dia a dia
 tablas y relaciones
     porque en game el acbid es un varchar? renombrar a game_acbid? renombrar resto de a game_acbid para no confundir con el id de la tabla que suele ser nombreTabla_id
     relacionar tabla eventos con game -- por game_id?
@@ -61,4 +58,3 @@ tablas y relaciones
     en tabla event relacionar teamid con algo? en vez del varchar el id numerico del equipo?
     renombrar todos los atrinutoid a atributo_id
 
-posibles errores con first_season <= last season o last_season >= first_season

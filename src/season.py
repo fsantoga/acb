@@ -1,7 +1,8 @@
 import os, re, logging
 import numpy as np
 from pyquery import PyQuery as pq
-from src.download import validate_dir, open_or_download,download
+from src.download import validate_dir, open_or_download,download,get_page
+from src.utils import get_current_season
 
 
 FIRST_SEASON = 1956
@@ -18,6 +19,9 @@ validate_dir(ACTORS_PATH)
 validate_dir(PLAYERS_PATH)
 validate_dir(COACHES_PATH)
 
+from_journey = 1
+to_journey = 54
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -27,19 +31,60 @@ class Season:
         self.season_id = season - FIRST_SEASON + 1  # First season in 1956 noted as 1.
         self.SEASON_PATH = os.path.join(DATA_PATH, str(self.season))
         self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games/')
-        self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events/')
 
         validate_dir(self.SEASON_PATH)
         validate_dir(self.GAMES_PATH)
-        validate_dir(self.EVENTS_PATH)
 
-        self.current_journey=self.get_current_journey(season)
+        if self.season >= 2016:
+            self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events/')
+            validate_dir(self.EVENTS_PATH)
+
+        #self.current_journey=self.get_current_journey(season)
         self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
         self.missing_playoff_format = [1994, 1995]
         self.num_teams = self.get_number_teams()
         self.playoff_format = self.get_playoff_format()
         self.mismatched_teams = []
 
+        #self.game_events_ids=self.get_game_events_ids()
+        #self.game_ids=self.get_game_ids()
+
+        #if self.season == get_current_season():
+        #    self.current_game_events_ids=self.get_current_game_events_ids()
+
+    def get_game_events_ids(self):
+        game_events_ids = {}
+        for i in range(from_journey, to_journey + 1):
+            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,self.season_id)
+            content = get_page(url)
+
+            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
+            game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
+            game_events_ids.update(dict(zip(fls_ids, game_ids)))
+
+        return game_events_ids
+
+    def get_game_ids(self):
+        game_ids_list=[]
+        for i in range(from_journey, to_journey + 1):
+            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,self.season_id)
+            content = get_page(url)
+
+            game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
+            game_ids_list+=game_ids
+        return game_ids_list
+
+    def get_current_game_events_ids(self):
+        current_game_events_ids = {}
+        for i in range(from_journey, self.get_current_journey() + 1):
+            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,self.season_id)
+            content = get_page(url)
+
+            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
+            game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
+            current_game_events_ids.update(dict(zip(fls_ids, game_ids)))
+
+        return current_game_events_ids
 
     def save_teams(self):
         filename = os.path.join(self.SEASON_PATH, 'teams' + '.html')
@@ -139,7 +184,7 @@ class Season:
 
             return relegation_teams
 
-    def get_current_journey(self,season):
+    def get_current_journey(self):
         filename = os.path.join(self.SEASON_PATH, 'next_journeys_calendar.html')
         url = BASE_URL + "resulcla.php"
         content = download(file_path=filename, url=url)
