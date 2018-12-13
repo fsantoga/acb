@@ -43,10 +43,35 @@ class Team(BaseModel):
                     if team_name_season != '':
                         teams_names.append({'team_id': team.id, 'name': str(team_name_season), 'season': FIRST_SEASON + s - 1})
                 TeamName.insert_many(teams_names).on_conflict('IGNORE').execute()
-                # Add the year of foundation (from last url content)
-                if doc('.titulojug').eq(0).text().startswith('Año de fundac'):
-                    team.founded_year = int(doc('.datojug').eq(0).text())
-                    team.save()
+                try:
+                    # Add the year of foundation (from last url content)
+                    if doc('.titulojug').eq(0).text().startswith('Año de fundac'):
+                        team.founded_year = int(doc('.datojug').eq(0).text())
+                        team.save()
+                except:
+                    founded_year=team.get_harcoded_fundation_years(team_acbid)
+                    if founded_year!=None:
+                        team.founded_year=founded_year
+                        team.save()
+                        logging.info("Team {} doesn't have fundation year. Hardcoded with year: {}".format(team_acbid,founded_year))
+                    else:
+                        logging.info("Team {} doesn't have fundation year. No matches found.".format(team_acbid))
+                        pass
+
+
+
+    @staticmethod
+    def get_hardcoded_fundation_years(team_acbid):
+
+        hardcoded_teams = {
+            'LEO': '1981',
+            'SAL': '1993',
+            'ZAR': '1981',
+            'HUE': '1977',
+            'HLV': '1996'
+        }
+        hardcoded_team=hardcoded_teams.get(team_acbid)
+        return hardcoded_team
 
 class TeamName(BaseModel):
     """

@@ -1,4 +1,4 @@
-import re
+import re, logging
 from pyquery import PyQuery as pq
 from collections import defaultdict
 from src.utils import fill_dict, replace_nth_ocurrence
@@ -66,9 +66,14 @@ class Participant(BaseModel):
         :param actor_name: String
         :param acbid: String
         """
-        actor = Actor.get(Actor.display_name == actor_name)
-        actor.actor_acbid = actor_acbid
-        actor.save()
+        try:
+            actor = Actor.get(Actor.display_name == actor_name)
+            actor.actor_acbid = actor_acbid
+            actor.save()
+        except Exception as e:
+            #print(e)
+            logging.info("The actor {}, cannot be inserted into the database".format(actor_name))
+            pass
 
     @staticmethod
     def _fix_participations(actor_name, actual_acbid, wrong_acbid):
@@ -81,8 +86,12 @@ class Participant(BaseModel):
         :param wrong_acbid: String
         :return:
         """
-        actor = Actor.get((Actor.display_name == actor_name) & (Actor.actor_acbid == actual_acbid))
-
+        try:
+            actor = Actor.get((Actor.display_name == actor_name) & (Actor.actor_acbid == actual_acbid))
+        except Exception as e:
+            #print(e)
+            logging.info("The participant {}, cannot be inserted into the database".format(actor_name))
+            pass
         try:
             wrong_actor = Actor.get((Actor.display_name == actor_name) & (Actor.actor_acbid == wrong_acbid))
 
@@ -101,6 +110,8 @@ class Participant(BaseModel):
         Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
         Participant._fix_participations('Olaizola, Julen', 'T86', '162')
         Participant._fix_participations('Izquierdo, Antonio', '773', 'YHK')
+
+
 
     @staticmethod
     def _create_players_and_coaches(raw_game, game):
@@ -256,9 +267,15 @@ class Participant(BaseModel):
                             last_name = display_name
                         stats[current_team][number]['first_name'] = first_name
                         stats[current_team][number]['last_name'] = last_name
+                        try: #we create the display name as: first letter of the first name "." + last name. E.g
+                            new_display_name = str(first_name)[0] + '. ' + last_name
+                            stats[current_team][number]['display_name'] = new_display_name
+                        except: #some players doesnt have first name. E.g 'Milisavljevic,' in the match 146-53146.html
+                            new_display_name = last_name
+                            stats[current_team][number]['first_name'] = None
+                            stats[current_team][number]['display_name'] = new_display_name
 
-                        new_display_name = str(first_name)[0] + '. ' + last_name
-                        stats[current_team][number]['display_name'] = new_display_name
+
                     elif '%' in header[cont]:  # discard percentages.
                         continue
 
