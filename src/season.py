@@ -133,20 +133,20 @@ class Season:
             try:
                 playoff_format.append(self.get_playoff_round_format(content, "#columnacuartos"))
             except Exception as e:
-                logger.info('Aun no se han jugado los cuartos...')
+                logger.info("Quarter-finals haven't been played yet.")
                 #print(e)
                 pass
 
             try:
                 playoff_format.append(self.get_playoff_round_format(content, "#columnasemi"))
             except Exception as e:
-                logger.info('Aun no se han jugado las semis...')
+                logger.info("Semi-finals haven't been played yet.")
                 #print(e)
                 pass
             try:
                 playoff_format.append(self.get_playoff_round_format(content, "#columnafinal"))
             except Exception as e:
-                logger.info('Aun no se han jugado la final...\n')
+                logger.info("Finals haven't been played yet.\n")
                 #print(e)
                 pass
 

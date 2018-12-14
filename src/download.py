@@ -130,7 +130,9 @@ def sanity_check_game(directory_name, logging_level=logging.INFO):
                 except:
                     logger.info('game ' + filename + ' cannot be deleted...')
 
-    if errors: raise Exception('There were {} errors in the downloads!'.format(len(errors)))
+    if errors:
+        raise Exception('There were {} errors in the downloads!'.format(len(errors)))
+
     logger.info('Sanity check of {} correctly finished!\n'.format(os.fsdecode(directory)))
     return errors
 

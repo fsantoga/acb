@@ -58,8 +58,6 @@ class Team(BaseModel):
                         logging.info("Team {} doesn't have foundation year. No matches found.".format(team_acbid))
                         pass
 
-
-
     @staticmethod
     def get_hardcoded_foundation_years(team_acbid):
 
@@ -70,8 +68,9 @@ class Team(BaseModel):
             'HUE': '1977',
             'HLV': '1996'
         }
-        hardcoded_team=hardcoded_teams.get(team_acbid)
-        return hardcoded_team
+        year=hardcoded_teams.get(team_acbid)
+        return year
+
 
 class TeamName(BaseModel):
     """

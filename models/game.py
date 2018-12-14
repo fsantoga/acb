@@ -5,6 +5,7 @@ from src.season import BASE_URL
 from models.basemodel import BaseModel
 from models.team import Team, TeamName
 from peewee import (PrimaryKeyField, IntegerField, DateTimeField, ForeignKeyField, BooleanField, CharField)
+from src.utils import get_current_season
 
 
 class Game(BaseModel):
@@ -17,12 +18,10 @@ class Game(BaseModel):
     game_acbid = IntegerField(unique=True, index=True)
     team_home_id = ForeignKeyField(Team, related_name='games_home', index=True, null=True)
     team_away_id = ForeignKeyField(Team, related_name='games_away', index=True, null=True)
+    season = IntegerField(null=False)
     competition_phase = CharField(max_length=255, null=True)
     round_phase = CharField(max_length=255, null=True)
-    journey = IntegerField(null=True)
-    venue = CharField(max_length=255, null=True)
-    attendance = IntegerField(null=True)
-    kickoff_time = DateTimeField(index=True)
+    journey = IntegerField(null=False)
     score_home = IntegerField(null=True)
     score_away = IntegerField(null=True)
     score_home_first = IntegerField(null=True)
@@ -35,6 +34,9 @@ class Game(BaseModel):
     score_away_fourth = IntegerField(null=True)
     score_home_extra = IntegerField(null=True)
     score_away_extra = IntegerField(null=True)
+    venue = CharField(max_length=255, null=True)
+    attendance = IntegerField(null=True)
+    kickoff_time = DateTimeField(index=True)
     referee_1 = CharField(max_length=255, null=True)
     referee_2 = CharField(max_length=255, null=True)
     referee_3 = CharField(max_length=255, null=True)
@@ -54,85 +56,40 @@ class Game(BaseModel):
 
         logger.info('Starting the download of games...')
 
-        n_checkpoints = 4
-
-        if season.season < 2016:
-            game_ids_list=season.get_game_ids()
-            checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
-
-            for i in range(len(game_ids_list)):
-
-                game_id=int(game_ids_list[i]) % 1000
-                url2 = BASE_URL + "/fichas/LACB{}.php".format(game_ids_list[i])
-                filename = os.path.join(season.GAMES_PATH, str(game_id)+"-" +str(game_ids_list[i]) + '.html')
-
-                open_or_download(file_path=filename, url=url2)
-                if i in checkpoints:
-                    logger.info('{}% already downloaded'.format(round(float(i * 100) / len(game_ids_list))))
-
-            logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_PATH))
-
+        if season.season == get_current_season():
+            current_game_events_ids = season.get_current_game_events_ids()
+            game_ids_list = list(current_game_events_ids.values())
         else:
-            game_events_ids=season.get_game_events_ids()
-            game_ids_list=list(game_events_ids.values())
-            checkpoints = [round(i*float(len(game_ids_list))/n_checkpoints) for i in range(n_checkpoints+1)]
-
-            for i in range(len(game_ids_list)):
-
-                game_id=int(game_ids_list[i]) % 1000
-                url2 = BASE_URL + "/fichas/LACB{}.php".format(game_ids_list[i])
-                filename = os.path.join(season.GAMES_PATH, str(game_id)+"-"+ str(game_ids_list[i]) + '.html')
-
-                open_or_download(file_path=filename, url=url2)
-                if i in checkpoints:
-                        logger.info('{}% already downloaded'.format(round(float(i*100) / len(game_ids_list))))
-
-            logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_PATH))
-
-
-    @staticmethod
-    def save_current_games(season, logging_level=logging.INFO):
-        """
-        Method for saving locally the games of a season.
-
-        :param season: int
-        :param logging_level: logging object
-        :return:
-        """
-        logging.basicConfig(level=logging_level)
-        logger = logging.getLogger(__name__)
-
-        logger.info('Starting the download of games...')
+            game_ids_list=season.get_game_ids()
 
         n_checkpoints = 4
-        current_game_events_ids=season.get_current_game_events_ids()
-        current_game_ids_list=list(current_game_events_ids.values())
-        checkpoints = [round(i*float(len(current_game_ids_list))/n_checkpoints) for i in range(n_checkpoints+1)]
+        checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
+        for i in range(len(game_ids_list)):
 
-        for i in range(len(current_game_ids_list)):
-
-            game_id = int(current_game_ids_list[i]) % 1000
-            url2 = BASE_URL + "/fichas/LACB{}.php".format(current_game_ids_list[i])
-            filename = os.path.join(season.GAMES_PATH, str(game_id)+"-"+ str(current_game_ids_list[i]) + '.html')
+            game_id=int(game_ids_list[i]) % 1000
+            url2 = BASE_URL + "/fichas/LACB{}.php".format(game_ids_list[i])
+            filename = os.path.join(season.GAMES_PATH, str(game_id)+"-" +str(game_ids_list[i]) + '.html')
 
             open_or_download(file_path=filename, url=url2)
             if i in checkpoints:
-                    logger.info('{}% already downloaded'.format(round(float(i*100) / len(current_game_ids_list))))
+                logger.info('{}% already downloaded'.format(round(float(i * 100) / len(game_ids_list))))
 
-        logger.info('Download finished! (new {} games in {})\n'.format(len(current_game_ids_list), season.GAMES_PATH))
+        logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_PATH))
+
 
     @staticmethod
     def sanity_check(season, logging_level=logging.INFO):
         sanity_check_game(season.GAMES_PATH, logging_level)
 
+
     @staticmethod
-    def create_instance(raw_game, id_game_number, season, competition_phase, round_phase=None):
+    def create_instance(raw_game, game_acbid, season, competition_phase, round_phase=None):
         """
         Extract all the information regarding the game such as the date, attendance, venue, score per quarter or teams.
         Therefore, we need first to extract and insert the teams in the database in order to get the references to the db.
 
         :param raw_game: String
-        :param id_game_number: int
+        :param game_acbid: int
         :param season: Season
         :param competition_phase: String
         :param round_phase: String
@@ -142,10 +99,7 @@ class Game(BaseModel):
         logging.basicConfig(level=logging.INFO)
         logger = logging.getLogger(__name__)
 
-        """
-        There are two different statistics table in acb.com.
-        I assume they created the new one to introduce the +/- stat.
-        """
+        # There are two different statistics table in acb.com. I assume they created the new one to introduce the +/- stat.
         estadisticas_tag = '.estadisticasnew' if re.search(r'<table class="estadisticasnew"', raw_game) else '.estadisticas'
 
         doc = pq(raw_game)
@@ -158,7 +112,8 @@ class Game(BaseModel):
 
         This id can be used to access the concrete game within the link 'http://www.acb.com/fichas/LACBXXYYY.php'
         """
-        game_dict['game_acbid'] = id_game_number
+        game_dict['game_acbid'] = game_acbid
+        game_dict['season'] = season.season
         game_dict['competition_phase'] = competition_phase
         game_dict['round_phase'] = round_phase
 
@@ -168,26 +123,16 @@ class Game(BaseModel):
         away_team_name = None
 
         """
-        We only have the names of the teams (text) within the doc. Hence, we need to get the teams' ids from other
-        source in order to introduce such information in the database.
-
-        Full disclosure: we get these ids from the standing page. If we the standing page is not available (it might
-        happensin old seasons), we try to make a match with existing teams. If this match doesn't exist, we need to
-        harcode the team and its id correspondance.
+        We only have the names of the teams (text) within the doc. We will look for its associated id by looking in our teamname table, where
+        we have all the historical official names for each team and season. However the ACB sometimes doesn't agree in the names
+        and writes them in different ways depending on the game (sometimes taking older names or making small changes).
+        For instance VALENCIA BASKET CLUB instead of VALENCIA BASKET.
+        So if there is not such a direct correspondance we will take the closest match.
         """
-        teams_ids = season.get_teams_ids()
         for i in [0, 2]:
             team_data = info_teams_data('.estverde').eq(i)('td').eq(0).text()
             team_name = re.search("(.*) [0-9]", team_data).groups()[0]
 
-            """
-            In general we only have one official name for a single team and season. However the ACB sometimes doesn't agree in teams names 
-            and write it in different ways depending on the game (sometimes taking older names or making some small changes).
-            E.g.:
-
-             - VALENCIA BASKET instead of VALENCIA BASKET CLUB
-             - C.B. OURENSE instead of CB OURENSE
-            """
             try:  ## In case the name of the team is exactly the same as one stated in our database for a season
                 team_acbid = TeamName.get(TeamName.name == team_name).team_id.team_acbid
                 team = Team.get(Team.team_acbid == team_acbid)

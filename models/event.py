@@ -1,10 +1,12 @@
 import os.path, re, logging
 from src.download import get_page,save_content,sanity_check_events
 from models.basemodel import BaseModel, db
+from models.team import Team
+from models.actor import Actor
 from src.utils import convert_time, create_driver
-from peewee import (PrimaryKeyField, TextField, IntegerField)
+from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField)
 import time
-
+from src.utils import get_current_season
 
 legend_dict = {
     'Asistencia': 'assist',
@@ -129,16 +131,19 @@ extra_legend_dict = {
     'Mate convertido': 'dunk',
 }
 
+
 class Event(BaseModel):
     id = PrimaryKeyField()
-    event_acbid = IntegerField(index=True)
+    events_game_acbid = IntegerField(index=True)
     game_acbid = IntegerField(index=True)
-    team_acbid = TextField(null=True)
+    team_code = CharField(max_length=255, null=True)
+    team_id = ForeignKeyField(Team, index=False, null=True)
     legend = TextField(null=True)
     extra_info = TextField(null=True)
     elapsed_time = IntegerField(null=True)
     display_name = TextField(null=True)
     jersey = IntegerField(null=True)
+    actor_id = ForeignKeyField(Actor, index=False, null=True)
     home_score = IntegerField(null=True)
     away_score = IntegerField(null=True)
 
@@ -156,50 +161,12 @@ class Event(BaseModel):
 
         logger.info('Taking all the ids for the events-games...')
 
-        fibalivestats_ids = season.get_game_events_ids()
+        if season.season == get_current_season():
+            fibalivestats_ids = season.get_current_game_events_ids()
+        else:
+            fibalivestats_ids = season.get_game_events_ids()
 
         logger.info('Starting the download of events...')
-
-        driver = create_driver(driver_path)
-        n_checkpoints = 10
-        checkpoints = [int(i * float(len(fibalivestats_ids)) / n_checkpoints) for i in range(n_checkpoints + 1)]
-        for i, (fls_id, game_acbid) in enumerate(fibalivestats_ids.items()):
-            filename = os.path.join(season.EVENTS_PATH, str(game_acbid)+"-"+str(fls_id) + ".html")
-            eventURL="http://www.fibalivestats.com/u/ACBS/{}/pbp.html".format(fls_id)
-            if not os.path.isfile(filename):
-                try:
-                    driver.get(eventURL)
-                    time.sleep(1)
-                    html = driver.page_source
-                    save_content(filename,html)
-                except Exception as e:
-                    logger.info(str(e) + ' when trying to retrieve ' + filename)
-                    pass
-
-            # Debugging
-            if i-1 in checkpoints:
-                logger.info('{}% already downloaded'.format(round(float(i-1) / len(fibalivestats_ids) * 100)))
-
-        driver.close()
-        logger.info('Download finished!)\n')
-
-    @staticmethod
-    def save_current_events(season, driver_path, logging_level=logging.INFO):
-        """
-        Method for saving locally the games of a season.
-        :param season: int
-        :param logging_level: logging object
-        :return:
-        """
-
-        logging.basicConfig(level=logging_level)
-        logger = logging.getLogger(__name__)
-
-        logger.info('Taking all the ids for the events-games...')
-
-        fibalivestats_ids = season.get_current_game_events_ids()
-
-        logger.info('Starting the download of events...\n')
 
         driver = create_driver(driver_path)
         n_checkpoints = 10
@@ -229,7 +196,7 @@ class Event(BaseModel):
         sanity_check_events(driver_path,season.EVENTS_PATH, logging_level)
 
     @staticmethod
-    def scrap_and_insert(event_acbid,game_acbid, playbyplay, team_code_1, team_code_2):
+    def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_code_1, team_code_2):
         logging.basicConfig(level=logging.INFO)
         logger = logging.getLogger(__name__)
 
@@ -238,12 +205,11 @@ class Event(BaseModel):
         cont = 1
         home_score = away_score = 0
 
-
         for elem in reversed(list(playbyplay('div').items())):
             if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
 
                 tag = elem.attr['class']
-                team_acbid = team_code_1 if "pbpt1" in tag else team_code_2 if "pbpt2" in tag else None
+                team_code = team_code_1 if "pbpt1" in tag else team_code_2 if "pbpt2" in tag else None
 
                 try:
                     legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
@@ -265,9 +231,9 @@ class Event(BaseModel):
                     jersey = -1
 
                 elapsed_time = convert_time(time, period[1:])
-                actions[cont] = {"event_acbid": event_acbid,
+                actions[cont] = {"events_game_acbid": events_game_acbid,
                                  "game_acbid": game_acbid,
-                                 "team_acbid": team_acbid,
+                                 "team_code": team_code,
                                  "legend": legend_dict[legend],
                                  "extra_info": extra_legend_dict.setdefault(legend, None),
                                  "elapsed_time": elapsed_time,
@@ -276,7 +242,6 @@ class Event(BaseModel):
                                  "home_score": home_score,
                                  "away_score": away_score}
                 cont += 1
-
 
         with db.atomic():
             for event in actions.values():
