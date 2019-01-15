@@ -75,14 +75,29 @@ def get_driver_path(driver_path):
 
 
 def get_current_season():
+
+    #We take te current time
     now = datetime.datetime.now()
+    #We extract the current year and the current month
     current_year = now.year
-    next_year = current_year + 1
-    first_day_current_season = datetime.datetime(current_year, 9, 1)
-    last_day_current_season = datetime.datetime(next_year, 8, 1)
+    current_month=now.month
+
+    #We check if the current_month is bewteen January and July. We need to know the real year of the current season
+    if current_month >= 1 & current_month <8:
+        real_current_year=current_year-1
+    #otherwise the real_current_year is equal to the current year because we are between august and december
+    else:
+        real_current_year=current_year
+
+
+    real_next_year = real_current_year + 1
+
+    #we set the first day of the current season and the last day of the current season
+    first_day_current_season = datetime.datetime(real_current_year, 9, 1)
+    last_day_current_season = datetime.datetime(real_next_year, 8, 1)
 
     if first_day_current_season < now < last_day_current_season:
-        current_season = now.year
+        current_season = real_current_year
     else:
         current_season = now.year + 1
 

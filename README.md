@@ -39,6 +39,8 @@ In summation, this database contains the stats from games such as http://www.acb
 
 
 # Por hacer:
+¿Final 2017 no aparece en tabla games?
+¿tratar perdidas de conexion a internet en descargas?
 ¿Metemos los equipos en la tabla participantes?¿tiene info relevante?
 ¿Que hacemos con los participantes?
         def fix_participants():

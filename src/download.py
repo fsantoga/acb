@@ -4,6 +4,7 @@ from src.utils import create_driver
 import os
 import time
 
+
 def get_page(url):
     """
     Get data from URL.
@@ -11,7 +12,14 @@ def get_page(url):
     :param url: String
     :return: content of the page
     """
-    return urllib.request.urlopen(url).read().decode('utf-8')
+
+    try:
+        content=urllib.request.urlopen(url).read().decode('utf-8')
+        return content
+    except Exception as e:
+        logging.error("Fail to download url: {}".format(url))
+        logging.error("Error: {}".format(e))
+        exit(-1)
 
 
 def save_content(file_path, content):

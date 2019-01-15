@@ -194,13 +194,13 @@ def main(args):
     last_season = args.last_season
 
     if first_season > last_season:  # dates checking
-        print("ERROR: First season must be lower or equal than the last season to download.")
-        print("USAGE: use --start YEAR and --end YEAR options to specify the seasons properly.")
+        logger.error("ERROR: First season must be lower or equal than the last season to download.")
+        logger.error("USAGE: use --start YEAR and --end YEAR options to specify the seasons properly.")
         exit(-1)
 
     if first_season > current_season or last_season > current_season:
-        print("ERROR: First season and last season must be lower or equal than the current season {}".format(current_season))
-        print("USAGE: use --start YEAR and --end YEAR options to specify the seasons properly or -u for the current season only.")
+        logger.error("ERROR: First season and last season must be lower or equal than the current season {}".format(current_season))
+        logger.error("USAGE: use --start YEAR and --end YEAR options to specify the seasons properly or -u for the current season only.")
         exit(-1)
 
     if args.r:  # Reset the database and create the schema
@@ -254,8 +254,8 @@ if __name__ == "__main__":
     parser.add_argument("-i", action='store_true', default=False)
     parser.add_argument("-c", action='store_true', default=False)
     parser.add_argument("-u", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=2017, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=1994, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())
