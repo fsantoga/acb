@@ -222,6 +222,8 @@ class Event(BaseModel):
                     jersey, display_name, _ = elem('.pbp-action').text().split(", ")
                     jersey = int(jersey)
 
+                    display_name=fix_display_names(display_name)
+
                 except:  # Cells without player associated (e.g. timeouts and missing info)
                     legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
                     elem.text().split("\n")[0]
@@ -246,3 +248,75 @@ class Event(BaseModel):
         with db.atomic():
             for event in actions.values():
                 Event.create(**event)
+
+
+def fix_display_names(display_name):
+        if display_name==";. Delía" or display_name==";. Delia":
+            display_name="M. Delia"
+            return display_name
+        elif display_name=="Á. Llorca":
+            display_name="A. Llorca"
+            return display_name
+        elif display_name=="A. Traore":
+            display_name="A. Traoré"
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name==""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        elif display_name=="":
+            display_name=""
+            return display_name
+        else:
+            return display_name
+

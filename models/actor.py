@@ -93,7 +93,9 @@ class Actor(BaseModel):
 
         personal_info = self._get_personal_info(content)
         twitter = self._get_twitter(content)
-        if twitter:
+        if twitter=="ACBCOM":
+            pass
+        else:
             personal_info.update({'twitter': twitter})
         if personal_info is None:
             pass

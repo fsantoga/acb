@@ -246,16 +246,24 @@ def main(args):
         insert_events(season)
         update_games()
 
+    if args.t:
+        print("TRAIN")
+    if args.p:
+        print("PREDICT")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", action='store_true', default=False)
-    parser.add_argument("-d", action='store_true', default=False)
-    parser.add_argument("-i", action='store_true', default=False)
-    parser.add_argument("-c", action='store_true', default=False)
-    parser.add_argument("-u", action='store_true', default=False)
-    parser.add_argument("--start", action='store', dest="first_season", default=1994, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2017, type=int)
+    parser.add_argument("-r", action='store_true', default=False) #Reset database
+    parser.add_argument("-d", action='store_true', default=False) #Download
+    parser.add_argument("-i", action='store_true', default=False) #Insert
+    parser.add_argument("-c", action='store_true', default=False) #clean previous records DB
+    parser.add_argument("-u", action='store_true', default=False) #Update DB with new games
+    parser.add_argument("-p", action='store_true', default=False) #Predict next results
+    parser.add_argument("-t", action='store_true', default=False) #Train ML model
+
+    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())
