@@ -256,6 +256,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+
     parser.add_argument("-r", action='store_true', default=False) #Reset database
     parser.add_argument("-d", action='store_true', default=False) #Download
     parser.add_argument("-i", action='store_true', default=False) #Insert
@@ -265,7 +266,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", action='store_true', default=False) #Train ML model
 
     parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())

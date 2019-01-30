@@ -321,7 +321,7 @@ class Participant(BaseModel):
         for team, team_dict in stats.items():
             for player, player_stats in team_dict.items():
                 try:
-                    if stats[team][player]['id']=="":
+                    if stats[team][player]['id']=="" or stats[team][player]['display_name']=="":
                         stats[team][player].pop('id')
                         pass
                     actor = Actor.get_or_create(actor_acbid=stats[team][player]['id'])
