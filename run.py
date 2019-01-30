@@ -169,12 +169,14 @@ def insert_events(season):
                 content = f.read()
                 doc = pyquery.PyQuery(content)
                 playbyplay = doc('#playbyplay')
-                team_code_1 = doc('.id_aj_1_code').text()
-                team_code_2 = doc('.id_aj_2_code').text()
+                query_teams = Game.get(Game.game_acbid == game_acbid)
+                team_home_id = query_teams.team_home_id
+                team_away_id = query_teams.team_away_id
+
                 try:
                     query = Event.select().where(Event.events_game_acbid == events_game_acbid)
                     if not query:
-                        Event.scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_code_1, team_code_2)
+                        Event.scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id)
                     else:
                         continue
                 except Exception as e:

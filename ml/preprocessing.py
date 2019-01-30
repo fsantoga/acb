@@ -87,14 +87,12 @@ print(df.isnull().sum(axis = 1))
 print(df.dtypes)
 print(df.head())
 
-final = df[['team_home_id', 'team_away_id',
-        'score_home', 'score_away',
-        'winning_team','score_difference']]
+final = df[['team_home_id', 'team_away_id','winning_team']]
 
 print(final.isnull().sum().max())
 
-X = final.drop(['score_difference'], axis=1)
-y = final['score_difference']
+X = final.drop(['winning_team'], axis=1)
+y = final['winning_team']
 y = y.astype('int')
 
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.25, random_state=123)

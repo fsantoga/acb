@@ -1,8 +1,10 @@
-import os.path, re, logging
+import os.path, re, difflib, logging
 from src.download import get_page,save_content,sanity_check_events
 from models.basemodel import BaseModel, db
 from models.team import Team
 from models.actor import Actor
+from models.game import Game
+from models.participant import Participant
 from src.utils import convert_time, create_driver
 from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField)
 import time
@@ -136,12 +138,10 @@ class Event(BaseModel):
     id = PrimaryKeyField()
     events_game_acbid = IntegerField(index=True)
     game_acbid = IntegerField(index=True)
-    team_code = CharField(max_length=255, null=True)
     team_id = ForeignKeyField(Team, index=False, null=True)
     legend = TextField(null=True)
     extra_info = TextField(null=True)
     elapsed_time = IntegerField(null=True)
-    display_name = TextField(null=True)
     jersey = IntegerField(null=True)
     actor_id = ForeignKeyField(Actor, index=False, null=True)
     home_score = IntegerField(null=True)
@@ -196,7 +196,7 @@ class Event(BaseModel):
         sanity_check_events(driver_path,season.EVENTS_PATH, logging_level)
 
     @staticmethod
-    def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_code_1, team_code_2):
+    def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id):
         logging.basicConfig(level=logging.INFO)
         logger = logging.getLogger(__name__)
 
@@ -209,7 +209,7 @@ class Event(BaseModel):
             if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
 
                 tag = elem.attr['class']
-                team_code = team_code_1 if "pbpt1" in tag else team_code_2 if "pbpt2" in tag else None
+                team_id = team_home_id if "pbpt1" in tag else team_away_id if "pbpt2" in tag else None
 
                 try:
                     legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
@@ -222,24 +222,40 @@ class Event(BaseModel):
                     jersey, display_name, _ = elem('.pbp-action').text().split(", ")
                     jersey = int(jersey)
 
-                    display_name=fix_display_names(display_name)
+
+                    game_id = Game.get(Game.game_acbid == game_acbid ).id
+
+                    try:  ## In case the name of the actor is exactly the same as one stated in our database this game
+                        query_actor_id = Participant.get((Participant.game_id == game_id) & (Participant.display_name % display_name)).actor
+
+                    except Participant.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
+                        query = Participant.select(Participant.actor, Participant.display_name).where((Participant.game_id == game_id) & (Participant.actor.is_null(False)))
+                        actors_names_ids = dict()
+                        for q in query:
+                            actors_names_ids[q.display_name] = q.actor.id
+
+                        most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
+                        query_actor_id = Actor.get(Actor.id == actors_names_ids[most_likely_actor]).id
+                        logger.info('Actor {} has been matched to: {}'.format(display_name,most_likely_actor))
+
+
+
 
                 except:  # Cells without player associated (e.g. timeouts and missing info)
                     legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
                     elem.text().split("\n")[0]
                     time = elem.attr['id']
                     period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
-                    display_name = None
                     jersey = -1
 
                 elapsed_time = convert_time(time, period[1:])
                 actions[cont] = {"events_game_acbid": events_game_acbid,
                                  "game_acbid": game_acbid,
-                                 "team_code": team_code,
+                                 "team_id": team_id,
+                                 "actor_id": query_actor_id,
                                  "legend": legend_dict[legend],
                                  "extra_info": extra_legend_dict.setdefault(legend, None),
                                  "elapsed_time": elapsed_time,
-                                 "display_name": display_name,
                                  "jersey": jersey,
                                  "home_score": home_score,
                                  "away_score": away_score}
@@ -248,75 +264,4 @@ class Event(BaseModel):
         with db.atomic():
             for event in actions.values():
                 Event.create(**event)
-
-
-def fix_display_names(display_name):
-        if display_name==";. Delía" or display_name==";. Delia":
-            display_name="M. Delia"
-            return display_name
-        elif display_name=="Á. Llorca":
-            display_name="A. Llorca"
-            return display_name
-        elif display_name=="A. Traore":
-            display_name="A. Traoré"
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name==""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        elif display_name=="":
-            display_name=""
-            return display_name
-        else:
-            return display_name
 

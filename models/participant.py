@@ -21,8 +21,6 @@ class Participant(BaseModel):
     team = ForeignKeyField(Team, index=True, null=True)
     actor = ForeignKeyField(Actor, related_name='participations', index=True, null=True)
     display_name = TextField(null=True)
-    first_name = TextField(null=True)
-    last_name = TextField(null=True)
     number = IntegerField(null=True)
     is_coach = BooleanField(null=True)
     is_starter = BooleanField(null=True)
@@ -169,8 +167,6 @@ class Participant(BaseModel):
         """
         header_to_db.update({"is_coach": "is_coach",
                              "is_starter": "is_starter",
-                             "first_name": "first_name",
-                             "last_name": "last_name",
                              "game": "game",
                              "team": "team",
                              "actor": "actor",
@@ -259,21 +255,16 @@ class Participant(BaseModel):
                         stats[current_team][number]['is_coach'] = 1 if is_coach else 0
                         stats[current_team][number]['number'] = None if is_coach else int(number)
 
+
                         display_name = td.text()
                         if ',' in display_name:
                             last_name, first_name = list(map(lambda x: x.strip(), td.text().split(",")))
-                        else:  # E.g. San Emeterio
-                            first_name = None
-                            last_name = display_name
-                        stats[current_team][number]['first_name'] = first_name
-                        stats[current_team][number]['last_name'] = last_name
-                        try: #we create the display name as: first letter of the first name "." + last name. E.g
                             new_display_name = str(first_name)[0] + '. ' + last_name
                             stats[current_team][number]['display_name'] = new_display_name
-                        except: #some players doesnt have first name. E.g 'Milisavljevic,' in the match 146-53146.html
-                            new_display_name = last_name
-                            stats[current_team][number]['first_name'] = None
-                            stats[current_team][number]['display_name'] = new_display_name
+
+                        else:  # E.g. San Emeterio
+                            stats[current_team][number]['display_name'] = display_name
+
 
 
                     elif '%' in header[cont]:  # discard percentages.
@@ -330,6 +321,9 @@ class Participant(BaseModel):
         for team, team_dict in stats.items():
             for player, player_stats in team_dict.items():
                 try:
+                    if stats[team][player]['id']=="":
+                        stats[team][player].pop('id')
+                        pass
                     actor = Actor.get_or_create(actor_acbid=stats[team][player]['id'])
                     if actor[1]:
                         actor[0].display_name = stats[team][player]['display_name']
