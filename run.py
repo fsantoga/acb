@@ -266,8 +266,8 @@ if __name__ == "__main__":
     parser.add_argument("-p", action='store_true', default=False) #Predict next results
     parser.add_argument("-t", action='store_true', default=False) #Train ML model
 
-    parser.add_argument("--start", action='store', dest="first_season", default=1994, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2015, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())

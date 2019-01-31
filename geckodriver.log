@@ -32226,3 +32226,883 @@ JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/nsUrlClassifie
 
 ###!!! [Parent][DispatchAsyncMessage] Error: PBackgroundIDBFactory::Msg_PBackgroundIDBFactoryRequestConstructor Value error: message was deserialized, but contained an illegal value
 
+1548953871210	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.x2BydcWu4pBc"
+*** You are running in headless mode.
+1548953872401	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548953872401	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548953874117	Marionette	INFO	Listening on port 58909
+1548953874162	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+console.error: BroadcastService: 
+  receivedBroadcastMessage: handler for
+  remote-settings/monitor_changes
+  threw error:
+  Message: Error: Polling for changes failed: NetworkError when attempting to fetch resource..
+  Stack:
+    remoteSettingsFunction/remoteSettings.pollChanges@resource://services-settings/remote-settings.js:750:13
+
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+1548954352613	Marionette	INFO	Stopped listening on port 58909
+[Parent 9372, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 1748, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 1748, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/[Parent 9372, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 5432, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 5432, Chrome_Child1548954358823	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.FWSugSxpzHEW"
+*** You are running in headless mode.
+1548954359335	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548954359335	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548954360641	Marionette	INFO	Listening on port 65022
+1548954360943	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+1548954387879	Marionette	INFO	Stopped listening on port 65022
+[Child 12940, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 12940[Parent 13636, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Parent 13636, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 9724, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 9724, Chro65373
+1548954382997	Marionette	WARN	TLS certificate errors will be ignored for this session
+1548954387277	Marionette	INFO	Stopped listening on port 65373
+[Parent 1940, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Parent 1940, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 7272, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/b[Child 10212,ui ld/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346Chrome_ChildThread] WARNING: pipe erro
+r: 109:[Child 7272 file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 1021[Parent 1940, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 3932, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 3932, Chrom1548955586311	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.DP8VAAT38IQX"
+*** You are running in headless mode.
+1548955586977	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548955586977	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548955588133	Marionette	INFO	Listening on port 63459
+1548955588451	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+1548956038378	Marionette	INFO	Stopped listening on port 63459
+[Parent 9344, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 3632, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 3632, Chrome_ChildThr[Parent 9344, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 8516, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 8516, Chrome_ChildThread] WARNI[Child 12188, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 121881548956044005	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.wzQlSXxlwKyK"
+*** You are running in headless mode.
+1548956044595	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548956044595	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548956045642	Marionette	INFO	Listening on port 52692
+1548956046138	Marionette	WARN	TLS certificate errors will be ignored for this session
+1548956050645	Marionette	INFO	Stopped listening on port 52692
+[Parent 8916, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Parent 8916, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 12528, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 12528, C[Parent 8916, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 7764, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 7764, Chro1548956339597	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.n0Of3sewPc1c"
+*** You are running in headless mode.
+1548956340074	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548956340074	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548956341163	Marionette	INFO	Listening on port 56417
+1548956341230	Marionette	WARN	TLS certificate errors will be ignored for this session
+1548956341363	Marionette	INFO	Stopped listening on port 56417
+[Parent 4284, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 11656, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 1165[Child 11180, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 11180, Ch[Parent 4284, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 6812, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 6812, Ch[Parent 4284, Gecko_IOThread] WARNING: file z:/build/build/src/ipc/chromium/src/base/process_util_win.cc, line 188
+JavaScript error: resource://gre/modules/Sqlite.jsm, line 841: Error: Connection is not open.
+1548956344958	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.y9FS1YXMmTaa"
+*** You are running in headless mode.
+1548956345437	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548956345437	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548956346818	Marionette	INFO	Listening on port 56508
+1548956347091	Marionette	WARN	TLS certificate errors will be ignored for this session
+1548956351405	Marionette	INFO	Stopped listening on port 56508
+[Parent 1348, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Parent 1348, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 14312, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome[Chil/common/ipc_channel_win.cc, line 346d 780, Chrome_ChildThread
+][Child 143 1WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 780, Chr[Parent 1348, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 9612, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 9612, Chrome1548956491987	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.mgcHZGBpn8rb"
+*** You are running in headless mode.
+1548956492456	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548956492456	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548956493487	Marionette	INFO	Listening on port 58534
+1548956493623	Marionette	WARN	TLS certificate errors will be ignored for this session
+1548956493718	Marionette	INFO	Stopped listening on port 58534
+[Parent 10236, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Parent 10236, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 6376, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 6376[Child 11192, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 1119[Parent 10236, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 688, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 688, Chrome[Parent 10236, Gecko_IOThread] WARNING: file z:/build/build/src/ipc/chromium/src/base/process_util_win.cc, line 188
+JavaScript error: resource://gre/modules/Sqlite.jsm, line 841: Error: Connection is not open.
+1548956497298	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.FnOwdck1AdWI"
+*** You are running in headless mode.
+1548956497736	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548956497736	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548956498775	Marionette	INFO	Listening on port 58626
+1548956498920	Marionette	WARN	TLS certificate errors will be ignored for this session
+1548956503201	Marionette	INFO	Stopped listening on port 58626
+[Parent 13888, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Parent 13888, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 9332, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/com[Child 12068, Chrmon/ipc_channelome_ChildThr_win.cc, line 346e
+ad] WARNI[ChiNlG: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 120[Parent 13888, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 12996, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 12996, Chrom1548956583859	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.uYiQP9Daoh87"
+*** You are running in headless mode.
+1548956584299	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548956584300	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548956585370	Marionette	INFO	Listening on port 59892
+1548956585482	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+1548957572743	Marionette	INFO	Stopped listening on port 59892
+[Child 12464, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 12464, C[Parent 6280, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Parent 6280, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 10752, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 107521548957580824	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.VtDardxGI3OJ"
+*** You are running in headless mode.
+1548957581825	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548957581825	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+1548957583706	Marionette	INFO	Listening on port 56586
+1548957584079	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+1548957629024	Marionette	INFO	Stopped listening on port 56586
+[Child 9568, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 9568,[Parent 11684, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 1104, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 1104, Chrome_ChildThre[Parent 11684, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 8944, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 8944, C, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Parent 4004, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 16344, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channe[Child 13640, Chrol_win.cc,me_Child liThread] WARNIne 346NG: pi
+pe error:[C h1i09: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 13640, Chrome_C[Parent 4004, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 16328, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 16328, Chro1548957758164	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "-marionette" "-headless" "-foreground" "-no-remote" "-profile" "C:\\Users\\ricardo\\AppData\\Local\\Temp\\rust_mozprofile.7IVwlMtRgned"
+*** You are running in headless mode.
+1548957759517	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: resource://pdf.js/
+1548957759518	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid host permission: about:reader*
+[GFX1-]: ClientLayerManager::BeginTransaction with IPC channel down. GPU process may have died.
+1548957763845	Marionette	INFO	Listening on port 59443
+1548957764228	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
+JavaScript error: https://ssl.connextra.com/resources/LiveStats/prebid/livestats_prebid_3.js, line 1: ReferenceError: googletag is not defined
