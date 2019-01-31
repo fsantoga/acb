@@ -81,11 +81,11 @@ def insert_games(season):
                 try:
                     with open(os.path.join(season.GAMES_PATH, file_name), 'r', encoding='utf-8') as f:
                         raw_game = f.read()
-                        game = Game.create_instance(raw_game=raw_game, game_acbid=game_acbid,season=season,competition_phase=competition_phase,round_phase=round_phase)
-                        #print("ENTRO")
+                        game = Game.create_instance(raw_game=raw_game, game_acbid=game_acbid,
+                                                    season=season,
+                                                    competition_phase=competition_phase,
+                                                    round_phase=round_phase)
                         Participant.create_instances(raw_game=raw_game, game=game)
-                        #print("ENTRO2")
-
                 except Exception as e:
                     print(e)
                     logger.info(
@@ -191,6 +191,7 @@ def main(args):
 
     logger.info('STARTING...')
 
+
     current_season=get_current_season()
     first_season = args.first_season
     last_season = args.last_season
@@ -266,7 +267,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", action='store_true', default=False) #Train ML model
 
     parser.add_argument("--start", action='store', dest="first_season", default=1994, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2015, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())

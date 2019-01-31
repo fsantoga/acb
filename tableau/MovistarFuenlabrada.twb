@@ -1,0 +1,1696 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20183.18.1018.1932                               -->
+<workbook original-version='18.1' source-build='2018.3.0 (20183.18.1018.1932)' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <document-format-change-manifest>
+    <WindowsPersistSimpleIdentifiers />
+  </document-format-change-manifest>
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <datasources>
+    <datasource caption='game+ (acb)' inline='true' name='federated.1wp7utn04w3mz21fa11pk16cikef' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='localhost' name='mysql.0z4g3660sbwy3k150c9pn0y5dxig'>
+            <connection class='mysql' dbname='acb' odbc-native-protocol='' one-time-sql='' port='3306' server='localhost' source-charset='' username='root' />
+          </named-connection>
+        </named-connections>
+        <relation join='inner' type='join'>
+          <clause type='join'>
+            <expression op='AND'>
+              <expression op='='>
+                <expression op='[team_home].[id]' />
+                <expression op='[teamname_home].[team_id]' />
+              </expression>
+              <expression op='='>
+                <expression op='[game].[season]' />
+                <expression op='[teamname_home].[season]' />
+              </expression>
+            </expression>
+          </clause>
+          <relation join='inner' type='join'>
+            <clause type='join'>
+              <expression op='AND'>
+                <expression op='='>
+                  <expression op='[team_away].[id]' />
+                  <expression op='[teamname_away].[team_id]' />
+                </expression>
+                <expression op='='>
+                  <expression op='[game].[season]' />
+                  <expression op='[teamname_away].[season]' />
+                </expression>
+              </expression>
+            </clause>
+            <relation join='inner' type='join'>
+              <clause type='join'>
+                <expression op='='>
+                  <expression op='[game].[team_away_id]' />
+                  <expression op='[team_away].[id]' />
+                </expression>
+              </clause>
+              <relation join='inner' type='join'>
+                <clause type='join'>
+                  <expression op='='>
+                    <expression op='[game].[team_home_id]' />
+                    <expression op='[team_home].[id]' />
+                  </expression>
+                </clause>
+                <relation connection='mysql.0z4g3660sbwy3k150c9pn0y5dxig' name='game' table='[game]' type='table'>
+                  <columns>
+                    <column datatype='integer' date-parse-format='yyyy' name='season' />
+                  </columns>
+                </relation>
+                <relation connection='mysql.0z4g3660sbwy3k150c9pn0y5dxig' name='team_home' table='[team]' type='table' />
+              </relation>
+              <relation connection='mysql.0z4g3660sbwy3k150c9pn0y5dxig' name='team_away' table='[team]' type='table' />
+            </relation>
+            <relation connection='mysql.0z4g3660sbwy3k150c9pn0y5dxig' name='teamname_away' table='[teamname]' type='table' />
+          </relation>
+          <relation connection='mysql.0z4g3660sbwy3k150c9pn0y5dxig' name='teamname_home' table='[teamname]' type='table' />
+        </relation>
+        <cols>
+          <map key='[attendance]' value='[game].[attendance]' />
+          <map key='[competition_phase]' value='[game].[competition_phase]' />
+          <map key='[db_flag]' value='[game].[db_flag]' />
+          <map key='[founded_year (team)]' value='[team_away].[founded_year]' />
+          <map key='[founded_year]' value='[team_home].[founded_year]' />
+          <map key='[game_acbid]' value='[game].[game_acbid]' />
+          <map key='[id (team) #1]' value='[team_away].[id]' />
+          <map key='[id (team)]' value='[team_home].[id]' />
+          <map key='[id (teamname) #1]' value='[teamname_home].[id]' />
+          <map key='[id (teamname)]' value='[teamname_away].[id]' />
+          <map key='[id]' value='[game].[id]' />
+          <map key='[journey]' value='[game].[journey]' />
+          <map key='[kickoff_time]' value='[game].[kickoff_time]' />
+          <map key='[name (teamname)]' value='[teamname_home].[name]' />
+          <map key='[name]' value='[teamname_away].[name]' />
+          <map key='[referee_1]' value='[game].[referee_1]' />
+          <map key='[referee_2]' value='[game].[referee_2]' />
+          <map key='[referee_3]' value='[game].[referee_3]' />
+          <map key='[round_phase]' value='[game].[round_phase]' />
+          <map key='[score_away]' value='[game].[score_away]' />
+          <map key='[score_away_extra]' value='[game].[score_away_extra]' />
+          <map key='[score_away_first]' value='[game].[score_away_first]' />
+          <map key='[score_away_fourth]' value='[game].[score_away_fourth]' />
+          <map key='[score_away_second]' value='[game].[score_away_second]' />
+          <map key='[score_away_third]' value='[game].[score_away_third]' />
+          <map key='[score_home]' value='[game].[score_home]' />
+          <map key='[score_home_extra]' value='[game].[score_home_extra]' />
+          <map key='[score_home_first]' value='[game].[score_home_first]' />
+          <map key='[score_home_fourth]' value='[game].[score_home_fourth]' />
+          <map key='[score_home_second]' value='[game].[score_home_second]' />
+          <map key='[score_home_third]' value='[game].[score_home_third]' />
+          <map key='[season (teamname) #1]' value='[teamname_home].[season]' />
+          <map key='[season (teamname)]' value='[teamname_away].[season]' />
+          <map key='[season]' value='[game].[season]' />
+          <map key='[team_acbid (team)]' value='[team_away].[team_acbid]' />
+          <map key='[team_acbid]' value='[team_home].[team_acbid]' />
+          <map key='[team_away_id]' value='[game].[team_away_id]' />
+          <map key='[team_home_id]' value='[game].[team_home_id]' />
+          <map key='[team_id (teamname) #1]' value='[teamname_home].[team_id]' />
+          <map key='[team_id (teamname)]' value='[teamname_away].[team_id]' />
+          <map key='[venue]' value='[game].[venue]' />
+        </cols>
+        <metadata-records>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>game_acbid</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[game_acbid]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>game_acbid</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>team_home_id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[team_home_id]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>team_home_id</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>team_away_id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[team_away_id]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>team_away_id</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>season</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[season]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>season</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>journey</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[journey]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>journey</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>competition_phase</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[competition_phase]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>competition_phase</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>255</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>round_phase</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[round_phase]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>round_phase</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>255</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_home</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_home]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_home</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_away</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_away]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_away</remote-alias>
+            <ordinal>10</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_home_first</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_home_first]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_home_first</remote-alias>
+            <ordinal>11</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_away_first</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_away_first]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_away_first</remote-alias>
+            <ordinal>12</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_home_second</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_home_second]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_home_second</remote-alias>
+            <ordinal>13</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_away_second</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_away_second]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_away_second</remote-alias>
+            <ordinal>14</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_home_third</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_home_third]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_home_third</remote-alias>
+            <ordinal>15</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_away_third</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_away_third]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_away_third</remote-alias>
+            <ordinal>16</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_home_fourth</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_home_fourth]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_home_fourth</remote-alias>
+            <ordinal>17</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_away_fourth</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_away_fourth]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_away_fourth</remote-alias>
+            <ordinal>18</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_home_extra</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_home_extra]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_home_extra</remote-alias>
+            <ordinal>19</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>score_away_extra</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[score_away_extra]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>score_away_extra</remote-alias>
+            <ordinal>20</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>venue</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[venue]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>venue</remote-alias>
+            <ordinal>21</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>255</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>attendance</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[attendance]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>attendance</remote-alias>
+            <ordinal>22</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>kickoff_time</remote-name>
+            <remote-type>7</remote-type>
+            <local-name>[kickoff_time]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>kickoff_time</remote-alias>
+            <ordinal>23</ordinal>
+            <local-type>datetime</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>referee_1</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[referee_1]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>referee_1</remote-alias>
+            <ordinal>24</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>255</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>referee_2</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[referee_2]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>referee_2</remote-alias>
+            <ordinal>25</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>255</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>referee_3</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[referee_3]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>referee_3</remote-alias>
+            <ordinal>26</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>255</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>db_flag</remote-name>
+            <remote-type>16</remote-type>
+            <local-name>[db_flag]</local-name>
+            <parent-name>[game]</parent-name>
+            <remote-alias>db_flag</remote-alias>
+            <ordinal>27</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>3</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TINYINT&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_STINYINT&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id (team)]</local-name>
+            <parent-name>[team_home]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>29</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>team_acbid</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[team_acbid]</local-name>
+            <parent-name>[team_home]</parent-name>
+            <remote-alias>team_acbid</remote-alias>
+            <ordinal>30</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>3</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>founded_year</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[founded_year]</local-name>
+            <parent-name>[team_home]</parent-name>
+            <remote-alias>founded_year</remote-alias>
+            <ordinal>31</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id (team) #1]</local-name>
+            <parent-name>[team_away]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>33</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>team_acbid</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[team_acbid (team)]</local-name>
+            <parent-name>[team_away]</parent-name>
+            <remote-alias>team_acbid</remote-alias>
+            <ordinal>34</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>3</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>founded_year</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[founded_year (team)]</local-name>
+            <parent-name>[team_away]</parent-name>
+            <remote-alias>founded_year</remote-alias>
+            <ordinal>35</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id (teamname)]</local-name>
+            <parent-name>[teamname_away]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>37</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>team_id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[team_id (teamname)]</local-name>
+            <parent-name>[teamname_away]</parent-name>
+            <remote-alias>team_id</remote-alias>
+            <ordinal>38</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>name</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[name]</local-name>
+            <parent-name>[teamname_away]</parent-name>
+            <remote-alias>name</remote-alias>
+            <ordinal>39</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>255</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>season</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[season (teamname)]</local-name>
+            <parent-name>[teamname_away]</parent-name>
+            <remote-alias>season</remote-alias>
+            <ordinal>40</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[id (teamname) #1]</local-name>
+            <parent-name>[teamname_home]</parent-name>
+            <remote-alias>id</remote-alias>
+            <ordinal>42</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>team_id</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[team_id (teamname) #1]</local-name>
+            <parent-name>[teamname_home]</parent-name>
+            <remote-alias>team_id</remote-alias>
+            <ordinal>43</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>name</remote-name>
+            <remote-type>130</remote-type>
+            <local-name>[name (teamname)]</local-name>
+            <parent-name>[teamname_home]</parent-name>
+            <remote-alias>name</remote-alias>
+            <ordinal>44</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <width>255</width>
+            <contains-null>false</contains-null>
+            <collation flag='0' name='LROOT' />
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+              <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>season</remote-name>
+            <remote-type>3</remote-type>
+            <local-name>[season (teamname) #1]</local-name>
+            <parent-name>[teamname_home]</parent-name>
+            <remote-alias>season</remote-alias>
+            <ordinal>45</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <precision>10</precision>
+            <contains-null>false</contains-null>
+            <attributes>
+              <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+              <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+            </attributes>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='ScoreFuenla' datatype='integer' name='[Calculation_417145937763176448]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='IF [team_acbid]==&quot;FUE&quot; then [score_home] ELSEIF [team_acbid (team)] == &quot;FUE&quot; then [score_away] ELSE 0 END' />
+      </column>
+      <column caption='WonOrNotFuenla' datatype='integer' name='[Calculation_417145937771888641]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='If [Calculation_417145937763176448]&gt;[ScoreFuenla (copia)] then 1 else 0 END' />
+      </column>
+      <column caption='ScoreDifFuenla' datatype='integer' name='[Calculation_417145937774407682]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='[Calculation_417145937763176448]-[ScoreFuenla (copia)]' />
+      </column>
+      <column caption='HomeOrNotFuenla' datatype='string' name='[Calculation_417145937776328707]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='If [team_acbid] == &quot;FUE&quot; then &quot;Home&quot; else &quot;Away&quot; END' />
+      </column>
+      <column caption='FilterFueEst' datatype='integer' name='[Calculation_417145937782026244]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='If [Calculation_417145937763176448]&gt;0 OR  [ScoreFuenla (copia 2)]&gt;0 then 1 ELSE 0 END' />
+      </column>
+      <column caption='OponentNameFuenla' datatype='string' name='[Calculation_924645320796524544]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='If [team_acbid]==&quot;FUE&quot; then [name] ELSEIF [team_acbid (team)]==&quot;FUE&quot; THEN [name (teamname)] ELSE NULL END' />
+      </column>
+      <column caption='HomeOrNotEstu' datatype='string' name='[HomeOrNot (copia)]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='If [team_acbid] == &quot;EST&quot; then &quot;Home&quot; else &quot;Away&quot; END' />
+      </column>
+      <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <column caption='OponentNameEstu' datatype='string' name='[OponentNameFuenla (copia)]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='If [team_acbid]==&quot;EST&quot; then [name] ELSEIF [team_acbid (team)]==&quot;EST&quot; THEN [name (teamname)] ELSE NULL END' />
+      </column>
+      <column caption='ScoreDifEstu' datatype='integer' name='[ScoreDifFuenla (copia)]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='[ScoreFuenla (copia 2)]-[ScoreOponentFuenla (copia)]' />
+      </column>
+      <column caption='ScoreEstu' datatype='integer' name='[ScoreFuenla (copia 2)]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='IF [team_acbid]==&quot;EST&quot; then [score_home] ELSEIF [team_acbid (team)] == &quot;EST&quot; then [score_away] ELSE 0 END' />
+      </column>
+      <column caption='ScoreOponentFuenla' datatype='integer' name='[ScoreFuenla (copia)]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='IF [team_acbid]==&quot;FUE&quot; then [score_away] ELSEIF [team_acbid (team)] == &quot;FUE&quot; then [score_home] ELSE 0 END' />
+      </column>
+      <column caption='ScoreOponentEstu' datatype='integer' name='[ScoreOponentFuenla (copia)]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='IF [team_acbid]==&quot;EST&quot; then [score_away] ELSEIF [team_acbid (team)] == &quot;EST&quot; then [score_home] ELSE 0 END' />
+      </column>
+      <column caption='WonOrNotEstu' datatype='integer' name='[WonOrNotFuenla (copia)]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='If [ScoreFuenla (copia 2)]&gt;[ScoreOponentFuenla (copia)] then 1 else 0 END' />
+      </column>
+      <column caption='Attendance' datatype='integer' name='[attendance]' role='measure' type='quantitative' />
+      <column caption='Competition Phase' datatype='string' name='[competition_phase]' role='dimension' type='nominal' />
+      <column caption='Db Flag' datatype='integer' name='[db_flag]' role='measure' type='quantitative' />
+      <column caption='Founded Year (Team)' datatype='integer' name='[founded_year (team)]' role='dimension' type='quantitative' />
+      <column caption='Founded Year' datatype='integer' name='[founded_year]' role='dimension' type='quantitative' />
+      <column aggregation='Sum' caption='Game Acbid' datatype='integer' name='[game_acbid]' role='dimension' type='ordinal' />
+      <column aggregation='Sum' caption='Id (Team) #1' datatype='integer' name='[id (team) #1]' role='dimension' type='ordinal' />
+      <column aggregation='Sum' caption='Id (Team)' datatype='integer' name='[id (team)]' role='dimension' type='ordinal' />
+      <column caption='Id (Teamname) #1' datatype='integer' name='[id (teamname) #1]' role='dimension' type='ordinal' />
+      <column caption='Id (Teamname)' datatype='integer' name='[id (teamname)]' role='dimension' type='ordinal' />
+      <column caption='Id' datatype='integer' name='[id]' role='dimension' type='ordinal' />
+      <column caption='Journey' datatype='integer' name='[journey]' role='measure' type='quantitative' />
+      <column caption='Kickoff Time' datatype='datetime' name='[kickoff_time]' role='dimension' type='ordinal' />
+      <column caption='Name (Teamname)' datatype='string' name='[name (teamname)]' role='dimension' type='nominal' />
+      <column caption='Name' datatype='string' name='[name]' role='dimension' type='nominal' />
+      <column caption='Referee 1' datatype='string' name='[referee_1]' role='dimension' type='nominal' />
+      <column caption='Referee 2' datatype='string' name='[referee_2]' role='dimension' type='nominal' />
+      <column caption='Referee 3' datatype='string' name='[referee_3]' role='dimension' type='nominal' />
+      <column caption='Round Phase' datatype='string' name='[round_phase]' role='dimension' type='nominal' />
+      <column caption='Score Away' datatype='integer' name='[score_away]' role='measure' type='quantitative' />
+      <column caption='Score Away Extra' datatype='integer' name='[score_away_extra]' role='measure' type='quantitative' />
+      <column caption='Score Away First' datatype='integer' name='[score_away_first]' role='measure' type='quantitative' />
+      <column caption='Score Away Fourth' datatype='integer' name='[score_away_fourth]' role='measure' type='quantitative' />
+      <column caption='Score Away Second' datatype='integer' name='[score_away_second]' role='measure' type='quantitative' />
+      <column caption='Score Away Third' datatype='integer' name='[score_away_third]' role='measure' type='quantitative' />
+      <column caption='Score Home' datatype='integer' name='[score_home]' role='measure' type='quantitative' />
+      <column caption='Score Home Extra' datatype='integer' name='[score_home_extra]' role='measure' type='quantitative' />
+      <column caption='Score Home First' datatype='integer' name='[score_home_first]' role='measure' type='quantitative' />
+      <column caption='Score Home Fourth' datatype='integer' name='[score_home_fourth]' role='measure' type='quantitative' />
+      <column caption='Score Home Second' datatype='integer' name='[score_home_second]' role='measure' type='quantitative' />
+      <column caption='Score Home Third' datatype='integer' name='[score_home_third]' role='measure' type='quantitative' />
+      <column caption='Season (Teamname) #1' datatype='integer' name='[season (teamname) #1]' role='measure' type='quantitative' />
+      <column caption='Season (Teamname)' datatype='integer' name='[season (teamname)]' role='measure' type='quantitative' />
+      <column aggregation='Sum' caption='Season' datatype='integer' datatype-customized='true' name='[season]' role='dimension' type='ordinal' />
+      <column caption='Team Acbid (Team)' datatype='string' name='[team_acbid (team)]' role='dimension' type='nominal' />
+      <column caption='Team Acbid' datatype='string' name='[team_acbid]' role='dimension' type='nominal' />
+      <column aggregation='Sum' caption='Team Away Id' datatype='integer' name='[team_away_id]' role='dimension' type='ordinal' />
+      <column aggregation='Sum' caption='Team Home Id' datatype='integer' name='[team_home_id]' role='dimension' type='ordinal' />
+      <column aggregation='Sum' caption='Team Id (Teamname) #1' datatype='integer' name='[team_id (teamname) #1]' role='dimension' type='ordinal' />
+      <column aggregation='Sum' caption='Team Id (Teamname)' datatype='integer' name='[team_id (teamname)]' role='dimension' type='ordinal' />
+      <column caption='Venue' datatype='string' name='[venue]' role='dimension' type='nominal' />
+      <column-instance column='[Calculation_417145937774407682]' derivation='Attribute' name='[attr:Calculation_417145937774407682:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Calculation_417145937776328707]' derivation='Attribute' name='[attr:Calculation_417145937776328707:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HomeOrNot (copia)]' derivation='Attribute' name='[attr:HomeOrNot (copia):qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Calculation_417145937774407682]' derivation='None' name='[none:Calculation_417145937774407682:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[ScoreDifFuenla (copia)]' derivation='None' name='[none:ScoreDifFuenla (copia):qk]' pivot='key' type='quantitative' />
+      <column-instance column='[team_acbid (team)]' derivation='None' name='[none:team_acbid (team):nk]' pivot='key' type='nominal' />
+      <column-instance column='[team_acbid]' derivation='None' name='[none:team_acbid:nk]' pivot='key' type='nominal' />
+      <column-instance column='[Calculation_417145937763176448]' derivation='Sum' name='[sum:Calculation_417145937763176448:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Calculation_417145937771888641]' derivation='Sum' name='[sum:Calculation_417145937771888641:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Calculation_417145937774407682]' derivation='Sum' name='[sum:Calculation_417145937774407682:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Calculation_417145937776328707]' derivation='Sum' name='[sum:Calculation_417145937776328707:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[HomeOrNot (copia)]' derivation='Sum' name='[sum:HomeOrNot (copia):qk]' pivot='key' type='quantitative' />
+      <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[ScoreDifFuenla (copia)]' derivation='Sum' name='[sum:ScoreDifFuenla (copia):qk]' pivot='key' type='quantitative' />
+      <column-instance column='[ScoreFuenla (copia)]' derivation='Sum' name='[sum:ScoreFuenla (copia):qk]' pivot='key' type='quantitative' />
+      <column-instance column='[attendance]' derivation='Sum' name='[sum:attendance:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[db_flag]' derivation='Sum' name='[sum:db_flag:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[journey]' derivation='Sum' name='[sum:journey:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_away]' derivation='Sum' name='[sum:score_away:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_away_extra]' derivation='Sum' name='[sum:score_away_extra:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_away_first]' derivation='Sum' name='[sum:score_away_first:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_away_fourth]' derivation='Sum' name='[sum:score_away_fourth:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_away_second]' derivation='Sum' name='[sum:score_away_second:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_away_third]' derivation='Sum' name='[sum:score_away_third:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_home]' derivation='Sum' name='[sum:score_home:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_home_extra]' derivation='Sum' name='[sum:score_home_extra:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_home_first]' derivation='Sum' name='[sum:score_home_first:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_home_fourth]' derivation='Sum' name='[sum:score_home_fourth:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_home_second]' derivation='Sum' name='[sum:score_home_second:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[score_home_third]' derivation='Sum' name='[sum:score_home_third:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[season (teamname) #1]' derivation='Sum' name='[sum:season (teamname) #1:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[season (teamname)]' derivation='Sum' name='[sum:season (teamname):qk]' pivot='key' type='quantitative' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.686375' measure-ordering='alphabetic' measure-percentage='0.313625' show-structure='true' user-set-layout='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[none:team_acbid:nk]' type='palette'>
+            <map to='#499894'>
+              <bucket>&quot;EST&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;AND&quot;</bucket>
+            </map>
+            <map to='#59a14f'>
+              <bucket>&quot;BRE&quot;</bucket>
+            </map>
+            <map to='#79706e'>
+              <bucket>&quot;MAD&quot;</bucket>
+            </map>
+            <map to='#86bcb6'>
+              <bucket>&quot;FUE&quot;</bucket>
+            </map>
+            <map to='#8cd17d'>
+              <bucket>&quot;BRG&quot;</bucket>
+            </map>
+            <map to='#9d7660'>
+              <bucket>&quot;SEV&quot;</bucket>
+            </map>
+            <map to='#a0cbe8'>
+              <bucket>&quot;BAR&quot;</bucket>
+            </map>
+            <map to='#b07aa1'>
+              <bucket>&quot;PAM&quot;</bucket>
+            </map>
+            <map to='#b6992d'>
+              <bucket>&quot;CAN&quot;</bucket>
+            </map>
+            <map to='#bab0ac'>
+              <bucket>&quot;MAN&quot;</bucket>
+            </map>
+            <map to='#d37295'>
+              <bucket>&quot;MUR&quot;</bucket>
+            </map>
+            <map to='#d4a6c8'>
+              <bucket>&quot;RON&quot;</bucket>
+            </map>
+            <map to='#d7b5a6'>
+              <bucket>&quot;ZZA&quot;</bucket>
+            </map>
+            <map to='#e15759'>
+              <bucket>&quot;GBC&quot;</bucket>
+            </map>
+            <map to='#f1ce63'>
+              <bucket>&quot;CLA&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;BAS&quot;</bucket>
+            </map>
+            <map to='#fabfd2'>
+              <bucket>&quot;OBR&quot;</bucket>
+            </map>
+            <map to='#ff9d9a'>
+              <bucket>&quot;JOV&quot;</bucket>
+            </map>
+            <map to='#ffbe7d'>
+              <bucket>&quot;BLB&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[:Measure Names]' type='palette'>
+            <map to='#499894'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_away_second:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[attr:Calculation_417145937774407682:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[attr:Calculation_417145937776328707:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[attr:HomeOrNot (copia):qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[none:Calculation_417145937774407682:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:attendance:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:Calculation_417145937774407682:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:Calculation_417145937776328707:qk]&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:HomeOrNot (copia):qk]&quot;</bucket>
+            </map>
+            <map to='#59a14f'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_away:qk]&quot;</bucket>
+            </map>
+            <map to='#79706e'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_home_first:qk]&quot;</bucket>
+            </map>
+            <map to='#86bcb6'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_away_third:qk]&quot;</bucket>
+            </map>
+            <map to='#8cd17d'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_away_extra:qk]&quot;</bucket>
+            </map>
+            <map to='#9d7660'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:season (teamname):qk]&quot;</bucket>
+            </map>
+            <map to='#a0cbe8'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:db_flag:qk]&quot;</bucket>
+            </map>
+            <map to='#b07aa1'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:Calculation_417145937763176448:qk]&quot;</bucket>
+            </map>
+            <map to='#b6992d'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_away_first:qk]&quot;</bucket>
+            </map>
+            <map to='#bab0ac'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_home_fourth:qk]&quot;</bucket>
+            </map>
+            <map to='#d37295'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_home_second:qk]&quot;</bucket>
+            </map>
+            <map to='#d4a6c8'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:ScoreFuenla (copia):qk]&quot;</bucket>
+            </map>
+            <map to='#d7b5a6'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:season (teamname) \#1:qk]&quot;</bucket>
+            </map>
+            <map to='#e15759'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_home:qk]&quot;</bucket>
+            </map>
+            <map to='#f1ce63'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_away_fourth:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[none:ScoreDifFuenla (copia):qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:Calculation_417145937771888641:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:journey:qk]&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:ScoreDifFuenla (copia):qk]&quot;</bucket>
+            </map>
+            <map to='#fabfd2'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_home_third:qk]&quot;</bucket>
+            </map>
+            <map to='#ff9d9a'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:score_home_extra:qk]&quot;</bucket>
+            </map>
+            <map to='#ffbe7d'>
+              <bucket>&quot;[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:Number of Records:qk]&quot;</bucket>
+            </map>
+          </encoding>
+          <encoding attr='color' field='[none:team_acbid (team):nk]' type='palette'>
+            <map to='#499894'>
+              <bucket>&quot;GBC&quot;</bucket>
+            </map>
+            <map to='#4e79a7'>
+              <bucket>&quot;AND&quot;</bucket>
+            </map>
+            <map to='#59a14f'>
+              <bucket>&quot;BRG&quot;</bucket>
+            </map>
+            <map to='#79706e'>
+              <bucket>&quot;MUR&quot;</bucket>
+            </map>
+            <map to='#86bcb6'>
+              <bucket>&quot;JOV&quot;</bucket>
+            </map>
+            <map to='#8cd17d'>
+              <bucket>&quot;CAN&quot;</bucket>
+            </map>
+            <map to='#9d7660'>
+              <bucket>&quot;BRE&quot;</bucket>
+            </map>
+            <map to='#a0cbe8'>
+              <bucket>&quot;BAR&quot;</bucket>
+            </map>
+            <map to='#b07aa1'>
+              <bucket>&quot;SEV&quot;</bucket>
+            </map>
+            <map to='#b6992d'>
+              <bucket>&quot;CLA&quot;</bucket>
+            </map>
+            <map to='#bab0ac'>
+              <bucket>&quot;OBR&quot;</bucket>
+            </map>
+            <map to='#d37295'>
+              <bucket>&quot;PAM&quot;</bucket>
+            </map>
+            <map to='#d4a6c8'>
+              <bucket>&quot;ZZA&quot;</bucket>
+            </map>
+            <map to='#d7b5a6'>
+              <bucket>&quot;FUE&quot;</bucket>
+            </map>
+            <map to='#e15759'>
+              <bucket>&quot;MAD&quot;</bucket>
+            </map>
+            <map to='#f1ce63'>
+              <bucket>&quot;EST&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot;BAS&quot;</bucket>
+            </map>
+            <map to='#fabfd2'>
+              <bucket>&quot;RON&quot;</bucket>
+            </map>
+            <map to='#ff9d9a'>
+              <bucket>&quot;MAN&quot;</bucket>
+            </map>
+            <map to='#ffbe7d'>
+              <bucket>&quot;BLB&quot;</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;España&quot;' />
+      </semantic-values>
+      <date-options start-of-week='monday' />
+    </datasource>
+  </datasources>
+  <worksheets>
+    <worksheet name='Estu'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='game+ (acb)' name='federated.1wp7utn04w3mz21fa11pk16cikef' />
+          </datasources>
+          <datasource-dependencies datasource='federated.1wp7utn04w3mz21fa11pk16cikef'>
+            <column caption='HomeOrNotEstu' datatype='string' name='[HomeOrNot (copia)]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='If [team_acbid] == &quot;EST&quot; then &quot;Home&quot; else &quot;Away&quot; END' />
+            </column>
+            <column caption='OponentNameEstu' datatype='string' name='[OponentNameFuenla (copia)]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='If [team_acbid]==&quot;EST&quot; then [name] ELSEIF [team_acbid (team)]==&quot;EST&quot; THEN [name (teamname)] ELSE NULL END' />
+            </column>
+            <column caption='ScoreDifEstu' datatype='integer' name='[ScoreDifFuenla (copia)]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='[ScoreFuenla (copia 2)]-[ScoreOponentFuenla (copia)]' />
+            </column>
+            <column caption='ScoreEstu' datatype='integer' name='[ScoreFuenla (copia 2)]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='IF [team_acbid]==&quot;EST&quot; then [score_home] ELSEIF [team_acbid (team)] == &quot;EST&quot; then [score_away] ELSE 0 END' />
+            </column>
+            <column caption='ScoreOponentEstu' datatype='integer' name='[ScoreOponentFuenla (copia)]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='IF [team_acbid]==&quot;EST&quot; then [score_away] ELSEIF [team_acbid (team)] == &quot;EST&quot; then [score_home] ELSE 0 END' />
+            </column>
+            <column caption='Kickoff Time' datatype='datetime' name='[kickoff_time]' role='dimension' type='ordinal' />
+            <column-instance column='[ScoreFuenla (copia 2)]' derivation='Min' name='[min:ScoreFuenla (copia 2):qk]' pivot='key' type='quantitative' />
+            <column caption='Name (Teamname)' datatype='string' name='[name (teamname)]' role='dimension' type='nominal' />
+            <column caption='Name' datatype='string' name='[name]' role='dimension' type='nominal' />
+            <column-instance column='[HomeOrNot (copia)]' derivation='None' name='[none:HomeOrNot (copia):nk]' pivot='key' type='nominal' />
+            <column-instance column='[OponentNameFuenla (copia)]' derivation='None' name='[none:OponentNameFuenla (copia):nk]' pivot='key' type='nominal' />
+            <column-instance column='[ScoreDifFuenla (copia)]' derivation='None' name='[none:ScoreDifFuenla (copia):qk]' pivot='key' type='quantitative' />
+            <column-instance column='[kickoff_time]' derivation='None' name='[none:kickoff_time:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[season]' derivation='None' name='[none:season:ok]' pivot='key' type='ordinal' />
+            <column caption='Score Away' datatype='integer' name='[score_away]' role='measure' type='quantitative' />
+            <column caption='Score Home' datatype='integer' name='[score_home]' role='measure' type='quantitative' />
+            <column aggregation='Sum' caption='Season' datatype='integer' datatype-customized='true' name='[season]' role='dimension' type='ordinal' />
+            <column caption='Team Acbid (Team)' datatype='string' name='[team_acbid (team)]' role='dimension' type='nominal' />
+            <column caption='Team Acbid' datatype='string' name='[team_acbid]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <filter class='quantitative' column='[federated.1wp7utn04w3mz21fa11pk16cikef].[min:ScoreFuenla (copia 2):qk]' included-values='in-range'>
+            <min>1</min>
+            <max>85</max>
+          </filter>
+          <filter class='categorical' column='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:season:ok]'>
+            <groupfilter function='member' level='[none:season:ok]' member='2018' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:season:ok]</column>
+            <column>[federated.1wp7utn04w3mz21fa11pk16cikef].[min:ScoreFuenla (copia 2):qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane id='3' selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:HomeOrNot (copia):nk]' />
+              <text column='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:OponentNameFuenla (copia):nk]' />
+            </encodings>
+            <trendline enable-confidence-bands='false' enable-instant-analytics='true' enabled='true' exclude-color='false' exclude-intercept='false' fit='linear' />
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:ScoreDifFuenla (copia):qk]</rows>
+        <cols>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:kickoff_time:qk]</cols>
+      </table>
+    </worksheet>
+    <worksheet name='Fuenla'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='game+ (acb)' name='federated.1wp7utn04w3mz21fa11pk16cikef' />
+          </datasources>
+          <datasource-dependencies datasource='federated.1wp7utn04w3mz21fa11pk16cikef'>
+            <column caption='ScoreFuenla' datatype='integer' name='[Calculation_417145937763176448]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='IF [team_acbid]==&quot;FUE&quot; then [score_home] ELSEIF [team_acbid (team)] == &quot;FUE&quot; then [score_away] ELSE 0 END' />
+            </column>
+            <column caption='ScoreDifFuenla' datatype='integer' name='[Calculation_417145937774407682]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='[Calculation_417145937763176448]-[ScoreFuenla (copia)]' />
+            </column>
+            <column caption='HomeOrNotFuenla' datatype='string' name='[Calculation_417145937776328707]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='If [team_acbid] == &quot;FUE&quot; then &quot;Home&quot; else &quot;Away&quot; END' />
+            </column>
+            <column caption='OponentNameFuenla' datatype='string' name='[Calculation_924645320796524544]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='If [team_acbid]==&quot;FUE&quot; then [name] ELSEIF [team_acbid (team)]==&quot;FUE&quot; THEN [name (teamname)] ELSE NULL END' />
+            </column>
+            <column caption='ScoreOponentFuenla' datatype='integer' name='[ScoreFuenla (copia)]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='IF [team_acbid]==&quot;FUE&quot; then [score_away] ELSEIF [team_acbid (team)] == &quot;FUE&quot; then [score_home] ELSE 0 END' />
+            </column>
+            <column caption='Kickoff Time' datatype='datetime' name='[kickoff_time]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_417145937763176448]' derivation='Min' name='[min:Calculation_417145937763176448:qk]' pivot='key' type='quantitative' />
+            <column caption='Name (Teamname)' datatype='string' name='[name (teamname)]' role='dimension' type='nominal' />
+            <column caption='Name' datatype='string' name='[name]' role='dimension' type='nominal' />
+            <column-instance column='[Calculation_417145937774407682]' derivation='None' name='[none:Calculation_417145937774407682:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_417145937776328707]' derivation='None' name='[none:Calculation_417145937776328707:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_924645320796524544]' derivation='None' name='[none:Calculation_924645320796524544:nk]' pivot='key' type='nominal' />
+            <column-instance column='[kickoff_time]' derivation='None' name='[none:kickoff_time:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[season]' derivation='None' name='[none:season:ok]' pivot='key' type='ordinal' />
+            <column caption='Score Away' datatype='integer' name='[score_away]' role='measure' type='quantitative' />
+            <column caption='Score Home' datatype='integer' name='[score_home]' role='measure' type='quantitative' />
+            <column aggregation='Sum' caption='Season' datatype='integer' datatype-customized='true' name='[season]' role='dimension' type='ordinal' />
+            <column caption='Team Acbid (Team)' datatype='string' name='[team_acbid (team)]' role='dimension' type='nominal' />
+            <column caption='Team Acbid' datatype='string' name='[team_acbid]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <filter class='quantitative' column='[federated.1wp7utn04w3mz21fa11pk16cikef].[min:Calculation_417145937763176448:qk]' included-values='in-range'>
+            <min>1</min>
+            <max>94</max>
+          </filter>
+          <filter class='categorical' column='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:season:ok]'>
+            <groupfilter function='member' level='[none:season:ok]' member='2018' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:season:ok]</column>
+            <column>[federated.1wp7utn04w3mz21fa11pk16cikef].[min:Calculation_417145937763176448:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane id='1' selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:Calculation_417145937776328707:nk]' />
+              <text column='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:Calculation_924645320796524544:nk]' />
+            </encodings>
+            <trendline enable-confidence-bands='false' enable-instant-analytics='true' enabled='true' exclude-color='false' exclude-intercept='false' fit='linear' />
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-show' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:Calculation_417145937774407682:qk]</rows>
+        <cols>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:kickoff_time:qk]</cols>
+      </table>
+    </worksheet>
+  </worksheets>
+  <windows saved-dpi-scale-factor='1.25' source-height='37'>
+    <window class='worksheet' maximized='true' name='Fuenla'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='173'>
+            <card param='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:season:ok]' type='filter' />
+            <card pane-specification-id='1' param='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:Calculation_417145937776328707:nk]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[:Measure Names]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[attr:Calculation_417145937776328707:qk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:Calculation_417145937776328707:nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:Calculation_924645320796524544:nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:game_acbid:ok]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:name (teamname):nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:name:nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:season:ok]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:team_acbid (team):nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:team_acbid:nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:team_home_id:ok]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[sum:Calculation_417145937776328707:qk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[yr:kickoff_time:ok]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{6E3B705C-8CC8-4EFC-B445-FE5D3DFC7E4B}' />
+    </window>
+    <window class='worksheet' name='Estu'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='172'>
+            <card param='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:season:ok]' type='filter' />
+            <card pane-specification-id='3' param='[federated.1wp7utn04w3mz21fa11pk16cikef].[none:HomeOrNot (copia):nk]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[:Measure Names]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[attr:Calculation_417145937776328707:qk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:HomeOrNot (copia):nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:OponentNameFuenla (copia):nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:game_acbid:ok]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:name (teamname):nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:name:nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:season:ok]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:team_acbid (team):nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:team_acbid:nk]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[none:team_home_id:ok]</field>
+            <field>[federated.1wp7utn04w3mz21fa11pk16cikef].[yr:kickoff_time:ok]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{A537BF42-A4DB-4F0B-AEC7-61F529E5D3C6}' />
+    </window>
+  </windows>
+  <thumbnails>
+    <thumbnail height='192' name='Estu' width='192'>
+      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
+      AElFTkSuQmCC
+    </thumbnail>
+    <thumbnail height='192' name='Fuenla' width='192'>
+      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
+      0vvIAEgF7f8Da4UGZpAL/McAAAAASUVORK5CYII=
+    </thumbnail>
+  </thumbnails>
+</workbook>
