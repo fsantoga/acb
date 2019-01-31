@@ -247,6 +247,7 @@ class Event(BaseModel):
                     time = elem.attr['id']
                     period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
                     jersey = -1
+                    query_actor_id=None
 
                 elapsed_time = convert_time(time, period[1:])
                 actions[cont] = {"events_game_acbid": events_game_acbid,

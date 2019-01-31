@@ -93,10 +93,9 @@ class Actor(BaseModel):
 
         personal_info = self._get_personal_info(content)
         twitter = self._get_twitter(content)
-        if twitter=="ACBCOM":
-            pass
-        else:
-            personal_info.update({'twitter': twitter})
+
+        personal_info.update({'twitter': twitter})
+
         if personal_info is None:
             pass
         else:
@@ -127,8 +126,10 @@ class Actor(BaseModel):
                     personal_info['birth_place'] = place.strip()
                     personal_info['birth_date'] = datetime.datetime(year=int(year), month=int(month), day=int(day))
                 except:
-                    logging.error('The actor {} has an error in the birthdate and birthplace. Msg: {}'.format(personal_info['full_name'], data[0]))
-                    return None
+                    logging.warning('The actor {} has an error in the birthdate and birthplace. Msg: {}'.format(personal_info['full_name'], data[0]))
+                    personal_info['birth_place'] = None
+                    personal_info['birth_date'] = None
+                    pass
 
             elif header[0].startswith('posic'):
                 for i, field in enumerate(header):
@@ -139,7 +140,7 @@ class Actor(BaseModel):
                     elif field.startswith('peso'):
                         personal_info['weight'] = data[i].split(" ")[0]
                     else:
-                        logging.error("Actor's field not found: {}".format(field))
+                        logging.warning("Actor's field not found: {}".format(field))
                         return None
 
             elif header[0].startswith('nacionalidad'):
@@ -149,7 +150,7 @@ class Actor(BaseModel):
                     elif field.startswith('licencia'):
                         personal_info['license'] = data[i]
                     else:
-                        logging.error("Actor's field not found: {}".format(field))
+                        logging.warning("Actor's field not found: {}".format(field))
                         return None
 
             elif header[0].startswith('debut en ACB'):
@@ -157,7 +158,7 @@ class Actor(BaseModel):
                     day, month, year = re.search(r'([0-9]+)/([0-9]+)/([0-9]+)', data[0]).groups()
                     personal_info['debut_acb'] = datetime.datetime(year=int(year), month=int(month), day=int(day))
                 except:
-                    logging.error('The actor {} has an error in the debut_acb. Msg: {}'.format(personal_info['full_name'], data[0]))
+                    logging.warning('The actor {} has an error in the debut_acb. Msg: {}'.format(personal_info['full_name'], data[0]))
                     return None
 
             else:
@@ -173,4 +174,12 @@ class Actor(BaseModel):
         :return: twitter
         """
         twitter = re.search(r'"http://www.twitter.com/(.*?)"', raw_doc)
-        return twitter.groups()[0] if twitter else None
+        try:
+            twitter = twitter.groups()[0]
+            if twitter=="ACBCOM":
+                twitter = None
+                return twitter
+            else:
+                return twitter.groups()[0] if twitter else None
+        except:
+            pass

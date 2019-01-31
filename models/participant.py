@@ -68,10 +68,16 @@ class Participant(BaseModel):
             actor = Actor.get(Actor.display_name == actor_name)
             actor.actor_acbid = actor_acbid
             actor.save()
+
         except Exception as e:
+            actor = Actor()
+            actor.actor_acbid = actor_acbid
+            actor.display_name = actor_name
+            actor.save()
+
             #print(e)
-            logging.info("The actor {}, cannot be inserted into the database".format(actor_name))
-            pass
+            #logging.info("The actor {}, cannot be inserted into the database".format(actor_name))
+            #pass
 
     @staticmethod
     def _fix_participations(actor_name, actual_acbid, wrong_acbid):
@@ -102,12 +108,11 @@ class Participant(BaseModel):
 
     @staticmethod
     def fix_participants():
-        Participant._fix_acbid('Esteban, Màxim', '2CH')
-        Participant._fix_acbid('Sharabidze, G.', 'Y9G')
-        Participant._fix_participations('Tavares, W.', 'T2Z', 'SHP')
-        Participant._fix_participations('Stobart, Micky', 'B7P', 'FII')
-        Participant._fix_participations('Olaizola, Julen', 'T86', '162')
-        Participant._fix_participations('Izquierdo, Antonio', '773', 'YHK')
+        Participant._fix_acbid('G. Sharabidze', 'Y9G')
+        Participant._fix_participations('W. Tavares', 'T2Z', 'SHP')
+        Participant._fix_participations('M. Stobart', 'B7P', 'FII')
+        Participant._fix_participations('J. Olaizola', 'T86', '162')
+        Participant._fix_participations('A. Izquierdo', '773', 'YHK')
 
 
 
