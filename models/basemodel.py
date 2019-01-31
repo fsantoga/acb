@@ -30,7 +30,6 @@ def reset_database(logging_level=logging.INFO):
         print(e)
 
 
-
 def create_schema(logging_level=logging.INFO):
 
     logging.basicConfig(level=logging_level)
@@ -76,6 +75,7 @@ def delete_records(logging_level=logging.INFO):
         print(e)
     finally:
         db.close()
+
 
 class BaseModel(Model):
     class Meta:

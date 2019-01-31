@@ -57,7 +57,7 @@ class Participant(BaseModel):
         Participant._create_players_and_coaches(raw_game, game)
 
     @staticmethod
-    def _fix_acbid(actor_name, actor_acbid):
+    def _fix_acbid(actor_name, actor_acbid,is_coach):
         """
         Modify the acbid of an actor.
 
@@ -67,12 +67,14 @@ class Participant(BaseModel):
         try:
             actor = Actor.get(Actor.display_name == actor_name)
             actor.actor_acbid = actor_acbid
+            actor.is_coach=is_coach
             actor.save()
 
         except Exception as e:
             actor = Actor()
             actor.actor_acbid = actor_acbid
             actor.display_name = actor_name
+            actor.is_coach=is_coach
             actor.save()
 
             #print(e)
@@ -108,11 +110,16 @@ class Participant(BaseModel):
 
     @staticmethod
     def fix_participants():
-        Participant._fix_acbid('G. Sharabidze', 'Y9G')
+        Participant._fix_acbid('G. Sharabidze', 'Y9G',0)
+        Participant._fix_acbid('S. Gacic', '801',0)
+        Participant._fix_acbid('M. Milisavljevic', 'D08',0)
+
+        Participant._fix_participations('M. Esteban', '2CH','476')
         Participant._fix_participations('W. Tavares', 'T2Z', 'SHP')
         Participant._fix_participations('M. Stobart', 'B7P', 'FII')
         Participant._fix_participations('J. Olaizola', 'T86', '162')
         Participant._fix_participations('A. Izquierdo', '773', 'YHK')
+
 
 
 
@@ -218,6 +225,7 @@ class Participant(BaseModel):
                                 game.score_home = int(td.text()) if current_team == 0 else game.score_home
                             except Exception as e:
                                 print(e)
+                                pass
                             try:
                                 game.score_away = int(td.text()) if current_team == 1 else game.score_away
                             except Exception as e:
@@ -263,10 +271,12 @@ class Participant(BaseModel):
 
                         display_name = td.text()
                         if ',' in display_name:
-                            last_name, first_name = list(map(lambda x: x.strip(), td.text().split(",")))
-                            new_display_name = str(first_name)[0] + '. ' + last_name
-                            stats[current_team][number]['display_name'] = new_display_name
-
+                            try:
+                                last_name, first_name = list(map(lambda x: x.strip(), td.text().split(",")))
+                                new_display_name = str(first_name)[0] + '. ' + last_name
+                                stats[current_team][number]['display_name'] = new_display_name
+                            except: # E.g Milisavljevic,                                new_display_name=last_name
+                                stats[current_team][number]['display_name'] = new_display_name
                         else:  # E.g. San Emeterio
                             stats[current_team][number]['display_name'] = display_name
 
