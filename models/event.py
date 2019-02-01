@@ -229,7 +229,7 @@ class Event(BaseModel):
                         query_actor_id = Participant.get((Participant.game_id == game_id) & (Participant.display_name % display_name)).actor
 
                     except Participant.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
-                        query = Participant.select(Participant.actor, Participant.display_name).where((Participant.game_id == game_id) & (Participant.actor.is_null(False)))
+                        query = Participant.select(Participant.actor, Participant.display_name).where((Participant.game_id == game_id) & (Participant.actor.is_null(False)) & (Participant.team_id==team_id))
                         actors_names_ids = dict()
                         for q in query:
                             actors_names_ids[q.display_name] = q.actor.id

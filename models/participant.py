@@ -270,6 +270,10 @@ class Participant(BaseModel):
 
 
                         display_name = td.text()
+                        #if display_name=="":
+                        #    stats=None
+                        #    pass
+                        #else:
                         if ',' in display_name:
                             try:
                                 last_name, first_name = list(map(lambda x: x.strip(), td.text().split(",")))
