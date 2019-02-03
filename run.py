@@ -232,8 +232,8 @@ def main(args):
             season = Season(year)
             insert_teams(season)
             insert_games(season)
-            #if year >= 2016:
-            #    insert_events(season)
+            if year >= 2016:
+                insert_events(season)
 
         # Update missing info about actors and participants.
         update_games()
@@ -260,8 +260,8 @@ def main(args):
             journey_matches_ml = get_journey_matches(season, journey)
             print(journey_matches_ml)
         else:
-            current_journey_matches_ml = get_current_journey_matches(season)
-            print(current_journey_matches_ml)
+            #current_journey_matches_ml = get_current_journey_matches(season)
+            #print(current_journey_matches_ml)
 
             next_journey_matches_ml = get_next_journey_matches(season)
             print(next_journey_matches_ml)
