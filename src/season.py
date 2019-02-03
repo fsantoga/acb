@@ -1,8 +1,8 @@
 import os, re, logging
 import numpy as np
-from pyquery import PyQuery as pq
 from src.download import validate_dir, open_or_download,download,get_page
-from src.utils import get_current_season
+import pandas as pd
+from pyquery import PyQuery as pq
 
 
 FIRST_SEASON = 1956
@@ -185,10 +185,34 @@ class Season:
             return relegation_teams
 
     def get_current_journey(self):
-        filename = os.path.join(self.SEASON_PATH, 'next_journeys_calendar.html')
+        filename = os.path.join(self.SEASON_PATH, 'current_journey_calendar.html')
         url = BASE_URL + "resulcla.php"
         content = download(file_path=filename, url=url)
         doc = pq(content)
         prox_journey=doc('.estnegro')('td').eq(1).text()
         current_journey=(re.findall('\d+', prox_journey ))
         return int(current_journey[0])
+
+    def get_next_journey(self):
+        current_journey=self.get_current_journey()
+
+        filename = os.path.join(self.SEASON_PATH, 'next_journey_calendar.html')
+        url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, current_journey+1)
+        content = download(file_path=filename, url=url)
+        doc = pq(content)
+        prox_journey=doc('.estnegro')('td').eq(1).text()
+        current_journey=(re.findall('\d+', prox_journey ))
+        return int(current_journey[0])
+
+    def get_journey(self,journey):
+        filename = os.path.join(self.SEASON_PATH, 'journey_{}_calendar.html').format(journey)
+        url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, journey)
+        content = download(file_path=filename, url=url)
+        doc = pq(content)
+        prox_journey = doc('.estnegro')('td').eq(1).text()
+        current_journey = (re.findall('\d+', prox_journey))
+        return int(current_journey[0])
+
+
+
+

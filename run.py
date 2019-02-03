@@ -1,10 +1,10 @@
 import argparse, os, re,glob
 from models.basemodel import db, reset_database, delete_records, create_schema
-from models.game import Game
 from models.event import *
 from models.team import TeamName, Team
 from models.actor import Actor
 from models.participant import Participant
+from ml.utils_ml import *
 from src.season import Season
 import pyquery
 from src.utils import get_driver_path, get_current_season
@@ -191,10 +191,11 @@ def main(args):
 
     logger.info('STARTING...')
 
-
     current_season=get_current_season()
     first_season = args.first_season
     last_season = args.last_season
+
+    season=Season(current_season)
 
     if first_season > last_season:  # dates checking
         logger.error("ERROR: First season must be lower or equal than the last season to download.")
@@ -253,6 +254,15 @@ def main(args):
         print("TRAIN")
     if args.p:
         print("PREDICT")
+
+        current_journey_matches_ml = get_current_journey_matches(season)
+        print(current_journey_matches_ml)
+
+        next_journey_matches_ml = get_next_journey_matches(season)
+        print(next_journey_matches_ml)
+
+        journey_matches_ml = get_journey_matches(season, 40)
+        print(journey_matches_ml)
 
 
 if __name__ == "__main__":
