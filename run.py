@@ -255,14 +255,16 @@ def main(args):
     if args.p:
         print("PREDICT")
 
-        current_journey_matches_ml = get_current_journey_matches(season)
-        print(current_journey_matches_ml)
+        if args.journey:
+            journey=args.journey
+            journey_matches_ml = get_journey_matches(season, journey)
+            print(journey_matches_ml)
+        else:
+            current_journey_matches_ml = get_current_journey_matches(season)
+            print(current_journey_matches_ml)
 
-        next_journey_matches_ml = get_next_journey_matches(season)
-        print(next_journey_matches_ml)
-
-        journey_matches_ml = get_journey_matches(season, 40)
-        print(journey_matches_ml)
+            next_journey_matches_ml = get_next_journey_matches(season)
+            print(next_journey_matches_ml)
 
 
 if __name__ == "__main__":
@@ -276,6 +278,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", action='store_true', default=False) #Predict next results
     parser.add_argument("-t", action='store_true', default=False) #Train ML model
 
+    parser.add_argument("--journey", action='store', dest="journey", type=int)
     parser.add_argument("--start", action='store', dest="first_season", default=2018, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
