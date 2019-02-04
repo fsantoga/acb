@@ -4,7 +4,9 @@ from models.event import *
 from models.team import TeamName, Team
 from models.actor import Actor
 from models.participant import Participant
-from ml.utils_ml import *
+from ml.preprocessing import *
+from ml.train import *
+from ml.predict import *
 from src.season import Season
 import pyquery
 from src.utils import get_driver_path, get_current_season
@@ -251,6 +253,8 @@ def main(args):
         update_games()
 
     if args.t:
+        #train_results,df_final=train_model(2010,2017,100)
+        #print(train_results)
         print("TRAIN")
     if args.p:
         print("PREDICT")
@@ -263,8 +267,15 @@ def main(args):
             #current_journey_matches_ml = get_current_journey_matches(season)
             #print(current_journey_matches_ml)
 
-            next_journey_matches_ml = get_next_journey_matches(season)
-            print(next_journey_matches_ml)
+            #next_journey_matches_ml = get_next_journey_matches(season)
+            #print(next_journey_matches_ml)
+
+            next_journey_matches_df = get_next_journey(season)
+            print(next_journey_matches_df)
+
+            train_results,df_final=train_model(2016,2018,100,next_journey_matches_df)
+
+            results_predict=predict_next_journey(train_results,next_journey_matches_df,df_final)
 
 
 if __name__ == "__main__":
