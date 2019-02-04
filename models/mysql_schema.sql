@@ -143,8 +143,8 @@ CREATE TABLE participant (
 
     FOREIGN KEY (game_id) REFERENCES game(id),
     FOREIGN KEY (team_id) REFERENCES team(id),
-    FOREIGN KEY (actor_id) REFERENCES actor(id)
-
+    FOREIGN KEY (actor_id) REFERENCES actor(id),
+    UNIQUE(game_id, team_id, actor_id)
 );
 CREATE INDEX participant_game_id_idx ON participant(game_id);
 CREATE INDEX participant_team_id_idx ON participant(team_id);

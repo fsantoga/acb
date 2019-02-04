@@ -77,6 +77,14 @@ def insert_games(season):
             game_number = int(file_name.split("-")[0])
             game_acbid = int(file_name.split("-")[1].split(".")[0])
 
+            # Check it was not in the database already (-u option)
+            query = Game.select().where(Game.game_acbid == game_acbid)
+            if not query:
+                pass
+            else:
+                continue
+
+
             if game_number <= n_regular:  # Regular season
                 competition_phase = 'regular'
                 round_phase = None
@@ -290,7 +298,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", action='store_true', default=False) #Train ML model
 
     parser.add_argument("--journey", action='store', dest="journey", type=int)
-    parser.add_argument("--start", action='store', dest="first_season", default=2018, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
