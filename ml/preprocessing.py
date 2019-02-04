@@ -127,11 +127,69 @@ def calculate_WR_SD_last_X(df_games,last_X_days):
 
     return df_games
 
+def calculate_WR_SD_last_X_predict(df_predict,df_games,last_X_days):
+    # for each game add results of last ones
+    win_rate_home_list = []
+    win_rate_away_list = []
+    score_diff_avg_home_list = []
+    score_diff_avg_away_list = []
+    for i, row in tqdm(df_games.iterrows()):
+        date_end = row["kickoff_time"]
+        date_start = date_end - timedelta(days=last_X_days)
+        # For the home team
+        team_id = row["team_home_id"]
+        # print("Home team:", team_id)
+        win_rate_home, score_diff_avg_home = get_prev_matches_numbers(date_start, date_end, team_id, df_games)
+        win_rate_home_list += [win_rate_home]
+        score_diff_avg_home_list += [score_diff_avg_home]
+        # For the away team
+        team_id = row["team_away_id"]
+        # print("Away team:", team_id)
+        win_rate_away, score_diff_avg_away = get_prev_matches_numbers(date_start, date_end, team_id, df_games)
+        win_rate_away_list += [win_rate_away]
+        score_diff_avg_away_list += [score_diff_avg_away]
+
+    # add historical to df
+    df_games["win_rate_home"] = win_rate_home_list
+    df_games["score_diff_avg_home"] = score_diff_avg_home_list
+    df_games["win_rate_away"] = win_rate_away_list
+    df_games["score_diff_avg_away"] = score_diff_avg_away_list
+
+    win_rate_home_list_pred = []
+    win_rate_away_list_pred = []
+    score_diff_avg_home_list_pred = []
+    score_diff_avg_away_list_pred = []
+    for i, row in tqdm(df_predict.iterrows()):
+        team_id = row["team_home_id"]
+        last_home=df_games.loc[df_games['team_home_id'] == team_id].tail(1)
+
+        win_rate_home_pred=last_home['win_rate_home'].values[0]
+        score_diff_avg_home_pred=last_home['score_diff_avg_home'].values[0]
+        win_rate_home_list_pred += [win_rate_home_pred]
+        score_diff_avg_home_list_pred += [score_diff_avg_home_pred]
+
+        team_id = row["team_away_id"]
+        last_away=df_games.loc[df_games['team_away_id'] == team_id].tail(1)
+
+        win_rate_away_pred=last_away['win_rate_away'].values[0]
+        score_diff_avg_away_pred=last_away['score_diff_avg_away'].values[0]
+        win_rate_away_list_pred += [win_rate_away_pred]
+        score_diff_avg_away_list_pred += [score_diff_avg_away_pred]
+
+
+    # add historical to df
+    df_predict["win_rate_home"] = win_rate_home_list_pred
+    df_predict["score_diff_avg_home"] = score_diff_avg_home_list_pred
+    df_predict["win_rate_away"] = win_rate_away_list_pred
+    df_predict["score_diff_avg_away"] = score_diff_avg_away_list_pred
+
+    return df_games,df_predict
+
 
 def get_next_journey(season):
     current_journey=season.get_current_journey()
 
-    filename = os.path.join(season.SEASON_PATH, 'next_journey.html')
+    filename = os.path.join(season.SEASON_PATH, 'last_calendar.html')
     url = BASE_URL + "proxjornadas.php".format(season.season_id, current_journey+1)
     content = download(file_path=filename, url=url)
 
@@ -142,9 +200,14 @@ def create_next_journey_df(content,season):
     doc = pq(content)
 
     matches = doc('.jornadas').eq(0)
-    columns = ["team_home_id", "team_away_id","season","kickoff_time"]
+    columns = ["team_home","team_home_id", "team_away","team_away_id","season","kickoff_time"]
 
     df = pd.DataFrame(columns=columns)
+
+    #extract journey number
+    titulo_prox = doc('.tituloprox').eq(0).text().upper()
+    journey = titulo_prox.split(' ')
+    journey=journey[5]
 
     for tr in matches('tr').items():  # iterate over each row
             if tr('.oscuro2'):  # header
@@ -152,7 +215,7 @@ def create_next_journey_df(content,season):
                 teams_names=teams.split('-')
                 team_home_txt=teams_names[0]
                 team_away_txt=teams_names[1]
-                print(teams)
+                #print(teams)
                 try:  ## In case the name of the team is exactly the same as one stated in our database for a season
                     team_home_id = TeamName.get(TeamName.name == team_home_txt).team_id
 
@@ -187,8 +250,82 @@ def create_next_journey_df(content,season):
                 day, month, year = list(map(int, date.split("/")))
                 hour, minute = list(map(int, time.split(":")))
                 kickoff_time = datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute)
-                print(kickoff_time)
+                #print(kickoff_time)
 
-                df = df.append({ 'team_home_id': team_home_id,'team_away_id': team_away_id,'kickoff_time': kickoff_time,'season':season}, ignore_index=True)
+                df = df.append({ 'team_home': team_home_txt,'team_home_id': team_home_id.id,'team_away_id': team_away_id.id,'team_away': team_away_txt,'kickoff_time': kickoff_time,'season':season,'journey': journey}, ignore_index=True)
 
     return df
+
+def get_journeys(season,number_journeys):
+    current_journey=season.get_current_journey()
+
+    filename = os.path.join(season.SEASON_PATH, 'last_calendar.html')
+    url = BASE_URL + "proxjornadas.php".format(season.season_id, current_journey+1)
+    content = download(file_path=filename, url=url)
+
+    return create_journeys_df(content,number_journeys,season.season)
+
+def create_journeys_df(content,number_journeys, season):
+    doc = pq(content)
+
+    columns = ["team_home", "team_home_id", "team_away", "team_away_id", "season", "kickoff_time"]
+
+    df = pd.DataFrame(columns=columns)
+
+    for i in range(0,number_journeys):
+        matches = doc('.jornadas').eq(i)
+
+        # extract journey number
+        titulo_prox = doc('.tituloprox').eq(i).text().upper()
+        journey = titulo_prox.split(' ')
+        journey = journey[5]
+
+        for tr in matches('tr').items():  # iterate over each row
+            if tr('.oscuro2'):  # header
+                teams = tr('.oscuro2').eq(0).text().upper()
+                teams_names = teams.split('-')
+                team_home_txt = teams_names[0]
+                team_away_txt = teams_names[1]
+                # print(teams)
+                try:  ## In case the name of the team is exactly the same as one stated in our database for a season
+                    team_home_id = TeamName.get(TeamName.name == team_home_txt).team_id
+
+                except TeamName.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
+                    query = TeamName.select(TeamName.team_id, TeamName.name)
+                    teams_names_ids = dict()
+                    for q in query:
+                        teams_names_ids[q.name] = q.team_id.id
+
+                    most_likely_team = difflib.get_close_matches(team_home_txt, teams_names_ids.keys(), 1, 0.4)[0]
+                    team_home_id = TeamName.get(TeamName.name == most_likely_team).team_id
+
+                try:  ## In case the name of the team is exactly the same as one stated in our database for a season
+                    team_away_id = TeamName.get(TeamName.name == team_away_txt).team_id
+
+                except TeamName.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
+                    query = TeamName.select(TeamName.team_id, TeamName.name)
+                    teams_names_ids = dict()
+                    for q in query:
+                        teams_names_ids[q.name] = q.team_id.id
+
+                    most_likely_team = difflib.get_close_matches(team_away_txt, teams_names_ids.keys(), 1, 0.4)[0]
+                    team_away_id = TeamName.get(TeamName.name == most_likely_team).team_id
+
+                date = tr('.claro').eq(0).text()
+                date = date.split(' ')[1]
+
+                hour = tr('.oscuro').eq(0).text()
+                time = hour.split(' ')[0]
+
+                day, month, year = list(map(int, date.split("/")))
+                hour, minute = list(map(int, time.split(":")))
+                kickoff_time = datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute)
+                # print(kickoff_time)
+
+                df = df.append(
+                    {'team_home': team_home_txt, 'team_home_id': team_home_id.id, 'team_away_id': team_away_id.id,
+                     'team_away': team_away_txt, 'kickoff_time': kickoff_time, 'season': season, 'journey': journey},
+                    ignore_index=True)
+
+    return df
+
