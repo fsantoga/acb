@@ -3,11 +3,13 @@ from models.basemodel import db, reset_database, delete_records, create_schema
 from models.event import *
 from models.team import TeamName, Team
 from models.actor import Actor
+from models.shotchart import Shotchart
 from models.participant import Participant
 from ml.preprocessing import *
 from ml.train import *
 from ml.predict import *
 from src.season import Season
+from src.advanced_statistics import *
 import pyquery
 from src.utils import get_driver_path, get_current_season
 
@@ -23,12 +25,19 @@ def download_games(season):
 
 def download_events(season,driver_path):
     """
-    Download locally the games of a certain season
+    Download locally the events of a certain season
     :param season: Season object.
     """
     Event.save_events(season,driver_path)
     Event.sanity_check_events(driver_path,season)
 
+def download_shotchart(season,driver_path):
+    """
+    Download locally the shotcart of a certain season
+    :param season: Season object.
+    """
+    Shotchart.save_shotchart(season,driver_path)
+    Shotchart.sanity_check_shotchart(driver_path,season)
 
 def insert_teams(season):
     logging.basicConfig(level=logging.INFO)
@@ -195,6 +204,39 @@ def insert_events(season):
         pass
 
 
+def insert_shotchart(season):
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    year=season.season
+
+    logger.info('Retrieving all data from shotcarts and storing it.')
+
+    if year >= 2016:
+        for game_id_file in os.listdir(season.EVENTS_PATH):
+            with open('./data/{}/shotchart/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
+                game_shotchart_acbid = os.path.splitext(game_id_file)[0]
+                game_acbid=game_shotchart_acbid.split("-")[0]
+                shotchart_game_acbid = game_shotchart_acbid.split("-")[1]
+                content = f.read()
+                doc = pyquery.PyQuery(content)
+                shotchart_data = doc('#shotchart_data')
+                query_teams = Game.get(Game.game_acbid == game_acbid)
+                team_home_id = query_teams.team_home_id
+                team_away_id = query_teams.team_away_id
+
+                try:
+                    query = Shotchart.select().where(Shotchart.shotchart_game_acbid == shotchart_game_acbid)
+                    if not query:
+                        Shotchart.scrap_and_insert(shotchart_game_acbid, game_acbid, shotchart_data, team_home_id, team_away_id)
+                    else:
+                        continue
+                except Exception as e:
+                    print(e,game_id_file)
+    else:
+        pass
+
+
 def main(args):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
@@ -204,8 +246,6 @@ def main(args):
     current_season=get_current_season()
     first_season = args.first_season
     last_season = args.last_season
-
-    season=Season(current_season)
 
     if first_season > last_season:  # dates checking
         logger.error("ERROR: First season must be lower or equal than the last season to download.")
@@ -235,6 +275,7 @@ def main(args):
             download_games(season)
             if year >= 2016:
                 download_events(season,driver_path)
+                download_shotchart(season,driver_path)
 
     if args.i:  # Extract and insert the information in the database.
         for year in reversed(range(first_season, last_season + 1)):
@@ -244,21 +285,28 @@ def main(args):
             insert_games(season)
             if year >= 2016:
                 insert_events(season)
+                insert_shotchart(season)
 
         # Update missing info about actors and participants.
         update_games()
+
+    season = Season(current_season)
 
     if args.u:  # Download and insert the information for the current season
         driver_path = args.driver_path
         if not driver_path:
             driver_path = get_driver_path(driver_path)
-        season = Season(current_season)
+
         download_games(season)
         download_events(season, driver_path)
         insert_teams(season)
         insert_games(season)
         insert_events(season)
+        insert_shotchart(season)
         update_games()
+
+    if args.a:  # Calculate advanced statatistics
+        calculate_possessions()
 
     from_year=2016
     to_year=2017
@@ -308,6 +356,8 @@ if __name__ == "__main__":
     parser.add_argument("-u", action='store_true', default=False) #Update DB with new games
     parser.add_argument("-p", action='store_true', default=False) #Predict next results
     parser.add_argument("-t", action='store_true', default=False) #Train ML model
+    parser.add_argument("-a", action='store_true', default=False) #Advanced Statistics
+
 
     parser.add_argument("--journey", action='store', dest="journey", type=int)
     parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)

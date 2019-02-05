@@ -141,6 +141,8 @@ CREATE TABLE participant (
     -- Efficiency.
     efficiency INTEGER DEFAULT null,
 
+    possessions INTEGER DEFAULT null,
+
     FOREIGN KEY (game_id) REFERENCES game(id),
     FOREIGN KEY (team_id) REFERENCES team(id),
     FOREIGN KEY (actor_id) REFERENCES actor(id),
@@ -184,3 +186,23 @@ CREATE TABLE predictions (
     FOREIGN KEY (team_away_id) REFERENCES team(id)
 
     );
+
+CREATE TABLE shotchart (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    shotchart_game_acbid INTEGER NOT NULL,
+    game_acbid INTEGER NOT NULL,
+    team_id INTEGER DEFAULT null,
+	actor_id INTEGER DEFAULT null,
+	jersey INTEGER DEFAULT null,
+    scored INTEGER DEFAULT null,
+    period varchar(30) DEFAULT null,
+	shot varchar(30) DEFAULT null,
+    shot_type varchar(30) DEFAULT null,
+    botton_px DOUBLE DEFAULT null,
+    left_px DOUBLE DEFAULT null,
+    FOREIGN KEY (game_acbid) REFERENCES game(game_acbid),
+    FOREIGN KEY (team_id) REFERENCES team(id),
+    FOREIGN KEY (actor_id) REFERENCES actor(id)
+    );
+CREATE INDEX shotchart_game_id_idx ON event(game_acbid);
+CREATE INDEX shotchart_shotchart_id_idx ON event(shotchart_game_acbid);

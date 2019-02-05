@@ -37,7 +37,10 @@ class Season:
 
         if self.season >= 2016:
             self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events/')
+            self.SHOTCHART_PATH = os.path.join(self.SEASON_PATH, 'shotchart/')
+
             validate_dir(self.EVENTS_PATH)
+            validate_dir(self.SHOTCHART_PATH)
 
         #self.current_journey=self.get_current_journey(season)
         self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
