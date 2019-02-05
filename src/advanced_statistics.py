@@ -122,8 +122,9 @@ def calculate_possessions():
             cursor.execute(sql,val)
 
 
-        conn.commit()
-        conn.close()
+    conn.commit()
+    cursor.close()
+    conn.close()
 
             #     s = pd.DataFrame(list(individual_possessions.items()), columns=['actor_id', 'possessions'])
             #     s['game_acbid'] = game_id
