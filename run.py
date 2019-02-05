@@ -361,7 +361,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--journey", action='store', dest="journey", type=int)
     parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())

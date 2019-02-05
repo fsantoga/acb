@@ -129,12 +129,19 @@ class Shotchart(BaseModel):
                 left_px=list_tags[3]
                 left_px=left_px.split("%")[0]
 
-            if elem.attr['title']:
-                tag = elem.attr['title']
-                list_tags=tag.split(",")
-                jersey=list_tags[0]
-                display_name=list_tags[1].strip()
-                shot_txt=list_tags[2].strip()
+                if elem.attr['title']:
+                    tag = elem.attr['title']
+                    if tag.startswith(","):
+                        tag = tag.split(",")
+                        list_tags = tag.remove(tag[0])
+                        jersey = tag[0].strip()
+                        display_name = tag[1].strip()
+                        shot_txt = tag[2].strip()
+                    else:
+                        list_tags = tag.split(",")
+                        jersey = list_tags[0]
+                        display_name = list_tags[1].strip()
+                        shot_txt = list_tags[2].strip()
 
                 game_id = Game.get(Game.game_acbid == game_acbid).id
 
