@@ -1,21 +1,8 @@
 
 import mysql.connector as sql
-import pandas as pd
-import numpy as np
-from datetime import date, timedelta
 from ml.preprocessing import *
-
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import  train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_val_score
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-from IPython.display import display, HTML
-from tqdm import tqdm
+import sqlalchemy
+from datetime import datetime
 
 
 def predict_next_journey(model,next_journey_matches_df,from_year,last_X_games):
@@ -48,5 +35,11 @@ def predict_next_journey(model,next_journey_matches_df,from_year,last_X_games):
     x = df_final.copy()
 
     x['prediction']=pred_final
+    x['prediction_date']=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+    engine = sqlalchemy.create_engine('mysql+pymysql://root:root@localhost/acb')
+    with engine.connect() as conn, conn.begin():
+        x.to_sql('predictions', conn, if_exists='append',index=False,chunksize=1)
 
     return x

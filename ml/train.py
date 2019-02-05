@@ -10,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
+from matplotlib.lines import Line2D
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -75,7 +76,7 @@ def train_model(from_year,to_year,last_X_games):
 
     #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=123)
 
-    clf = RandomForestRegressor(n_estimators=1000,random_state = 0, max_depth=10)
+    clf = RandomForestRegressor(n_estimators=1000,random_state = 0, max_depth=20)
     clf.fit(X_train, y_train)
 
     #print(clf.feature_importances_)
@@ -86,11 +87,39 @@ def train_model(from_year,to_year,last_X_games):
     df_res = pd.DataFrame(data=d)
     df_res["winner_correct?"] = np.sign(df_res["Real"]) == np.sign(df_res["Pred"])
 
-    #print("Mean absolute error: {} points".format(metrics.mean_absolute_error(y_test, y_pred)))
-    #print("Percentage of the times the winner was correct: {}%".format(float(df_res["winner_correct?"].sum())/len(df_res)))
+    print("Mean absolute error: {} points".format(metrics.mean_absolute_error(y_test, y_pred)))
+    print("Percentage of the times the winner was correct: {}%".format(float(df_res["winner_correct?"].sum())/len(df_res)))
 
-    display(df_res)
+    #display(df_res)
 
+    # Estimating an interval
+    preds_estimators = {}
+    for i in range(len(clf.estimators_)):
+        e = clf.estimators_[i]
+        preds_estimators["Est" + str(i).zfill(2)] = e.predict(X_test)
+    df_preds_estimators = pd.DataFrame(data=preds_estimators)
+    axes = df_preds_estimators.transpose().plot.box(figsize=(20, 20), showfliers=True,
+                                                    flierprops=dict(marker='+', color='lightblue'),
+                                                    color={'whiskers': 'lightblue', 'caps': 'lightblue',
+                                                           'medians': 'lightblue', 'boxes': 'lightblue'})
+    axes.plot(y_test, color='red', marker='o', linestyle=' ')
+    axes.set_title("Predictions of the score difference for each game and real result")
+    axes.set_xlabel("Game")
+    axes.set_ylabel("Score difference")
+    axes.legend([Line2D([0], [0], color='lightblue', marker='o', linestyle=' '),
+                 Line2D([0], [0], color='red', marker='o', linestyle=' ')], ['Preds', 'Real'])
+    plt.show()
+
+    df_preds_estimators["Upper"] = df_preds_estimators.apply(
+        lambda x: np.percentile(x, 75) + 1.5 * (np.percentile(x, 75) - np.percentile(x, 25)), axis=1)
+    df_preds_estimators["Lower"] = df_preds_estimators.apply(
+        lambda x: np.percentile(x, 25) - 1.5 * (np.percentile(x, 75) - np.percentile(x, 25)), axis=1)
+    df_preds_estimators["Real"] = y_test
+
+    df_preds_estimators["score_in_range?"] = (df_preds_estimators["Real"] >= df_preds_estimators["Lower"]) \
+                                             & (df_preds_estimators["Real"] <= df_preds_estimators["Upper"])
+    print("Percentage of the times the score was in the given interval: {}%".format(
+        100 * float(df_preds_estimators["score_in_range?"].sum()) / len(df_preds_estimators)))
     # save the model to disk
     filename = './ml/models/model-{}.sav'.format(datetime.datetime.today().strftime('%Y-%m-%d'))
     pickle.dump(clf, open(filename, 'wb'))

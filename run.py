@@ -260,14 +260,13 @@ def main(args):
         insert_events(season)
         update_games()
 
-    if args.t:
-        #train_results,df_final=train_model(2010,2017,100)
-        #print(train_results)
-        logger.info("Training data...")
+    from_year=2016
+    to_year=2017
+    training_days=100
 
-        from_year=2010
-        to_year=2018
-        training_days=100
+    if args.t:
+
+        logger.info("Training data...")
 
         logger.info('Training data from year ' + str(from_year) + ' to year ' + str(to_year) +', with training days: '+ str(training_days)+'...\n')
         train_model(from_year, to_year, training_days)
@@ -282,27 +281,21 @@ def main(args):
         if args.journey:
 
             number_journeys=args.journey
-            logger.info("Making predictions with model:" + str(latest_file) + " for the next: " +str(number_journeys) + " journeys" +'...\n')
+            logger.info("Making predictions with model: " + str(latest_file) + " for the next: " +str(number_journeys) + " journeys" +'...\n')
 
             journey_matches_ml = get_journeys(season, number_journeys)
 
-            pred_final=predict_next_journey(loaded_model,journey_matches_ml,2016,100)
+            pred_final=predict_next_journey(loaded_model,journey_matches_ml,from_year,training_days)
             print(pred_final)
         else:
-            #current_journey_matches_ml = get_current_journey_matches(season)
-            #print(current_journey_matches_ml)
-
-            #next_journey_matches_ml = get_next_journey_matches(season)
-            #print(next_journey_matches_ml)
 
             logger.info("Making predictions with model:" + str(latest_file) + " for the next journey" +'...\n')
 
             next_journey_matches_df = get_next_journey(season)
 
-            pred_final=predict_next_journey(loaded_model,next_journey_matches_df,2016,100)
+            pred_final=predict_next_journey(loaded_model,next_journey_matches_df,from_year,training_days)
             print(pred_final)
 
-            #results_predict=predict_next_journey(train_results,next_journey_matches_df,df_final)
 
 
 if __name__ == "__main__":

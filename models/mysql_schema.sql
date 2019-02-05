@@ -168,3 +168,19 @@ CREATE TABLE event (
     );
 CREATE INDEX event_game_id_idx ON event(game_acbid);
 CREATE INDEX event_event_id_idx ON event(events_game_acbid);
+
+CREATE TABLE predictions (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    team_home VARCHAR(255) NOT NULL,
+    team_home_id INTEGER NOT NULL,
+    team_away VARCHAR(255) NOT NULL,
+    team_away_id INTEGER NOT NULL,
+    kickoff_time DATETIME DEFAULT null,
+    season INTEGER DEFAULT null,
+    journey INTEGER DEFAULT null,
+    prediction DOUBLE DEFAULT null,
+    prediction_date DATETIME DEFAULT null,
+    FOREIGN KEY (team_home_id) REFERENCES team(id),
+    FOREIGN KEY (team_away_id) REFERENCES team(id)
+
+    );
