@@ -5,7 +5,7 @@ import sqlalchemy
 from datetime import datetime
 
 
-def predict_next_journey(model,next_journey_matches_df,from_year,last_X_games):
+def predict_next_journey(model,next_journey_matches_df,from_year,last_X_games,latest_file):
 
     #DB connection
     db_connection = sql.connect(host='localhost', port=3306, database='acb', user='root', password='root')
@@ -28,7 +28,7 @@ def predict_next_journey(model,next_journey_matches_df,from_year,last_X_games):
 
     df_games, df_predict=calculate_WR_SD_last_X_predict(next_journey_matches_df,df_games,last_X_games)
 
-    df_predict = df_predict[['team_home_id', 'team_away_id', "win_rate_home", "score_diff_avg_home", "win_rate_away", "score_diff_avg_away", "season"]]
+    df_predict = df_predict[["win_rate_home", "score_diff_avg_home", "win_rate_away", "score_diff_avg_away"]]
     pred_final = model.predict(df_predict)
 
     df_final=next_journey_matches_df[["team_home","team_home_id","team_away","team_away_id","kickoff_time","season","journey"]]
@@ -36,6 +36,11 @@ def predict_next_journey(model,next_journey_matches_df,from_year,last_X_games):
 
     x['prediction']=pred_final
     x['prediction_date']=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    model_path = os.path.basename(latest_file)
+    model_file = os.path.splitext(model_path)[0]
+
+    x['model']=model_file
 
 
     engine = sqlalchemy.create_engine('mysql+pymysql://root:root@localhost/acb')

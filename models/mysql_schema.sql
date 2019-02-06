@@ -182,6 +182,7 @@ CREATE TABLE predictions (
     journey INTEGER DEFAULT null,
     prediction DOUBLE DEFAULT null,
     prediction_date DATETIME DEFAULT null,
+    model VARCHAR(255) DEFAULT null,
     FOREIGN KEY (team_home_id) REFERENCES team(id),
     FOREIGN KEY (team_away_id) REFERENCES team(id)
 
