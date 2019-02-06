@@ -308,45 +308,35 @@ def main(args):
     if args.a:  # Calculate advanced statatistics
         calculate_possessions()
 
-    from_year=2016
-    to_year=2018
-    training_days=100
+    from_year = 2016
+    to_year = 2018
+    streak_days_long = 100
+    streak_days_short = 20
 
     if args.t:
-
-        logger.info("Training data...")
-
-        logger.info('Training data from year ' + str(from_year) + ' to year ' + str(to_year) +', with training days: '+ str(training_days)+'...\n')
-        train_model(from_year, to_year, training_days)
+        logger.info("Training model...")
+        logger.info('Training with data from year ' + str(from_year) + ' to year ' + str(to_year) + ', with streaks of days ' + str(streak_days_long) +' and ' + str(streak_days_short)+'...\n')
+        train_model(from_year, to_year, streak_days_long, streak_days_short)
 
     if args.p:
-
         if args.model:
             model_file=args.model
             loaded_model = pickle.load(open(model_file, 'rb'))
-
         else:
             list_of_files = glob.glob("./ml/models/*")
             model_file = max(list_of_files, key=os.path.getctime)
-
             loaded_model = pickle.load(open(model_file, 'rb'))
 
-        if args.journey:
-
-            number_journeys=args.journey
+        if args.journeys:
+            number_journeys=args.journeys
             logger.info("Making predictions with model: " + str(model_file) + " for the next: " +str(number_journeys) + " journeys" +'...\n')
-
             journey_matches_ml = get_journeys(season, number_journeys)
-
-            pred_final=predict_next_journey(loaded_model,journey_matches_ml,from_year,training_days,model_file)
+            pred_final = predict_next_journey(loaded_model, journey_matches_ml, from_year, streak_days_long, streak_days_short, model_file)
             print(pred_final)
         else:
-
             logger.info("Making predictions with model:" + str(model_file) + " for the next journey" +'...\n')
-
             next_journey_matches_df = get_next_journey(season)
-
-            pred_final=predict_next_journey(loaded_model,next_journey_matches_df,from_year,training_days,model_file)
+            pred_final = predict_next_journey(loaded_model, next_journey_matches_df, from_year, streak_days_long, streak_days_short, model_file)
             print(pred_final)
 
 
@@ -364,7 +354,7 @@ if __name__ == "__main__":
     parser.add_argument("-a", action='store_true', default=False) #Advanced Statistics
 
     parser.add_argument("--model", action='store', dest="model", type=str)
-    parser.add_argument("--journey", action='store', dest="journey", type=int)
+    parser.add_argument("--journeys", action='store', dest="journeys", type=int)
     parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)

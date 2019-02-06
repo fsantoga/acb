@@ -97,7 +97,7 @@ def create_journey_df(content):
     return df
 
 
-def calculate_WR_SD_last_X(df_games,last_X_days):
+def calculate_variables_last_X_train(df_games, last_X_days):
     # for each game add results of last ones
     win_rate_home_list = []
     win_rate_away_list = []
@@ -120,20 +120,20 @@ def calculate_WR_SD_last_X(df_games,last_X_days):
         score_diff_avg_away_list += [score_diff_avg_away]
 
     # add historical to df
-    df_games["win_rate_home"] = win_rate_home_list
-    df_games["score_diff_avg_home"] = score_diff_avg_home_list
-    df_games["win_rate_away"] = win_rate_away_list
-    df_games["score_diff_avg_away"] = score_diff_avg_away_list
+    df_games["win_rate_home_last"+str(last_X_days)] = win_rate_home_list
+    df_games["score_diff_avg_home_last"+str(last_X_days)] = score_diff_avg_home_list
+    df_games["win_rate_away_last"+str(last_X_days)] = win_rate_away_list
+    df_games["score_diff_avg_away_last"+str(last_X_days)] = score_diff_avg_away_list
 
     return df_games
 
-def calculate_WR_SD_last_X_predict(df_predict,df_games,last_X_days):
+def calculate_variables_last_X_predict(df_predict, df_games, last_X_days):
     # for each game add results of last ones
     win_rate_home_list = []
     win_rate_away_list = []
     score_diff_avg_home_list = []
     score_diff_avg_away_list = []
-    for i, row in tqdm(df_games.iterrows()):
+    for i, row in tqdm(df_predict.iterrows()):
         date_end = row["kickoff_time"]
         date_start = date_end - timedelta(days=last_X_days)
         # For the home team
@@ -150,40 +150,12 @@ def calculate_WR_SD_last_X_predict(df_predict,df_games,last_X_days):
         score_diff_avg_away_list += [score_diff_avg_away]
 
     # add historical to df
-    df_games["win_rate_home"] = win_rate_home_list
-    df_games["score_diff_avg_home"] = score_diff_avg_home_list
-    df_games["win_rate_away"] = win_rate_away_list
-    df_games["score_diff_avg_away"] = score_diff_avg_away_list
+    df_predict["win_rate_home_last" + str(last_X_days)] = win_rate_home_list
+    df_predict["score_diff_avg_home_last" + str(last_X_days)] = score_diff_avg_home_list
+    df_predict["win_rate_away_last" + str(last_X_days)] = win_rate_away_list
+    df_predict["score_diff_avg_away_last" + str(last_X_days)] = score_diff_avg_away_list
 
-    win_rate_home_list_pred = []
-    win_rate_away_list_pred = []
-    score_diff_avg_home_list_pred = []
-    score_diff_avg_away_list_pred = []
-    for i, row in tqdm(df_predict.iterrows()):
-        team_id = row["team_home_id"]
-        last_home=df_games.loc[df_games['team_home_id'] == team_id].tail(1)
-
-        win_rate_home_pred=last_home['win_rate_home'].values[0]
-        score_diff_avg_home_pred=last_home['score_diff_avg_home'].values[0]
-        win_rate_home_list_pred += [win_rate_home_pred]
-        score_diff_avg_home_list_pred += [score_diff_avg_home_pred]
-
-        team_id = row["team_away_id"]
-        last_away=df_games.loc[df_games['team_away_id'] == team_id].tail(1)
-
-        win_rate_away_pred=last_away['win_rate_away'].values[0]
-        score_diff_avg_away_pred=last_away['score_diff_avg_away'].values[0]
-        win_rate_away_list_pred += [win_rate_away_pred]
-        score_diff_avg_away_list_pred += [score_diff_avg_away_pred]
-
-
-    # add historical to df
-    df_predict["win_rate_home"] = win_rate_home_list_pred
-    df_predict["score_diff_avg_home"] = score_diff_avg_home_list_pred
-    df_predict["win_rate_away"] = win_rate_away_list_pred
-    df_predict["score_diff_avg_away"] = score_diff_avg_away_list_pred
-
-    return df_games,df_predict
+    return df_predict
 
 
 def get_next_journey(season):
@@ -193,14 +165,14 @@ def get_next_journey(season):
     url = BASE_URL + "proxjornadas.php".format(season.season_id, current_journey+1)
     content = download(file_path=filename, url=url)
 
-    return create_next_journey_df(content,season.season)
+    return create_next_journey_df(content, season.season)
 
 
-def create_next_journey_df(content,season):
+def create_next_journey_df(content, season):
     doc = pq(content)
 
     matches = doc('.jornadas').eq(0)
-    columns = ["team_home","team_home_id", "team_away","team_away_id","season","kickoff_time"]
+    columns = ["team_home", "team_home_id", "team_away", "team_away_id", "season", "kickoff_time"]
 
     df = pd.DataFrame(columns=columns)
 
@@ -256,16 +228,16 @@ def create_next_journey_df(content,season):
 
     return df
 
-def get_journeys(season,number_journeys):
+def get_journeys(season, number_journeys):
     current_journey=season.get_current_journey()
 
     filename = os.path.join(season.SEASON_PATH, 'last_calendar.html')
     url = BASE_URL + "proxjornadas.php".format(season.season_id, current_journey+1)
     content = download(file_path=filename, url=url)
 
-    return create_journeys_df(content,number_journeys,season.season)
+    return create_journeys_df(content, number_journeys, season.season)
 
-def create_journeys_df(content,number_journeys, season):
+def create_journeys_df(content, number_journeys, season):
     doc = pq(content)
 
     columns = ["team_home", "team_home_id", "team_away", "team_away_id", "season", "kickoff_time"]

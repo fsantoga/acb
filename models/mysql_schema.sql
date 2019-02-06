@@ -185,19 +185,18 @@ CREATE TABLE predictions (
     model VARCHAR(255) DEFAULT null,
     FOREIGN KEY (team_home_id) REFERENCES team(id),
     FOREIGN KEY (team_away_id) REFERENCES team(id)
-
-    );
+);
 
 CREATE TABLE shotchart (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     shotchart_game_acbid INTEGER NOT NULL,
     game_acbid INTEGER NOT NULL,
     team_id INTEGER DEFAULT null,
-	actor_id INTEGER DEFAULT null,
-	jersey INTEGER DEFAULT null,
+	  actor_id INTEGER DEFAULT null,
+	  jersey INTEGER DEFAULT null,
     scored INTEGER DEFAULT null,
     period varchar(30) DEFAULT null,
-	shot varchar(30) DEFAULT null,
+	  shot varchar(30) DEFAULT null,
     shot_type varchar(30) DEFAULT null,
     botton_px DOUBLE DEFAULT null,
     left_px DOUBLE DEFAULT null,
