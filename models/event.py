@@ -133,6 +133,70 @@ extra_legend_dict = {
     'Mate convertido': 'dunk',
 }
 
+play_events_dict={
+    'Asistencia': 'assist',
+    'Tapón': 'block',
+    'Recuperación': 'steal',
+    'Pérdida': 'turnover',
+    'Pérdida en el manejo del balón': 'turnover',
+    'Pérdida por campo atrás': 'turnover',
+    'Pérdida por 3 segundos': 'turnover',
+    'Pérdida por 3seg.': 'turnover',
+    'Pérdida por 5 segundos': 'turnover',
+    'Pérdida por 5seg.': 'turnover',
+    'Pérdida por falta en ataque': 'turnover',
+    'Pérdida por fuera de banda': 'turnover',
+    'Pérdida por mal pase': 'turnover',
+    'Pérdida por pasos': 'turnover',
+    'Pérdida por interferencia en ataque': 'turnover',
+    'Pérdida por 24 segundos': 'turnover',
+    'Pérdida por 24seg.': 'turnover',
+    'Pérdida por 8 segundos': 'turnover',
+    'Pérdida por 8seg.': 'turnover',
+    'Pérdida por dobles': 'turnover',
+    'Salto balón retenido': 'salto',
+    'Falta antideportiva': 'foul',
+    'Falta en ataque': 'foul',
+    'Falta personal': 'foul',
+    'Falta recibida': 'foul_rv',
+    'Falta técnica': 'foul',
+    'Falta descalificante': 'foul',
+    'Técnica al banquillo': 'foul',
+    'Técnica al entrenador': 'foul',
+    'Rebote ofensivo': 'reb_off',
+    'Rebote defensivo': 'reb_def',
+    'Tiro libre 1/1 convertido': 'made1',
+    'Tiro libre 1/1 fallado': 'miss1',
+    'Tiro libre 1/2 convertido': 'made1',
+    'Tiro libre 1/2 fallado': 'miss1',
+    'Tiro libre 1/3 fallado': 'miss1',
+    'Tiro libre 1/3 convertido': 'made1',
+    'Tiro libre 2/2 convertido': 'made1',
+    'Tiro libre 2/2 fallado': 'miss1',
+    'Tiro libre 2/3 convertido': 'made1',
+    'Tiro libre 2/3 fallado': 'miss1',
+    'Tiro libre 3/3 convertido': 'made1',
+    'Tiro libre 3/3 fallado': 'miss1',
+    '2PT bandeja convertido': 'made2',
+    '2PT bandeja fallado': 'miss2',
+    '2PT palmeo convertido': 'made2',
+    '2PT palmeo fallado': 'miss2',
+    '2PT tiro convertido': 'made2',
+    'Mate convertido': 'made2',
+    '2PT tiro fallado': 'miss2',
+    '2PT Alley oop convertido': 'made2',
+    '2PT Alley-oop convertido': 'made2',
+    '3PT convertido': 'made3',
+    '3PT fallado': 'miss3',
+    'Salto ganado': 'tipoff_won',
+    'Salto perdido': 'tipoff_lost',
+    'jumpball.unclearposs': 'jumpball_unclearposs',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT convertido': 'BASKETBALL_ACTION_3PT_JUMPSHOT_converted',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT_converted',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'BASKETBALL_ACTION_2PT_HOOKSHOT_converted',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'BASKETBALL_ACTION_3PT_JUMPSHOT_failed',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'BASKETBALL_ACTION_2PT_HOOKSHOT_failed'
+}
 
 class Event(BaseModel):
     id = PrimaryKeyField()
@@ -146,6 +210,8 @@ class Event(BaseModel):
     actor_id = ForeignKeyField(Actor, index=False, null=True)
     home_score = IntegerField(null=True)
     away_score = IntegerField(null=True)
+    roster_home = CharField(null=True)
+    roster_away = CharField(null=True)
 
     @staticmethod
     def save_events(season, driver_path, logging_level=logging.INFO):
@@ -202,8 +268,13 @@ class Event(BaseModel):
 
         periods = set()
         actions = {}
+        rosters = {}
         cont = 1
+        events_with_errors=0
         home_score = away_score = 0
+
+        roster_home=[]
+        roster_away=[]
 
         for elem in reversed(list(playbyplay('div').items())):
             if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
@@ -226,10 +297,10 @@ class Event(BaseModel):
                     game_id = Game.get(Game.game_acbid == game_acbid ).id
 
                     try:  ## In case the name of the actor is exactly the same as one stated in our database this game
-                        query_actor_id = Participant.get((Participant.game_id == game_id) & (Participant.display_name % display_name)).actor
+                        query_actor_id = Participant.get((Participant.game == game_id) & (Participant.display_name % display_name)).actor.id
 
                     except Participant.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
-                        query = Participant.select(Participant.actor, Participant.display_name).where((Participant.game_id == game_id) & (Participant.actor.is_null(False)) & (Participant.team_id==team_id))
+                        query = Participant.select(Participant.actor, Participant.display_name).where((Participant.game == game_id) & (Participant.actor.is_null(False)) & (Participant.team==team_id))
                         actors_names_ids = dict()
                         for q in query:
                             actors_names_ids[q.display_name] = q.actor.id
@@ -239,8 +310,6 @@ class Event(BaseModel):
                         logger.info('Actor {} has been matched to: {}'.format(display_name,most_likely_actor))
 
 
-
-
                 except:  # Cells without player associated (e.g. timeouts and missing info)
                     legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
                     elem.text().split("\n")[0]
@@ -248,6 +317,35 @@ class Event(BaseModel):
                     period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
                     jersey = -1
                     query_actor_id=None
+
+                #roster home
+                if "pbpt1" in tag:
+                    if legend_dict[legend]=="sub_in":
+                        roster_home.append(query_actor_id)
+                    elif legend_dict[legend]=="sub_out":
+                        try:
+                            roster_home.remove(query_actor_id)
+                        except:
+                            logger.warning('Cannot remove actor. Actor {} is not in list {}'.format(query_actor_id, roster_home))
+
+                #roster away
+                elif "pbpt2" in tag:
+                    if legend_dict[legend]=="sub_in":
+                        roster_away.append(query_actor_id)
+                    elif legend_dict[legend]=="sub_out":
+                        try:
+                            roster_away.remove(query_actor_id)
+                        except:
+                            logger.warning('Cannot remove actor. Actor {} is not in list {}'.format(query_actor_id, roster_away))
+
+                if legend in play_events_dict:
+                    if len(roster_home) != 5:
+                        events_with_errors+=1
+                        logger.warning('Roster home list length ({}) error: {} for team: {} in game: {} ({}) for event: {}'.format(len(roster_home),roster_home,team_home_id,game_acbid,events_game_acbid,legend_dict[legend]))
+                    if len(roster_away) != 5:
+                        events_with_errors += 1
+                        logger.warning('Roster away list length ({}) error: {} for team: {} in game: {} ({}) for event: {}'.format(len(roster_away),roster_away,team_away_id,game_acbid,events_game_acbid,legend_dict[legend]))
+
 
                 elapsed_time = convert_time(time, period[1:])
                 actions[cont] = {"events_game_acbid": events_game_acbid,
@@ -259,10 +357,14 @@ class Event(BaseModel):
                                  "elapsed_time": elapsed_time,
                                  "jersey": jersey,
                                  "home_score": home_score,
-                                 "away_score": away_score}
-                cont += 1
+                                 "away_score": away_score,
+                                 "roster_home":str(roster_home),
+                                 "roster_away": str(roster_away)}
+                cont+=1
 
         with db.atomic():
             for event in actions.values():
                 Event.create(**event)
+
+        return events_with_errors
 
