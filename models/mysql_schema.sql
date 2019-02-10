@@ -164,12 +164,24 @@ CREATE TABLE event (
     actor_id INTEGER DEFAULT null,  -- Reference to the actor id (some may not have it)
     home_score INTEGER DEFAULT null,
     away_score INTEGER DEFAULT null,
+    roster_home VARCHAR(255) DEFAULT null,
+    roster_away VARCHAR(255) DEFAULT null,
     FOREIGN KEY (game_acbid) REFERENCES game(game_acbid),
     FOREIGN KEY (team_id) REFERENCES team(id),
     FOREIGN KEY (actor_id) REFERENCES actor(id)
     );
 CREATE INDEX event_game_id_idx ON event(game_acbid);
 CREATE INDEX event_event_id_idx ON event(events_game_acbid);
+
+CREATE TABLE roster (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    event_id INTEGER NOT NULL,
+    actor_id INTEGER DEFAULT null,  -- Reference to the actor id (some may not have it)
+    FOREIGN KEY (event_id) REFERENCES event(id),
+    FOREIGN KEY (actor_id) REFERENCES actor(id)
+    );
+CREATE INDEX event_id_idx ON roster(event_id);
+CREATE INDEX actor_id_idx ON roster(actor_id);
 
 CREATE TABLE predictions (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
@@ -192,11 +204,11 @@ CREATE TABLE shotchart (
     shotchart_game_acbid INTEGER NOT NULL,
     game_acbid INTEGER NOT NULL,
     team_id INTEGER DEFAULT null,
-	  actor_id INTEGER DEFAULT null,
-	  jersey INTEGER DEFAULT null,
+	actor_id INTEGER DEFAULT null,
+	jersey INTEGER DEFAULT null,
     scored INTEGER DEFAULT null,
     period varchar(30) DEFAULT null,
-	  shot varchar(30) DEFAULT null,
+	shot varchar(30) DEFAULT null,
     shot_type varchar(30) DEFAULT null,
     botton_px DOUBLE DEFAULT null,
     left_px DOUBLE DEFAULT null,
@@ -204,5 +216,5 @@ CREATE TABLE shotchart (
     FOREIGN KEY (team_id) REFERENCES team(id),
     FOREIGN KEY (actor_id) REFERENCES actor(id)
     );
-CREATE INDEX shotchart_game_id_idx ON event(game_acbid);
-CREATE INDEX shotchart_shotchart_id_idx ON event(shotchart_game_acbid);
+CREATE INDEX shotchart_game_id_idx ON shotchart(game_acbid);
+CREATE INDEX shotchart_shotchart_id_idx ON shotchart(shotchart_game_acbid);

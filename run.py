@@ -5,14 +5,14 @@ from models.team import TeamName, Team
 from models.actor import Actor
 from models.shotchart import Shotchart
 from models.participant import Participant
-from ml.preprocessing import *
+from models.roster import Roster
 from ml.train import *
 from ml.predict import *
 from src.season import Season
 from src.advanced_statistics import *
 import pyquery
 from src.utils import get_driver_path, get_current_season
-
+import ast
 
 def download_games(season):
     """
@@ -38,6 +38,7 @@ def download_shotchart(season,driver_path):
     """
     Shotchart.save_shotchart(season,driver_path)
     Shotchart.sanity_check_shotchart(driver_path,season)
+
 
 def insert_teams(season):
     logging.basicConfig(level=logging.INFO)
@@ -92,7 +93,6 @@ def insert_games(season):
                 pass
             else:
                 continue
-
 
             if game_number <= n_regular:  # Regular season
                 competition_phase = 'regular'
@@ -178,7 +178,7 @@ def insert_events(season):
     year=season.season
 
     logger.info('Retrieving all data from events and storing it.')
-
+    events_game_errors = {}
     if year >= 2016:
         for game_id_file in os.listdir(season.EVENTS_PATH):
             with open('./data/{}/events/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
@@ -195,13 +195,55 @@ def insert_events(season):
                 try:
                     query = Event.select().where(Event.events_game_acbid == events_game_acbid)
                     if not query:
-                        Event.scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id)
+                        events_with_errors=Event.scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id)
+                        logger.info('Finish game {} with {} errors.'.format(game_acbid,events_with_errors))
+                        if events_with_errors>0:
+                            events_game_errors[game_acbid] = events_with_errors
                     else:
                         continue
                 except Exception as e:
                     print(e,game_id_file)
+
+        logger.info('Game events with errors in year {}: {}.'.format(year,events_game_errors))
+
     else:
         pass
+
+
+def insert_roster():
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    logger.info('Retrieving all data from events and storing rosters.')
+
+    query = Event.select()
+    dict_roster = {}
+    cont = 1
+    for q in query:
+        event_id = q.id
+
+        # Check it was not in the database already
+        #check_event = Roster.select().where(Roster.event_id == event_id)
+        #if not check_event:
+        #    pass
+        #else:
+        #    continue
+
+        roster_home = q.roster_home
+        roster_away = q.roster_away
+
+        roster_home_list = ast.literal_eval(roster_home)
+        roster_away_list = ast.literal_eval(roster_away)
+
+        roster_list = roster_home_list+roster_away_list
+
+        for actor in roster_list:
+            dict_roster[cont] = {"event_id": event_id, "actor_id": actor}
+            cont += 1
+
+    with db.atomic():
+        for roster in dict_roster.values():
+            Roster.create(**roster)
 
 
 def insert_shotchart(season):
@@ -285,6 +327,7 @@ def main(args):
             insert_games(season)
             if year >= 2016:
                 insert_events(season)
+                insert_roster()
                 insert_shotchart(season)
 
         # Update missing info about actors and participants.
@@ -305,7 +348,7 @@ def main(args):
         insert_shotchart(season)
         update_games()
 
-    if args.a:  # Calculate advanced statatistics
+    if args.a:  # Calculate advanced statistics
         calculate_possessions()
 
     from_year = 2016
@@ -340,7 +383,6 @@ def main(args):
             print(pred_final)
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -356,7 +398,7 @@ if __name__ == "__main__":
     parser.add_argument("--model", action='store', dest="model", type=str)
     parser.add_argument("--journeys", action='store', dest="journeys", type=int)
     parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
-    parser.add_argument("--end", action='store', dest="last_season", default=2016, type=int)
+    parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
     main(parser.parse_args())
