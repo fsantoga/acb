@@ -321,7 +321,8 @@ class Event(BaseModel):
                 #roster home
                 if "pbpt1" in tag:
                     if legend_dict[legend]=="sub_in":
-                        roster_home.append(query_actor_id)
+                        if query_actor_id not in roster_home:
+                            roster_home.append(query_actor_id)
                     elif legend_dict[legend]=="sub_out":
                         try:
                             roster_home.remove(query_actor_id)
@@ -331,7 +332,8 @@ class Event(BaseModel):
                 #roster away
                 elif "pbpt2" in tag:
                     if legend_dict[legend]=="sub_in":
-                        roster_away.append(query_actor_id)
+                        if query_actor_id not in roster_away:
+                            roster_away.append(query_actor_id)
                     elif legend_dict[legend]=="sub_out":
                         try:
                             roster_away.remove(query_actor_id)
@@ -345,7 +347,8 @@ class Event(BaseModel):
                     if len(roster_away) != 5:
                         events_with_errors += 1
                         logger.warning('Roster away list length ({}) error: {} for team: {} in game: {} ({}) for event: {}'.format(len(roster_away),roster_away,team_away_id,game_acbid,events_game_acbid,legend_dict[legend]))
-
+                    if query_actor_id not in roster_home and query_actor_id not in roster_away:
+                        logger.warning('The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
 
                 elapsed_time = convert_time(time, period[1:])
                 actions[cont] = {"events_game_acbid": events_game_acbid,

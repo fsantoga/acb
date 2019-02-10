@@ -176,14 +176,11 @@ CREATE INDEX event_event_id_idx ON event(events_game_acbid);
 CREATE TABLE roster (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     event_id INTEGER NOT NULL,
-    team_id INTEGER DEFAULT null,  -- Reference to the team id (some may not have it)
     actor_id INTEGER DEFAULT null,  -- Reference to the actor id (some may not have it)
     FOREIGN KEY (event_id) REFERENCES event(id),
-    FOREIGN KEY (team_id) REFERENCES team(id),
     FOREIGN KEY (actor_id) REFERENCES actor(id)
     );
 CREATE INDEX event_id_idx ON roster(event_id);
-CREATE INDEX team_id_idx ON roster(team_id);
 CREATE INDEX actor_id_idx ON roster(actor_id);
 
 CREATE TABLE predictions (

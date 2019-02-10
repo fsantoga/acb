@@ -5,14 +5,14 @@ from models.team import TeamName, Team
 from models.actor import Actor
 from models.shotchart import Shotchart
 from models.participant import Participant
-from ml.preprocessing import *
+from models.roster import Roster
 from ml.train import *
 from ml.predict import *
 from src.season import Season
 from src.advanced_statistics import *
 import pyquery
 from src.utils import get_driver_path, get_current_season
-
+import ast
 
 def download_games(season):
     """
@@ -38,6 +38,7 @@ def download_shotchart(season,driver_path):
     """
     Shotchart.save_shotchart(season,driver_path)
     Shotchart.sanity_check_shotchart(driver_path,season)
+
 
 def insert_teams(season):
     logging.basicConfig(level=logging.INFO)
@@ -92,7 +93,6 @@ def insert_games(season):
                 pass
             else:
                 continue
-
 
             if game_number <= n_regular:  # Regular season
                 competition_phase = 'regular'
@@ -178,7 +178,7 @@ def insert_events(season):
     year=season.season
 
     logger.info('Retrieving all data from events and storing it.')
-    events_game_errors={}
+    events_game_errors = {}
     if year >= 2016:
         for game_id_file in os.listdir(season.EVENTS_PATH):
             with open('./data/{}/events/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
@@ -208,6 +208,42 @@ def insert_events(season):
 
     else:
         pass
+
+
+def insert_roster():
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    logger.info('Retrieving all data from events and storing rosters.')
+
+    query = Event.select()
+    dict_roster = {}
+    cont = 1
+    for q in query:
+        event_id = q.id
+
+        # Check it was not in the database already
+        #check_event = Roster.select().where(Roster.event_id == event_id)
+        #if not check_event:
+        #    pass
+        #else:
+        #    continue
+
+        roster_home = q.roster_home
+        roster_away = q.roster_away
+
+        roster_home_list = ast.literal_eval(roster_home)
+        roster_away_list = ast.literal_eval(roster_away)
+
+        roster_list = roster_home_list+roster_away_list
+
+        for actor in roster_list:
+            dict_roster[cont] = {"event_id": event_id, "actor_id": actor}
+            cont += 1
+
+    with db.atomic():
+        for roster in dict_roster.values():
+            Roster.create(**roster)
 
 
 def insert_shotchart(season):
@@ -291,7 +327,8 @@ def main(args):
             insert_games(season)
             if year >= 2016:
                 insert_events(season)
-            #    insert_shotchart(season)
+                insert_roster()
+                insert_shotchart(season)
 
         # Update missing info about actors and participants.
         update_games()
@@ -311,7 +348,7 @@ def main(args):
         insert_shotchart(season)
         update_games()
 
-    if args.a:  # Calculate advanced statatistics
+    if args.a:  # Calculate advanced statistics
         calculate_possessions()
 
     from_year = 2016
@@ -344,7 +381,6 @@ def main(args):
             next_journey_matches_df = get_next_journey(season)
             pred_final = predict_next_journey(loaded_model, next_journey_matches_df, from_year, streak_days_long, streak_days_short, model_file)
             print(pred_final)
-
 
 
 if __name__ == "__main__":
