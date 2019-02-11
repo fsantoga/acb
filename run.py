@@ -379,6 +379,7 @@ def main(args):
         else:
             logger.info("Making predictions with model:" + str(model_file) + " for the next journey" +'...\n')
             next_journey_matches_df = get_next_journey(season)
+            next_journey_matches_df.to_csv("ml/caca.csv", sep=",", encoding="utf-8", index=False)
             pred_final = predict_next_journey(loaded_model, next_journey_matches_df, from_year, streak_days_long, streak_days_short, model_file)
             print(pred_final)
 
