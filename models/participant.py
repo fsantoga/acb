@@ -110,17 +110,33 @@ class Participant(BaseModel):
 
     @staticmethod
     def fix_participants():
+
         Participant._fix_acbid('G. Sharabidze', 'Y9G',0)
         Participant._fix_acbid('S. Gacic', '801',0)
         Participant._fix_acbid('M. Milisavljevic', 'D08',0)
+        Participant._fix_acbid('L. Marquel', 'A09',0)
+        Participant._fix_acbid('I. Navarro', 'A09',1)
+
+        Participant._fix_acbid('J. Espil', 'AYP',0)
+        Participant._fix_acbid('J. Ponsarnau', 'AYP',1)
+
+        Participant._fix_acbid('R. Aldrey', 'AET',0)
+        Participant._fix_acbid('J. Berrocal', 'AET',1)
+
+        Participant._fix_acbid('D. Allaway', 'AYQ',0)
+        Participant._fix_acbid('V. García', 'AYQ',1)
+
+        Participant._fix_acbid('M. Janning', '55A',0)
+        Participant._fix_acbid('D. Epifanio', '55A',1)
+
+        Participant._fix_acbid('F. Laviña', 'A0R',0)
+        Participant._fix_acbid('M. Justo', 'A0R',1)
 
         Participant._fix_participations('M. Esteban', '2CH','476')
         Participant._fix_participations('W. Tavares', 'T2Z', 'SHP')
         Participant._fix_participations('M. Stobart', 'B7P', 'FII')
         Participant._fix_participations('J. Olaizola', 'T86', '162')
         Participant._fix_participations('A. Izquierdo', '773', 'YHK')
-
-
 
 
     @staticmethod
@@ -341,9 +357,10 @@ class Participant(BaseModel):
             for player, player_stats in team_dict.items():
                 try:
                     if stats[team][player]['id']=="" or stats[team][player]['display_name']=="":
+                        #del stats[team][player]
                         stats[team][player].pop('id')
                         pass
-                    actor = Actor.get_or_create(actor_acbid=stats[team][player]['id'])
+                    actor = Actor.get_or_create(actor_acbid=stats[team][player]['id'],display_name=stats[team][player]['display_name'])
                     if actor[1]:
                         actor[0].display_name = stats[team][player]['display_name']
                         actor[0].is_coach = stats[team][player]['is_coach']

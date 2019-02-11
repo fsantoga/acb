@@ -315,9 +315,9 @@ def main(args):
             logger.info('Retrieving data for season '+str(year)+'...\n')
             season = Season(year)
             download_games(season)
-            if year >= 2016:
-                download_events(season,driver_path)
-                download_shotchart(season,driver_path)
+            #if year >= 2016:
+                #download_events(season,driver_path)
+            #    download_shotchart(season,driver_path)
 
     if args.i:  # Extract and insert the information in the database.
         for year in reversed(range(first_season, last_season + 1)):
@@ -325,10 +325,10 @@ def main(args):
             season = Season(year)
             insert_teams(season)
             insert_games(season)
-            if year >= 2016:
-                insert_events(season)
-                insert_roster()
-                insert_shotchart(season)
+            #if year >= 2016:
+                #insert_events(season)
+                #insert_roster()
+                #insert_shotchart(season)
 
         # Update missing info about actors and participants.
         update_games()
@@ -397,7 +397,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--model", action='store', dest="model", type=str)
     parser.add_argument("--journeys", action='store', dest="journeys", type=int)
-    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2018, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 
