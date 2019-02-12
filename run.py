@@ -170,6 +170,15 @@ def update_games():
             pass
         Actor.update_content()
 
+def update_events():
+
+    with db.atomic():
+        try:
+            Event.fix_rosters()  # there were a few errors in acb. Manually fix them.
+        except Exception as e:
+            print(e)
+            pass
+
 
 def insert_events(season):
     logging.basicConfig(level=logging.INFO)
@@ -285,6 +294,8 @@ def main(args):
 
     logger.info('STARTING...')
 
+    update_events()
+
     current_season=get_current_season()
     first_season = args.first_season
     last_season = args.last_season
@@ -315,18 +326,18 @@ def main(args):
             logger.info('Retrieving data for season '+str(year)+'...\n')
             season = Season(year)
             download_games(season)
-            #if year >= 2016:
-                #download_events(season,driver_path)
-            #    download_shotchart(season,driver_path)
+            if year >= 2016:
+                download_events(season,driver_path)
+                download_shotchart(season,driver_path)
 
     if args.i:  # Extract and insert the information in the database.
         for year in reversed(range(first_season, last_season + 1)):
             logger.info('Inserting data into database for season '+str(year)+'...\n')
             season = Season(year)
-            insert_teams(season)
-            insert_games(season)
-            #if year >= 2016:
-                #insert_events(season)
+            #insert_teams(season)
+            #insert_games(season)
+            if year >= 2016:
+                insert_events(season)
                 #insert_roster()
                 #insert_shotchart(season)
 

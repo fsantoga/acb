@@ -9,6 +9,7 @@ from src.utils import convert_time, create_driver
 from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField)
 import time
 from src.utils import get_current_season
+import ast
 
 legend_dict = {
     'Asistencia': 'assist',
@@ -262,6 +263,174 @@ class Event(BaseModel):
         sanity_check_events(driver_path,season.EVENTS_PATH, logging_level)
 
     @staticmethod
+    def _fix_short_roster(game_acbid,roster_home_or_away,roster,list_include_actor,legend):
+        if roster_home_or_away==0:
+            try:
+                wrong_roster = Event.get((Event.game_acbid==game_acbid) & (Event.roster_home==roster) & (Event.legend==legend))
+                roster_list = ast.literal_eval(roster)
+                for elem in list_include_actor:
+                    roster_list.append(elem)
+
+                wrong_roster.roster_home = roster_list
+                wrong_roster.save()
+
+            except Event.DoesNotExist:
+                pass
+
+        elif roster_home_or_away==1:
+            try:
+                wrong_roster = Event.get((Event.game_acbid==game_acbid) & (Event.roster_away==roster) & (Event.legend==legend))
+                roster_list = ast.literal_eval(roster)
+                for elem in list_include_actor:
+                    roster_list.append(elem)
+
+                wrong_roster.roster_away = roster_list
+                wrong_roster.save()
+
+            except Event.DoesNotExist:
+                pass
+
+    """
+    @staticmethod
+    def _fix_long_roster(game_acbid, team_id,roster_length,list_include_actor):
+        try:
+            wrong_participant = Participant.get(
+                (Participant.display_name == "") & (Participant.team == team_id) & (Participant.is_coach == 0) & (
+                Participant.number == number))
+            wrong_participant.delete_instance()
+
+        except Participant.DoesNotExist:
+            pass
+    """
+
+    @staticmethod
+    def fix_rosters():
+        Event._fix_short_roster(63018,0,"[24, 18, 25, 15]",[10],"turnover")
+        Event._fix_short_roster(63018,0,"[24, 18, 25, 15]",[10],"steal")
+
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"steal")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"block")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"assist")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"steal")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_off")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"steal")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_off")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"assist")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"assist")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"miss1")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"miss1")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"reb_off")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"reb_off")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"assist")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"miss1")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"reb_def")
+
+        Event._fix_short_roster(63086,1,"[177, 184, 180, 182]",[176],"reb_off")
+
+        Event._fix_short_roster(63048,1,"[232, 227, 233, 225]",[229],"miss1")
+        Event._fix_short_roster(63048,1,"[232, 227, 233, 225]",[229],"made1")
+        Event._fix_short_roster(63048,0,"[43, 51, 45, 41]",[49],"made1")
+
+        Event._fix_short_roster(63160,0,"[128, 121, 117, 119]",[126],"reb_def")
+
+        Event._fix_short_roster(63050,1,"[16, 24, 25, 15]",[14],"miss3")
+
+        Event._fix_short_roster(63123,0,"[14, 171, 24, 25]",[16],"made1")
+        Event._fix_short_roster(63123,0,"[14, 171, 24, 25]",[16],"made1")
+        Event._fix_short_roster(63123,0,"[14, 171, 24, 25]",[16],"assist")
+
+        Event._fix_short_roster(63031,1,"[254, 214, 221, 222]",[216],"miss3")
+
+        Event._fix_short_roster(63159,0,"[86, 124, 82, 89]",[79],"made1")
+
+        Event._fix_short_roster(63008,0,"[51, 42, 47, 49]",[41],"made1")
+        Event._fix_short_roster(63008,0,"[41, 43, 46, 42]",[51],"made1")
+        Event._fix_short_roster(63008,0,"[41, 43, 46, 42]",[51],"made1")
+
+        Event._fix_short_roster(63029,1,"[77, 240, 72, 67]",[74],"made1")
+        Event._fix_short_roster(63029,1,"[77, 240, 72, 67]",[74],"made1")
+        Event._fix_short_roster(63029,1,"[75, 70, 74, 71]",[67],"made1")
+        Event._fix_short_roster(63029,1,"[75, 70, 74, 71]",[67],"made1")
+
+
+    @staticmethod
     def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id):
         logging.basicConfig(level=logging.INFO)
         logger = logging.getLogger(__name__)
@@ -307,7 +476,7 @@ class Event(BaseModel):
 
                         most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
                         query_actor_id = Actor.get(Actor.id == actors_names_ids[most_likely_actor]).id
-                        logger.info('Actor {} has been matched to: {}'.format(display_name,most_likely_actor))
+                        #logger.info('Actor {} has been matched to: {}'.format(display_name,most_likely_actor))
 
 
                 except:  # Cells without player associated (e.g. timeouts and missing info)
@@ -327,7 +496,7 @@ class Event(BaseModel):
                         try:
                             roster_home.remove(query_actor_id)
                         except:
-                            logger.warning('Cannot remove actor. Actor {} is not in list {}'.format(query_actor_id, roster_home))
+                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid,events_game_acbid,query_actor_id, roster_home))
 
                 #roster away
                 elif "pbpt2" in tag:
@@ -338,17 +507,18 @@ class Event(BaseModel):
                         try:
                             roster_away.remove(query_actor_id)
                         except:
-                            logger.warning('Cannot remove actor. Actor {} is not in list {}'.format(query_actor_id, roster_away))
+                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid,events_game_acbid,query_actor_id, roster_away))
 
                 if legend in play_events_dict:
                     if len(roster_home) != 5:
                         events_with_errors+=1
-                        logger.warning('Roster home list length ({}) error: {} for team: {} in game: {} ({}) for event: {}'.format(len(roster_home),roster_home,team_home_id,game_acbid,events_game_acbid,legend_dict[legend]))
+                        logger.warning('Game: {} ({}). Roster home list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_home),roster_home,team_home_id,legend_dict[legend]))
                     if len(roster_away) != 5:
                         events_with_errors += 1
-                        logger.warning('Roster away list length ({}) error: {} for team: {} in game: {} ({}) for event: {}'.format(len(roster_away),roster_away,team_away_id,game_acbid,events_game_acbid,legend_dict[legend]))
-                    if query_actor_id not in roster_home and query_actor_id not in roster_away:
-                        logger.warning('The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
+                        logger.warning('Game: {} ({}). Roster away list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_away),roster_away,team_away_id,legend_dict[legend]))
+                    #if query_actor_id not in roster_home and query_actor_id not in roster_away:
+                        #if jersey is not -1:
+                        #logger.warning('Game: {} ({}). The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(game_acbid,events_game_acbid,query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
 
                 elapsed_time = convert_time(time, period[1:])
                 actions[cont] = {"events_game_acbid": events_game_acbid,

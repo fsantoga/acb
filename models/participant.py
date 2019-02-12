@@ -109,8 +109,29 @@ class Participant(BaseModel):
             pass
 
     @staticmethod
-    def fix_participants():
+    def _fix_coaches_participations(actor_name,actor_acbid,team_id):
+        try:
+            wrong_participant = Participant.get((Participant.display_name == "") & (Participant.team == team_id) & (Participant.is_coach==1))
+            actor_id = Actor.get((Actor.display_name == actor_name) & (Actor.actor_acbid == actor_acbid)).id
 
+            wrong_participant.display_name = actor_name
+            wrong_participant.actor_id = actor_id
+            wrong_participant.save()
+
+        except Participant.DoesNotExist:
+            pass
+
+    @staticmethod
+    def _fix_players_participations(number,team_id):
+        try:
+            wrong_participant = Participant.get((Participant.display_name == "") & (Participant.team == team_id) & (Participant.is_coach==0) & (Participant.number == number))
+            wrong_participant.delete_instance()
+
+        except Participant.DoesNotExist:
+            pass
+
+    @staticmethod
+    def fix_participants():
         Participant._fix_acbid('G. Sharabidze', 'Y9G',0)
         Participant._fix_acbid('S. Gacic', '801',0)
         Participant._fix_acbid('M. Milisavljevic', 'D08',0)
@@ -137,6 +158,15 @@ class Participant(BaseModel):
         Participant._fix_participations('M. Stobart', 'B7P', 'FII')
         Participant._fix_participations('J. Olaizola', 'T86', '162')
         Participant._fix_participations('A. Izquierdo', '773', 'YHK')
+
+        Participant._fix_coaches_participations("J. Ponsarnau",'AYP',18)
+        Participant._fix_coaches_participations('V. García', 'AYQ',17)
+        Participant._fix_coaches_participations('V. García', 'AYQ',17)
+        Participant._fix_coaches_participations('V. García', 'AYQ',17)
+
+        Participant._fix_players_participations(17,2)
+        Participant._fix_players_participations(0,17)
+
 
 
     @staticmethod
