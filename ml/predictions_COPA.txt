@@ -1,0 +1,183 @@
+
+CUARTOS
+
+0    0.29240 IB TENERIFE VS UNICAJA
+
+Prob of being in the interval Inf to -31: 0.42%
+Prob of being in the interval -30 to -16: 23.080000000000002%
+Prob of being in the interval -15 to -6: 35.83%
+Prob of being in the interval -5 to -1: 11.225%
+Prob of being in the interval 0 to 0: 0.005%
+Prob of being in the interval 1 to 5: 6.2%
+Prob of being in the interval 6 to 15: 12.21%
+Prob of being in the interval 16 to 30: 10.325%
+Prob of being in the interval 31 to Inf: 0.475%
+
+
+1    0.69125 Barsa VS Valencia
+
+Prob of being in the interval Inf to -31: 0.0%
+Prob of being in the interval -30 to -16: 5.28%
+Prob of being in the interval -15 to -6: 14.67%
+Prob of being in the interval -5 to -1: 10.89%
+Prob of being in the interval 0 to 0: 0.0%
+Prob of being in the interval 1 to 5: 8.0%
+Prob of being in the interval 6 to 15: 32.71%
+Prob of being in the interval 16 to 30: 22.55%
+Prob of being in the interval 31 to Inf: 5.79%
+
+2    0.74240 Baskonia VS Joventut
+
+Prob of being in the interval Inf to -31: 0.0%
+Prob of being in the interval -30 to -16: 4.67%
+Prob of being in the interval -15 to -6: 11.62%
+Prob of being in the interval -5 to -1: 9.425%
+Prob of being in the interval 0 to 0: 0.02%
+Prob of being in the interval 1 to 5: 16.82%
+Prob of being in the interval 6 to 15: 36.305%
+Prob of being in the interval 16 to 30: 13.55%
+Prob of being in the interval 31 to Inf: 7.355%
+
+3    0.96495 Madrid VS Estu
+
+Prob of being in the interval Inf to -31: 0.0%
+Prob of being in the interval -30 to -16: 0.02%
+Prob of being in the interval -15 to -6: 2.025%
+Prob of being in the interval -5 to -1: 1.46%
+Prob of being in the interval 0 to 0: 0.0%
+Prob of being in the interval 1 to 5: 6.38%
+Prob of being in the interval 6 to 15: 28.67%
+Prob of being in the interval 16 to 30: 37.445%
+Prob of being in the interval 31 to Inf: 23.86%
+
+SEMIS
+
+0    0.27725   Unicaja vs Barsa
+
+Prob of being in the interval Inf to -31: 0.04%
+Prob of being in the interval -30 to -16: 19.919999999999998%
+Prob of being in the interval -15 to -6: 16.42%
+Prob of being in the interval -5 to -1: 16.735%
+Prob of being in the interval 0 to 0: 0.0%
+Prob of being in the interval 1 to 5: 16.435%
+Prob of being in the interval 6 to 15: 14.91%
+Prob of being in the interval 16 to 30: 14.565%
+Prob of being in the interval 31 to Inf: 0.915%
+
+
+1    0.51245  Baskinia vs Madrid
+
+Prob of being in the interval Inf to -31: 0.09%
+Prob of being in the interval -30 to -16: 29.18%
+Prob of being in the interval -15 to -6: 16.525000000000002%
+Prob of being in the interval -5 to -1: 13.900000000000002%
+Prob of being in the interval 0 to 0: 0.005%
+Prob of being in the interval 1 to 5: 14.249999999999998%
+Prob of being in the interval 6 to 15: 16.1%
+Prob of being in the interval 16 to 30: 8.765%
+Prob of being in the interval 31 to Inf: 1.06%
+
+
+FINAL
+
+0    0.46855  Barsa VS Madrid
+
+Prob of being in the interval Inf to -31: 0.04%
+Prob of being in the interval -30 to -16: 19.919999999999998%
+Prob of being in the interval -15 to -6: 16.42%
+Prob of being in the interval -5 to -1: 16.735%
+Prob of being in the interval 0 to 0: 0.0%
+Prob of being in the interval 1 to 5: 16.435%
+Prob of being in the interval 6 to 15: 14.91%
+Prob of being in the interval 16 to 30: 14.565%
+Prob of being in the interval 31 to Inf: 0.915%
+
+
+1    0.40245  Barsa VS Baskonia
+
+Prob of being in the interval Inf to -31: 0.09%
+Prob of being in the interval -30 to -16: 29.18%
+Prob of being in the interval -15 to -6: 16.525000000000002%
+Prob of being in the interval -5 to -1: 13.900000000000002%
+Prob of being in the interval 0 to 0: 0.005%
+Prob of being in the interval 1 to 5: 14.249999999999998%
+Prob of being in the interval 6 to 15: 16.1%
+Prob of being in the interval 16 to 30: 8.765%
+Prob of being in the interval 31 to Inf: 1.06%
+
+prob_IBT=df_copa['prob1'][0]*(df_copa['prob1'][13]*df_copa['prob1'][1]+df_copa['prob2'][13]*df_copa['prob1'][2])
+prob_IBT
+0.091998415075
+
+prob_UNI=df_copa['prob2'][0]*(df_copa['prob1'][13]*df_copa['prob1'][7]+df_copa['prob2'][13]*df_copa['prob1'][8])
+prob_UNI
+0.2723220208875
+
+prob_BAR=df_copa['prob1'][13]*(df_copa['prob1'][0]*df_copa['prob2'][1]+df_copa['prob2'][0]*df_copa['prob2'][7])
+prob_BAR
+0.506619891728125
+
+prob_VAL=df_copa['prob2'][13]*(df_copa['prob1'][0]*df_copa['prob2'][2]+df_copa['prob2'][0]*df_copa['prob2'][8])
+prob_VAL
+0.12899423558125
+
+suma_lado_izq=prob_IBT+prob_UNI+prob_BAR+prob_VAL
+suma_lado_izq
+0.9999345632718751
+
+prob_BAS=df_copa['prob1'][22]*(df_copa['prob1'][27]*df_copa['prob1'][23]+df_copa['prob2'][27]*df_copa['prob1'][24])
+prob_BAS
+0.3914693295999999
+
+prob_JOV=df_copa['prob2'][22]*(df_copa['prob1'][27]*df_copa['prob1'][25]+df_copa['prob2'][27]*df_copa['prob1'][26])
+prob_JOV
+0.0474506983665
+
+prob_MAD=df_copa['prob1'][27]*(df_copa['prob1'][22]*df_copa['prob2'][23]+df_copa['prob2'][22]*df_copa['prob2'][25])
+prob_MAD
+0.5549290523595
+
+prob_EST=df_copa['prob2'][27]*(df_copa['prob1'][22]*df_copa['prob2'][24]+df_copa['prob2'][22]*df_copa['prob2'][26])
+prob_EST
+0.005901328543
+
+suma_lado_der=prob_BAS+prob_JOV+prob_MAD+prob_EST
+suma_lado_der
+0.9997504088689998
+
+
+win_IBT=prob_IBT*(prob_BAS*df_copa['prob1'][3]+prob_JOV*df_copa['prob1'][4]+prob_MAD*df_copa['prob1'][5]+prob_EST*df_copa['prob1'][6])
+win_IBT
+0.02124196842987327
+
+win_UNI=prob_UNI*(prob_BAS*df_copa['prob1'][9]+prob_JOV*df_copa['prob1'][10]+prob_MAD*df_copa['prob1'][11]+prob_EST*df_copa['prob1'][12])
+win_UNI
+0.10610459778377329
+
+win_BAR=prob_BAR*(prob_BAS*df_copa['prob1'][14]+prob_JOV*df_copa['prob1'][15]+prob_MAD*df_copa['prob1'][16]+prob_EST*df_copa['prob1'][17])
+win_BAR
+0.23292557318308443
+
+win_VAL=prob_VAL*(prob_BAS*df_copa['prob1'][18]+prob_JOV*df_copa['prob1'][19]+prob_MAD*df_copa['prob1'][20]+prob_EST*df_copa['prob1'][21])
+win_VAL
+0.06218930328733224
+
+win_BAS=prob_BAS*(prob_IBT*df_copa['prob2'][3]+prob_UNI*df_copa['prob2'][9]+prob_BAR*df_copa['prob2'][14]+prob_VAL*df_copa['prob2'][18])
+win_BAS
+0.22380688245491812
+
+win_JOV=prob_JOV*(prob_IBT*df_copa['prob2'][4]+prob_UNI*df_copa['prob2'][10]+prob_BAR*df_copa['prob2'][15]+prob_VAL*df_copa['prob2'][19])
+win_JOV
+0.018007549599955285
+
+win_MAD=prob_MAD*(prob_IBT*df_copa['prob2'][5]+prob_UNI*df_copa['prob2'][11]+prob_BAR*df_copa['prob2'][16]+prob_VAL*df_copa['prob2'][20])
+win_MAD
+0.33429697383396606
+
+win_EST=prob_EST*(prob_IBT*df_copa['prob2'][6]+prob_UNI*df_copa['prob2'][12]+prob_BAR*df_copa['prob2'][17]+prob_VAL*df_copa['prob2'][21])
+win_EST
+0.0010874284708798517
+
+sum_WIN=win_EST+win_MAD+win_JOV+win_BAS+win_VAL+win_BAR+win_UNI+win_IBT
+sum_WIN
+0.9996602770437826
