@@ -100,7 +100,7 @@ class Actor(BaseModel):
             pass
         else:
             try:
-                Actor.update(**personal_info).where(Actor.actor_acbid == self.actor_acbid).execute()
+                Actor.update(**personal_info).where((Actor.actor_acbid == self.actor_acbid) & (Actor.display_name == self.display_name)).execute()
             except Exception as e:
                 print(e)
                 pass

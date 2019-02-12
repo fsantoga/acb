@@ -170,6 +170,17 @@ def update_games():
             pass
         Actor.update_content()
 
+def update_events():
+
+    with db.atomic():
+        try:
+            Event.fix_rosters()  # there were a few errors in acb. Manually fix them.
+        except Exception as e:
+            print(e)
+            pass
+
+    Event._check_rosters()
+
 
 def insert_events(season):
     logging.basicConfig(level=logging.INFO)
@@ -323,11 +334,12 @@ def main(args):
         for year in reversed(range(first_season, last_season + 1)):
             logger.info('Inserting data into database for season '+str(year)+'...\n')
             season = Season(year)
-            insert_teams(season)
-            insert_games(season)
+            #insert_teams(season)
+            #insert_games(season)
             if year >= 2016:
-                insert_events(season)
-                insert_roster()
+                #insert_events(season)
+                #update_events()
+                #insert_roster()
                 insert_shotchart(season)
 
         # Update missing info about actors and participants.
@@ -345,6 +357,7 @@ def main(args):
         insert_teams(season)
         insert_games(season)
         insert_events(season)
+        update_events()
         insert_shotchart(season)
         update_games()
 
@@ -379,7 +392,7 @@ def main(args):
         else:
             logger.info("Making predictions with model:" + str(model_file) + " for the next journey" +'...\n')
             next_journey_matches_df = get_next_journey(season)
-            next_journey_matches_df.to_csv("ml/caca.csv", sep=",", encoding="utf-8", index=False)
+            #next_journey_matches_df.to_csv("ml/caca.csv", sep=",", encoding="utf-8", index=False)
             pred_final = predict_next_journey(loaded_model, next_journey_matches_df, from_year, streak_days_long, streak_days_short, model_file)
             print(pred_final)
 
@@ -398,7 +411,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--model", action='store', dest="model", type=str)
     parser.add_argument("--journeys", action='store', dest="journeys", type=int)
-    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2018, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
 

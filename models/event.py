@@ -9,6 +9,10 @@ from src.utils import convert_time, create_driver
 from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField)
 import time
 from src.utils import get_current_season
+import ast
+import mysql.connector as sql
+import pandas as pd
+
 
 legend_dict = {
     'Asistencia': 'assist',
@@ -77,11 +81,12 @@ legend_dict = {
     'PARTIDO FINALIZADO': 'game_end',
     'INICIO PERIODO': 'quarter_start',
     'jumpball.unclearposs': 'jumpball_unclearposs',
-    'BASKETBALL_ACTION_3PT_JUMPSHOT convertido': 'BASKETBALL_ACTION_3PT_JUMPSHOT_converted',
-    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT_converted',
-    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'BASKETBALL_ACTION_2PT_HOOKSHOT_converted',
-    'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'BASKETBALL_ACTION_3PT_JUMPSHOT_failed',
-    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'BASKETBALL_ACTION_2PT_HOOKSHOT_failed',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT convertido': 'made3',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'made2',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'made2',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'miss3',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'miss2',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT fallado': 'miss2',
     'PERIODO FINALIZADO': 'quarter_end',
 
 }
@@ -131,6 +136,10 @@ extra_legend_dict = {
     '2PT Alley oop convertido': 'alleyhoop',
     '2PT Alley-oop convertido': 'alleyhoop',
     'Mate convertido': 'dunk',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'stepback',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'hookshot',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'hookshot',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT fallado': 'stepback',
 }
 
 play_events_dict={
@@ -191,11 +200,12 @@ play_events_dict={
     'Salto ganado': 'tipoff_won',
     'Salto perdido': 'tipoff_lost',
     'jumpball.unclearposs': 'jumpball_unclearposs',
-    'BASKETBALL_ACTION_3PT_JUMPSHOT convertido': 'BASKETBALL_ACTION_3PT_JUMPSHOT_converted',
-    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT_converted',
-    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'BASKETBALL_ACTION_2PT_HOOKSHOT_converted',
-    'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'BASKETBALL_ACTION_3PT_JUMPSHOT_failed',
-    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'BASKETBALL_ACTION_2PT_HOOKSHOT_failed'
+    'BASKETBALL_ACTION_3PT_JUMPSHOT convertido': 'made3',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'made2',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'made2',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'miss3',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'miss2',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT fallado': 'miss2',
 }
 
 class Event(BaseModel):
@@ -262,6 +272,369 @@ class Event(BaseModel):
         sanity_check_events(driver_path,season.EVENTS_PATH, logging_level)
 
     @staticmethod
+    def _fix_short_roster(game_acbid,roster_home_or_away,roster,list_include_actor,legend):
+        if roster_home_or_away==0:
+            try:
+                wrong_roster = Event.get((Event.game_acbid==game_acbid) & (Event.roster_home==roster) & (Event.legend==legend))
+                roster_list = ast.literal_eval(roster)
+                for elem in list_include_actor:
+                    roster_list.append(elem)
+
+                wrong_roster.roster_home = roster_list
+                wrong_roster.save()
+
+            except Event.DoesNotExist:
+                pass
+
+        elif roster_home_or_away==1:
+            try:
+                wrong_roster = Event.get((Event.game_acbid==game_acbid) & (Event.roster_away==roster) & (Event.legend==legend))
+                roster_list = ast.literal_eval(roster)
+                for elem in list_include_actor:
+                    roster_list.append(elem)
+
+                wrong_roster.roster_away = roster_list
+                wrong_roster.save()
+
+            except Event.DoesNotExist:
+                pass
+
+    """
+    @staticmethod
+    def _fix_long_roster(game_acbid, team_id,roster_length,list_include_actor):
+        try:
+            wrong_participant = Participant.get(
+                (Participant.display_name == "") & (Participant.team == team_id) & (Participant.is_coach == 0) & (
+                Participant.number == number))
+            wrong_participant.delete_instance()
+
+        except Participant.DoesNotExist:
+            pass
+    """
+
+    @staticmethod
+    def _check_rosters():
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+
+        logger.info('Starting the roster checking...')
+
+        query = Event.select().dicts()
+
+        for row in query:
+            if row['legend'] in play_events_dict.values():
+                roster_home_list = ast.literal_eval(row['roster_home'])
+                roster_away_list = ast.literal_eval(row['roster_away'])
+
+                if len(roster_home_list) != 5:
+                    logger.warning(
+                        'Game: {} ({}). Roster home list length ({}) error: {} for team: {} and event: {}'.format(
+                            row['game_acbid'], row['events_game_acbid'], len(roster_home_list), row['roster_home'], row['team_id'],
+                            row['legend']))
+                if len(roster_away_list) != 5:
+                    logger.warning(
+                        'Game: {} ({}). Roster away list length ({}) error: {} for team: {} and event: {}'.format(
+                            row['game_acbid'], row['events_game_acbid'], len(roster_away_list), row['roster_away'], row['team_id'],
+                            row['legend']))
+
+    @staticmethod
+    def fix_rosters():
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+
+        logger.info('Starting the roster fixing...')
+
+        Event._fix_short_roster(63018,0,"[24, 18, 25, 15]",[10],"turnover")
+        Event._fix_short_roster(63018,0,"[24, 18, 25, 15]",[10],"steal")
+
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"steal")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"block")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"assist")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"steal")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_off")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"steal")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_off")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[62, 63, 64, 55]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"assist")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[62, 55, 253, 57]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"reb_def")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"assist")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"miss1")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"miss1")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[55, 253, 57, 59]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"turnover")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"miss3")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"reb_off")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"miss2")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"reb_off")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"made2")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"assist")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"foul")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"foul_rv")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"made1")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"miss1")
+        Event._fix_short_roster(63016,1,"[253, 57, 59, 61]",[53],"reb_def")
+
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "tipoff_won")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "tipoff_won")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "tipoff_lost")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "tipoff_lost")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "turnover")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "turnover")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "steal")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "steal")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss3")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss3")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "foul")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "foul")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "foul_rv")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "foul_rv")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "made3")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "made3")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "assist")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "assist")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254],"made2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "foul")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "foul")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "foul_rv")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "foul_rv")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "turnover")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "turnover")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "made2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "made3")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "made3")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "assist")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "assist")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "made2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "assist")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "assist")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss3")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss3")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "turnover")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "turnover")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "made2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "assist")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "assist")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss3")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss3")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "foul")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "foul")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "foul_rv")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "foul_rv")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss3")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss3")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_off")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_off")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "made2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "assist")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "assist")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss3")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss3")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "made2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss2")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "block")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "block")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "reb_off")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "reb_off")
+        Event._fix_short_roster(63043, 0, "[]", [286, 212, 216, 218, 254], "miss3")
+        Event._fix_short_roster(63043, 1, "[]", [46, 43, 48, 44, 50], "miss3")
+        Event._fix_short_roster(63043, 0, "[]", [220, 212, 216, 218, 254], "reb_def")
+        Event._fix_short_roster(63043, 1, "[]", [41, 43, 49, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[220]", [212, 216, 218, 254], "foul")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "foul")
+        Event._fix_short_roster(63043, 0, "[220]", [212, 216, 218, 254], "foul_rv")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "foul_rv")
+        Event._fix_short_roster(63043, 0, "[220]", [212, 216, 218, 254], "miss1")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "miss1")
+        Event._fix_short_roster(63043, 0, "[220]", [212, 216, 218, 254], "made1")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "made1")
+        Event._fix_short_roster(63043, 0, "[220]", [212, 216, 218, 254], "assist")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "assist")
+        Event._fix_short_roster(63043, 0, "[220]", [212, 216, 218, 254], "foul")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "foul")
+        Event._fix_short_roster(63043, 0, "[220]", [212, 216, 218, 254], "foul_rv")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "foul_rv")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "miss3")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "miss3")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "reb_def")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "made3")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "made3")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "made2")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "miss2")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "reb_def")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "foul")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "foul")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "turnover")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "turnover")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "foul_rv")
+        Event._fix_short_roster(63043, 1, "[41, 49]", [43, 44, 50], "foul_rv")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "miss2")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "reb_off")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "reb_off")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "made2")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "made2")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "made2")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "made2")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "miss3")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "miss3")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "reb_off")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "reb_off")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "foul")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "foul")
+        Event._fix_short_roster(63043, 0, "[220, 223]", [212, 216, 218], "foul_rv")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "foul_rv")
+        Event._fix_short_roster(63043, 0, "[220, 223, 221, 214]", [216], "miss2")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "miss2")
+        Event._fix_short_roster(63043, 0, "[220, 223, 221, 214]", [216], "reb_def")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45]", [44, 50], "reb_def")
+        Event._fix_short_roster(63043, 0, "[220, 223, 221, 214]", [216], "miss2")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45, 47]", [50], "miss2")
+        Event._fix_short_roster(63043, 0, "[220, 223, 221, 214]", [216], "reb_off")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45, 47]", [50], "reb_off")
+        Event._fix_short_roster(63043, 0, "[220, 223, 221, 214]", [216], "made2")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45, 47]", [50], "made2")
+        Event._fix_short_roster(63043, 0, "[220, 223, 221, 214]", [216], "turnover")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45, 47]", [50], "turnover")
+        Event._fix_short_roster(63043, 1, "[41, 49, 45, 47]", [50], "made2")
+
+        Event._fix_short_roster(63086,1,"[177, 184, 180, 182]",[176],"reb_off")
+
+        Event._fix_short_roster(63048,1,"[232, 227, 233, 225]",[229],"miss1")
+        Event._fix_short_roster(63048,1,"[232, 227, 233, 225]",[229],"made1")
+        Event._fix_short_roster(63048,0,"[43, 51, 45, 41]",[49],"made1")
+
+        Event._fix_short_roster(63160,0,"[128, 121, 117, 119]",[126],"reb_def")
+
+        Event._fix_short_roster(63050,1,"[16, 24, 25, 15]",[14],"miss3")
+
+        Event._fix_short_roster(63123,0,"[14, 171, 24, 25]",[16],"made1")
+        Event._fix_short_roster(63123,0,"[14, 171, 24, 25]",[16],"made1")
+        Event._fix_short_roster(63123,0,"[14, 171, 24, 25]",[16],"assist")
+
+        Event._fix_short_roster(63031,1,"[254, 214, 221, 222]",[216],"miss3")
+
+        Event._fix_short_roster(63159,0,"[86, 124, 82, 89]",[79],"made1")
+
+        Event._fix_short_roster(63008,0,"[51, 42, 47, 49]",[41],"made1")
+        Event._fix_short_roster(63008,0,"[41, 43, 46, 42]",[51],"made1")
+        Event._fix_short_roster(63008,0,"[41, 43, 46, 42]",[51],"made1")
+
+        Event._fix_short_roster(63029,1,"[77, 240, 72, 67]",[74],"made1")
+        Event._fix_short_roster(63029,1,"[77, 240, 72, 67]",[74],"made1")
+        Event._fix_short_roster(63029,1,"[75, 70, 74, 71]",[67],"made1")
+        Event._fix_short_roster(63029,1,"[75, 70, 74, 71]",[67],"made1")
+
+        Event._fix_short_roster(63108,1,"[226, 232, 234, 230]",[236],"miss3")
+
+    @staticmethod
     def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id):
         logging.basicConfig(level=logging.INFO)
         logger = logging.getLogger(__name__)
@@ -307,7 +680,7 @@ class Event(BaseModel):
 
                         most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
                         query_actor_id = Actor.get(Actor.id == actors_names_ids[most_likely_actor]).id
-                        logger.info('Actor {} has been matched to: {}'.format(display_name,most_likely_actor))
+                        #logger.info('Actor {} has been matched to: {}'.format(display_name,most_likely_actor))
 
 
                 except:  # Cells without player associated (e.g. timeouts and missing info)
@@ -327,7 +700,7 @@ class Event(BaseModel):
                         try:
                             roster_home.remove(query_actor_id)
                         except:
-                            logger.warning('Cannot remove actor. Actor {} is not in list {}'.format(query_actor_id, roster_home))
+                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid,events_game_acbid,query_actor_id, roster_home))
 
                 #roster away
                 elif "pbpt2" in tag:
@@ -338,17 +711,18 @@ class Event(BaseModel):
                         try:
                             roster_away.remove(query_actor_id)
                         except:
-                            logger.warning('Cannot remove actor. Actor {} is not in list {}'.format(query_actor_id, roster_away))
+                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid,events_game_acbid,query_actor_id, roster_away))
 
                 if legend in play_events_dict:
                     if len(roster_home) != 5:
                         events_with_errors+=1
-                        logger.warning('Roster home list length ({}) error: {} for team: {} in game: {} ({}) for event: {}'.format(len(roster_home),roster_home,team_home_id,game_acbid,events_game_acbid,legend_dict[legend]))
+                        logger.warning('Game: {} ({}). Roster home list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_home),roster_home,team_home_id,legend_dict[legend]))
                     if len(roster_away) != 5:
                         events_with_errors += 1
-                        logger.warning('Roster away list length ({}) error: {} for team: {} in game: {} ({}) for event: {}'.format(len(roster_away),roster_away,team_away_id,game_acbid,events_game_acbid,legend_dict[legend]))
-                    if query_actor_id not in roster_home and query_actor_id not in roster_away:
-                        logger.warning('The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
+                        logger.warning('Game: {} ({}). Roster away list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_away),roster_away,team_away_id,legend_dict[legend]))
+                    #if query_actor_id not in roster_home and query_actor_id not in roster_away:
+                        #if jersey is not -1:
+                        #logger.warning('Game: {} ({}). The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(game_acbid,events_game_acbid,query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
 
                 elapsed_time = convert_time(time, period[1:])
                 actions[cont] = {"events_game_acbid": events_game_acbid,

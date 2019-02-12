@@ -109,10 +109,49 @@ class Participant(BaseModel):
             pass
 
     @staticmethod
+    def _fix_coaches_participations(actor_name,actor_acbid,team_id):
+        try:
+            wrong_participant = Participant.get((Participant.display_name == "") & (Participant.team == team_id) & (Participant.is_coach==1))
+            actor_id = Actor.get((Actor.display_name == actor_name) & (Actor.actor_acbid == actor_acbid)).id
+
+            wrong_participant.display_name = actor_name
+            wrong_participant.actor_id = actor_id
+            wrong_participant.save()
+
+        except Participant.DoesNotExist:
+            pass
+
+    @staticmethod
+    def _fix_players_participations(number,team_id):
+        try:
+            wrong_participant = Participant.get((Participant.display_name == "") & (Participant.team == team_id) & (Participant.is_coach==0) & (Participant.number == number))
+            wrong_participant.delete_instance()
+
+        except Participant.DoesNotExist:
+            pass
+
+    @staticmethod
     def fix_participants():
         Participant._fix_acbid('G. Sharabidze', 'Y9G',0)
         Participant._fix_acbid('S. Gacic', '801',0)
         Participant._fix_acbid('M. Milisavljevic', 'D08',0)
+        Participant._fix_acbid('L. Marquel', 'A09',0)
+        Participant._fix_acbid('I. Navarro', 'A09',1)
+
+        Participant._fix_acbid('J. Espil', 'AYP',0)
+        Participant._fix_acbid('J. Ponsarnau', 'AYP',1)
+
+        Participant._fix_acbid('R. Aldrey', 'AET',0)
+        Participant._fix_acbid('J. Berrocal', 'AET',1)
+
+        Participant._fix_acbid('D. Allaway', 'AYQ',0)
+        Participant._fix_acbid('V. García', 'AYQ',1)
+
+        Participant._fix_acbid('M. Janning', '55A',0)
+        Participant._fix_acbid('D. Epifanio', '55A',1)
+
+        Participant._fix_acbid('F. Laviña', 'A0R',0)
+        Participant._fix_acbid('M. Justo', 'A0R',1)
 
         Participant._fix_participations('M. Esteban', '2CH','476')
         Participant._fix_participations('W. Tavares', 'T2Z', 'SHP')
@@ -120,8 +159,13 @@ class Participant(BaseModel):
         Participant._fix_participations('J. Olaizola', 'T86', '162')
         Participant._fix_participations('A. Izquierdo', '773', 'YHK')
 
+        Participant._fix_coaches_participations("J. Ponsarnau",'AYP',18)
+        Participant._fix_coaches_participations('V. García', 'AYQ',17)
+        Participant._fix_coaches_participations('V. García', 'AYQ',17)
+        Participant._fix_coaches_participations('V. García', 'AYQ',17)
 
-
+        Participant._fix_players_participations(17,2)
+        Participant._fix_players_participations(0,17)
 
     @staticmethod
     def _create_players_and_coaches(raw_game, game):
@@ -341,9 +385,10 @@ class Participant(BaseModel):
             for player, player_stats in team_dict.items():
                 try:
                     if stats[team][player]['id']=="" or stats[team][player]['display_name']=="":
+                        #del stats[team][player]
                         stats[team][player].pop('id')
                         pass
-                    actor = Actor.get_or_create(actor_acbid=stats[team][player]['id'])
+                    actor = Actor.get_or_create(actor_acbid=stats[team][player]['id'],display_name=stats[team][player]['display_name'])
                     if actor[1]:
                         actor[0].display_name = stats[team][player]['display_name']
                         actor[0].is_coach = stats[team][player]['is_coach']

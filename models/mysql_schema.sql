@@ -212,6 +212,8 @@ CREATE TABLE shotchart (
     shot_type varchar(30) DEFAULT null,
     botton_px DOUBLE DEFAULT null,
     left_px DOUBLE DEFAULT null,
+    botton_px_adjust DOUBLE DEFAULT null,
+    left_px_adjust DOUBLE DEFAULT null,
     FOREIGN KEY (game_acbid) REFERENCES game(game_acbid),
     FOREIGN KEY (team_id) REFERENCES team(id),
     FOREIGN KEY (actor_id) REFERENCES actor(id)
