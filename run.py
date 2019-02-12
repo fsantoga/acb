@@ -179,6 +179,8 @@ def update_events():
             print(e)
             pass
 
+    Event._check_rosters()
+
 
 def insert_events(season):
     logging.basicConfig(level=logging.INFO)
@@ -294,8 +296,6 @@ def main(args):
 
     logger.info('STARTING...')
 
-    update_events()
-
     current_season=get_current_season()
     first_season = args.first_season
     last_season = args.last_season
@@ -337,9 +337,10 @@ def main(args):
             #insert_teams(season)
             #insert_games(season)
             if year >= 2016:
-                insert_events(season)
+                #insert_events(season)
+                #update_events()
                 #insert_roster()
-                #insert_shotchart(season)
+                insert_shotchart(season)
 
         # Update missing info about actors and participants.
         update_games()
@@ -356,6 +357,7 @@ def main(args):
         insert_teams(season)
         insert_games(season)
         insert_events(season)
+        update_events()
         insert_shotchart(season)
         update_games()
 
@@ -390,7 +392,7 @@ def main(args):
         else:
             logger.info("Making predictions with model:" + str(model_file) + " for the next journey" +'...\n')
             next_journey_matches_df = get_next_journey(season)
-            next_journey_matches_df.to_csv("ml/caca.csv", sep=",", encoding="utf-8", index=False)
+            #next_journey_matches_df.to_csv("ml/caca.csv", sep=",", encoding="utf-8", index=False)
             pred_final = predict_next_journey(loaded_model, next_journey_matches_df, from_year, streak_days_long, streak_days_short, model_file)
             print(pred_final)
 

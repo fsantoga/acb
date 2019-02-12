@@ -167,8 +167,6 @@ class Participant(BaseModel):
         Participant._fix_players_participations(17,2)
         Participant._fix_players_participations(0,17)
 
-
-
     @staticmethod
     def _create_players_and_coaches(raw_game, game):
         """

@@ -10,6 +10,31 @@ from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, Inte
 import time
 from src.utils import get_current_season
 
+shot_type_dict = {
+    '2PT': '2PT',
+    '3PT': '3PT',
+    '2PT bandeja': '2PT',
+    '2PT palmeo': '2PT',
+    '2PT tiro': '2PT',
+    '2PT Alley oop': '2PT',
+    '2PT Alley-oop': '2PT',
+    'Mate': '2PT',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT': '2PT',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT': '2PT',
+    'BASKETBALL_ACTION_3PT_JUMPSHOT': '3PT',
+}
+
+extra_shot_type_dict = {
+    '2PT bandeja': 'layup',
+    '2PT palmeo': 'tip',
+    '2PT tiro': 'jumpshot',
+    '2PT Alley oop': 'alley-oop',
+    '2PT Alley-oop': 'alley-oop',
+    'Mate': 'dunk',
+    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT': 'stepback',
+    'BASKETBALL_ACTION_2PT_HOOKSHOT': 'hookshot',
+}
+
 class Shotchart(BaseModel):
     id = PrimaryKeyField()
     shotchart_game_acbid = IntegerField(index=True)
@@ -23,6 +48,8 @@ class Shotchart(BaseModel):
     actor_id = ForeignKeyField(Actor, index=False, null=True)
     botton_px = DoubleField(null=True)
     left_px = DoubleField(null=True)
+    botton_px_adjust = DoubleField(null=True)
+    left_px_adjust = DoubleField(null=True)
 
     @staticmethod
     def save_shotchart(season, driver_path, logging_level=logging.INFO):
@@ -81,8 +108,11 @@ class Shotchart(BaseModel):
         actions = {}
         cont = 1
         home_score = away_score = 0
+        first_shot=True
+        home_attack_left=0
 
-        for elem in reversed(list(shotchart('span').items())):
+        for elem in list(shotchart('span').items()):
+
             query_actor_id=None
             scored=None
             period=None
@@ -90,11 +120,14 @@ class Shotchart(BaseModel):
             left_px=None
             shot=None
             shot_type_final=None
+            botton_px_adjust=None
+            left_px_adjust=None
 
             if elem.attr['class']:
                 tag = elem.attr['class']
                 list_tags=tag.split(" ")
                 shot_score=list_tags[1]
+                shot_score_adjust=shot_score.split("_")[0]
 
                 if shot_score=="black_missed" or shot_score=="white_missed":
                     scored=0
@@ -122,12 +155,59 @@ class Shotchart(BaseModel):
                     team_id=team_home_id
 
             if elem.attr['style']:
+
                 tag = elem.attr['style']
                 list_tags=tag.split(" ")
                 botton_px=list_tags[1]
-                botton_px=botton_px.split("%")[0]
+                botton_px=float(botton_px.split("%")[0])
                 left_px=list_tags[3]
-                left_px=left_px.split("%")[0]
+                left_px=float(left_px.split("%")[0])
+
+                if first_shot:
+                    if left_px < 50.0:
+                        if team == "sc_tn1":
+                            home_attack_left = 1
+                        else:
+                            home_attack_left = 0
+                    else:
+                        if team == "sc_tn1":
+                            home_attack_left = 0
+                        else:
+                            home_attack_left = 1
+
+                    first_shot = False
+
+                if shot_score_adjust=="white" and home_attack_left==1:
+                    if period in [1,2]:
+                        left_px_adjust=left_px
+                        botton_px_adjust=botton_px
+                    else:
+                        left_px_adjust=100.0-left_px
+                        botton_px_adjust=100.0-botton_px
+
+                elif shot_score_adjust=="white" and home_attack_left==0:
+                    if period in [1,2]:
+                        left_px_adjust=100.0-left_px
+                        botton_px_adjust=100.0-botton_px
+                    else:
+                        left_px_adjust=left_px
+                        botton_px_adjust=botton_px
+
+                elif shot_score_adjust == "black" and home_attack_left == 1:
+                    if period in [1, 2]:
+                        left_px_adjust = 100.0-left_px
+                        botton_px_adjust = 100.0-botton_px
+                    else:
+                        left_px_adjust = left_px
+                        botton_px_adjust = botton_px
+
+                elif shot_score_adjust == "black" and home_attack_left == 0:
+                    if period in [1, 2]:
+                        left_px_adjust = left_px
+                        botton_px_adjust = botton_px
+                    else:
+                        left_px_adjust = 100.0-left_px
+                        botton_px_adjust = 100.0-botton_px
 
                 if elem.attr['title']:
                     tag = elem.attr['title']
@@ -160,15 +240,10 @@ class Shotchart(BaseModel):
                     logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
 
 
-                if shot_txt.startswith("2PT"):
-                    shot_split=shot_txt.split()
-                    shot=shot_split[0]
-                    shot_type_final=shot_split[1]
-                elif shot_txt=="Mate":
-                    shot="2PT"
-                    shot_type_final=shot_txt
-                else:
-                    shot=shot_txt
+                #Fixing ACB errors
+                if shot=="2PT" and left_px_adjust > 50.0:
+                    left_px_adjust = 100.0 - left_px
+                    botton_px_adjust = 100.0 - botton_px
 
                 actions[cont] = {"shotchart_game_acbid": shotchart_game_acbid,
                                  "game_acbid": game_acbid,
@@ -179,8 +254,10 @@ class Shotchart(BaseModel):
                                  "period": period,
                                  "botton_px": botton_px,
                                  "left_px": left_px,
-                                 "shot": shot,
-                                 "shot_type": shot_type_final}
+                                 "botton_px_adjust": botton_px_adjust,
+                                 "left_px_adjust": left_px_adjust,
+                                 "shot": shot_type_dict[shot_txt],
+                                 "shot_type": extra_shot_type_dict.setdefault(shot_txt, None)}
                 cont += 1
 
 
