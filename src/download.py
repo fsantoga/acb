@@ -94,11 +94,14 @@ def sanity_check(directory_name, logging_level=logging.INFO):
     directory = os.fsencode(directory_name)
     for file in os.listdir(directory):
         with open(os.path.join(directory, file), encoding="utf-8") as f:
-            raw_html = f.read()
+            try:
+                raw_html = f.read()
 
-            doc = pq(raw_html)
-            if doc("title").text() == '404 Not Found':
-                errors.append(os.fsdecode(file))
+                doc = pq(raw_html)
+                if doc("title").text() == '404 Not Found':
+                    errors.append(os.fsdecode(file))
+            except:
+                pass
 
     if errors: raise Exception('There are {} errors in the downloads!'.format(len(errors)))
     logger.info('Sanity check of {} correctly finished!\n'.format(os.fsdecode(directory)))

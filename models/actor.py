@@ -1,4 +1,4 @@
-import os.path, re, datetime, logging
+import os.path, re, datetime, logging, urllib.request
 from pyquery import PyQuery as pq
 from src.download import open_or_download, sanity_check
 from models.basemodel import BaseModel
@@ -84,6 +84,9 @@ class Actor(BaseModel):
         """
         Update the information of a particular actor.
         """
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+
         folder = COACHES_PATH if self.is_coach else PLAYERS_PATH
         url_tag = 'entrenador' if self.is_coach else 'jugador'
 
@@ -93,6 +96,13 @@ class Actor(BaseModel):
 
         personal_info = self._get_personal_info(content)
         twitter = self._get_twitter(content)
+        photo_url = self._get_photo(content)
+
+        photo_filename = os.path.join(folder, self.actor_acbid + '.jpg')
+        try:
+            urllib.request.urlretrieve(photo_url,photo_filename)
+        except:
+            logger.info('Error downloading image: {}'.format(photo_url))
 
         personal_info.update({'twitter': twitter})
 
@@ -183,3 +193,19 @@ class Actor(BaseModel):
                 return twitter.groups()[0] if twitter else None
         except:
             pass
+
+    def _get_photo(self, raw_doc):
+        """
+        Get the twitter of an actor, if it exists.
+        :param raw_doc: String
+        :return: twitter
+        """
+        doc = pq(raw_doc)
+        photo_data = doc('#portadafoto')
+        url=None
+
+        if photo_data('img'):
+            photo=photo_data('img')
+            url = photo.attr['src']
+
+        return url
