@@ -3,6 +3,7 @@ import pymysql
 from collections import defaultdict
 import pandas as pd
 import sqlalchemy
+import math
 
 
 def calculate_possessions():
@@ -79,7 +80,9 @@ def calculate_possessions():
                         #                break
                         #
         for i, j in possessions.items():
-            team_possession_list.append([i, len(j)])
+            sql = "UPDATE participant SET possessions = %s WHERE participant.display_name ='Equipo' AND participant.game_id = %s AND participant.team_id = %s "
+            val = (len(j),game_id_bueno,i)
+            cursor.execute(sql,val)
             # print(i, len(j))
 
         def count_within_intervals(possessions, intervals):
@@ -130,5 +133,4 @@ def calculate_possessions():
             #     s['game_acbid'] = game_id
             #     s['actor_id'] = s['actor_id'].astype(int)
             #     frames.append(s)
-
 

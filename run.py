@@ -334,12 +334,12 @@ def main(args):
         for year in reversed(range(first_season, last_season + 1)):
             logger.info('Inserting data into database for season '+str(year)+'...\n')
             season = Season(year)
-            insert_teams(season)
-            insert_games(season)
+            #insert_teams(season)
+            #insert_games(season)
             if year >= 2016:
-                insert_events(season)
-                update_events()
-                insert_roster()
+                #insert_events(season)
+                #update_events()
+                #insert_roster()
                 insert_shotchart(season)
 
         # Update missing info about actors and participants.

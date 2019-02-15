@@ -9,6 +9,7 @@ from src.utils import convert_time, create_driver
 from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField,DoubleField)
 import time
 from src.utils import get_current_season
+import math
 
 shot_type_dict = {
     '2PT': '2PT',
@@ -50,6 +51,10 @@ class Shotchart(BaseModel):
     left_px = DoubleField(null=True)
     botton_px_adjust = DoubleField(null=True)
     left_px_adjust = DoubleField(null=True)
+    left_m_adjust = DoubleField(null=True)
+    botton_m_adjust = DoubleField(null=True)
+    distance = DoubleField(null=True)
+
 
     @staticmethod
     def save_shotchart(season, driver_path, logging_level=logging.INFO):
@@ -245,6 +250,14 @@ class Shotchart(BaseModel):
                     left_px_adjust = 100.0 - left_px
                     botton_px_adjust = 100.0 - botton_px
 
+                left_m_adjust = (left_px_adjust * 28) / 100
+                botton_m_adjust = (botton_px_adjust * 15) / 100
+
+                center_left = 1.575
+                center_botton=7.5
+
+                distance = math.sqrt((left_m_adjust - center_left) ** 2 + (botton_m_adjust - center_botton) ** 2)
+
                 actions[cont] = {"shotchart_game_acbid": shotchart_game_acbid,
                                  "game_acbid": game_acbid,
                                  "team_id": team_id,
@@ -256,10 +269,12 @@ class Shotchart(BaseModel):
                                  "left_px": left_px,
                                  "botton_px_adjust": botton_px_adjust,
                                  "left_px_adjust": left_px_adjust,
+                                 "botton_m_adjust": botton_m_adjust,
+                                 "left_m_adjust": left_m_adjust,
+                                 "distance": distance,
                                  "shot": shot_type_dict[shot_txt],
                                  "shot_type": extra_shot_type_dict.setdefault(shot_txt, None)}
                 cont += 1
-
 
         with db.atomic():
             for event in actions.values():
