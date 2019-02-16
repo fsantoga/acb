@@ -34,7 +34,7 @@ def download_events(season,driver_path):
 
 def download_shotchart(season,driver_path):
     """
-    Download locally the shotcart of a certain season
+    Download locally the shotchart of a certain season
     :param season: Season object.
     """
     Shotchart.save_shotchart(season,driver_path)
@@ -278,7 +278,7 @@ def insert_shotchart(season):
 
     year=season.season
 
-    logger.info('Retrieving all data from shotcarts and storing it.')
+    logger.info('Retrieving all data from shotcharts and storing it.')
 
     if year >= 2016:
         for game_id_file in os.listdir(season.EVENTS_PATH):

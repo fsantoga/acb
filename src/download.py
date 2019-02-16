@@ -233,13 +233,13 @@ def sanity_check_shotchart(driver_path,directory_name, logging_level=logging.INF
             filename=file.decode("utf-8")
             statinfo=os.stat(directory_name+filename)
 
-            #we assume that the event files with a size lower than 100kB need to be revised and download again.
-            if statinfo.st_size <10000:
+            #we assume that the shotchart files with a size lower than 69kB need to be revised and download again.
+            if statinfo.st_size <69000:
                 logger.info(filename+' was not properly downladed. Missing data.')
-                game_shotcart_id = os.path.splitext(filename)[0]
-                shotcart_id=game_shotcart_id.split("-")[1]
-                shotcartURL = "http://www.fibalivestats.com/u/ACBS/{}/sc.html".format(shotcart_id)
-                driver.get(shotcartURL)
+                game_shotchart_id = os.path.splitext(filename)[0]
+                shotchart_id=game_shotchart_id.split("-")[1]
+                shotchartURL = "http://www.fibalivestats.com/u/ACBS/{}/sc.html".format(shotchart_id)
+                driver.get(shotchartURL)
                 html = driver.page_source
                 time.sleep(1)
                 save_content(directory_name+filename, html)
@@ -247,15 +247,15 @@ def sanity_check_shotchart(driver_path,directory_name, logging_level=logging.INF
 
             statinfo2=os.stat(directory_name+filename)
             f.close()
-            if statinfo2.st_size < 10000:
-                logger.info('The game-shotcart ' + filename +' data is not correct. Missing data. Deleting game-event...')
+            if statinfo2.st_size < 69000:
+                logger.info('The game-shotchart ' + filename +' data is not correct. Missing data. Deleting game-shotchart...')
                 try:
                     os.remove(directory_name+filename)
-                    logger.info('game-shotcart ' + filename + ' deleted...')
+                    logger.info('game-shotchart ' + filename + ' deleted...')
                     continue
 
                 except:
-                    logger.info('game-shotcart ' + filename + ' cannot be deleted...')
+                    logger.info('game-shotchart ' + filename + ' cannot be deleted...')
                     continue
 
     #recursive call to sanity_check to check if there are more errors with the html
