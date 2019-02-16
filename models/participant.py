@@ -191,15 +191,15 @@ class Participant(BaseModel):
             header.append(index.text())
 
         """
-        However, the acb ids of the stats are not unique and some of then are repeteated.
+        However, the acb ids of the stats are not unique and some of them are repeteated.
         We have three times a 'C' and two times a 'F'. We manually modify these ids.
         """
         # The first C is counterattack, the second C is received_block and the third received_fault.
+        header = replace_nth_ocurrence(header, 3, "C", "FPC")
         header = replace_nth_ocurrence(header, 2, "C", "TAPC")
-        header = replace_nth_ocurrence(header, 2, "C", "FPC")
         # The first F is block and the second F is  fault.
+        header = replace_nth_ocurrence(header, 2, "F", "FPF")
         header = replace_nth_ocurrence(header, 1, "F", "TAPF")
-        header = replace_nth_ocurrence(header, 1, "F", "FPF")
 
         """
         We create the correspondance between the acb ids and the attributes in our database

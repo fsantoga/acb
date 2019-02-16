@@ -11,12 +11,14 @@ logger = logging.getLogger(__name__)
 def replace_nth_ocurrence(source, n, letter, new_value):
     """
     Replace the nth ocurrence from an array
-    :param source: String
+    :param source: List of strings
     :param n: int
     :param letter: new value
     :param new_value: new value
     """
-    ind = source.index(letter, n)
+    ind = -1
+    for i in range(n):
+        ind = source.index(letter, ind+1)
     source[ind] = new_value
     return source
 

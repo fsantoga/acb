@@ -3,8 +3,6 @@ from src.download import get_page,save_content,sanity_check_shotchart
 from models.basemodel import BaseModel, db
 from models.team import Team
 from models.actor import Actor
-from models.game import Game
-from models.participant import Participant
 from src.utils import convert_time, create_driver
 from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField,DoubleField)
 import time
@@ -47,12 +45,12 @@ class Shotchart(BaseModel):
     shot_type = CharField(null=True)
     jersey = IntegerField(null=True)
     actor_id = ForeignKeyField(Actor, index=False, null=True)
-    botton_px = DoubleField(null=True)
+    bottom_px = DoubleField(null=True)
     left_px = DoubleField(null=True)
-    botton_px_adjust = DoubleField(null=True)
+    bottom_px_adjust = DoubleField(null=True)
     left_px_adjust = DoubleField(null=True)
     left_m_adjust = DoubleField(null=True)
-    botton_m_adjust = DoubleField(null=True)
+    bottom_m_adjust = DoubleField(null=True)
     distance = DoubleField(null=True)
 
 
@@ -105,7 +103,7 @@ class Shotchart(BaseModel):
         sanity_check_shotchart(driver_path,season.SHOTCHART_PATH, logging_level)
 
     @staticmethod
-    def scrap_and_insert(shotchart_game_acbid, game_acbid, shotchart, team_home_id, team_away_id):
+    def scrap_and_insert(shotchart_game_acbid, game_acbid, shotchart, team_home_id, team_away_id, actors_home, actors_away):
         logging.basicConfig(level=logging.INFO)
         logger = logging.getLogger(__name__)
 
@@ -121,11 +119,11 @@ class Shotchart(BaseModel):
             query_actor_id=None
             scored=None
             period=None
-            botton_px=None
+            bottom_px=None
             left_px=None
             shot=None
             shot_type_final=None
-            botton_px_adjust=None
+            bottom_px_adjust=None
             left_px_adjust=None
 
             if elem.attr['class']:
@@ -163,8 +161,8 @@ class Shotchart(BaseModel):
 
                 tag = elem.attr['style']
                 list_tags=tag.split(" ")
-                botton_px=list_tags[1]
-                botton_px=float(botton_px.split("%")[0])
+                bottom_px=list_tags[1]
+                bottom_px=float(bottom_px.split("%")[0])
                 left_px=list_tags[3]
                 left_px=float(left_px.split("%")[0])
 
@@ -185,34 +183,34 @@ class Shotchart(BaseModel):
                 if shot_score_adjust=="white" and home_attack_left==1:
                     if period in [1,2]:
                         left_px_adjust=left_px
-                        botton_px_adjust=botton_px
+                        bottom_px_adjust=bottom_px
                     else:
                         left_px_adjust=100.0-left_px
-                        botton_px_adjust=100.0-botton_px
+                        bottom_px_adjust=100.0-bottom_px
 
                 elif shot_score_adjust=="white" and home_attack_left==0:
                     if period in [1,2]:
                         left_px_adjust=100.0-left_px
-                        botton_px_adjust=100.0-botton_px
+                        bottom_px_adjust=100.0-bottom_px
                     else:
                         left_px_adjust=left_px
-                        botton_px_adjust=botton_px
+                        bottom_px_adjust=bottom_px
 
                 elif shot_score_adjust == "black" and home_attack_left == 1:
                     if period in [1, 2]:
                         left_px_adjust = 100.0-left_px
-                        botton_px_adjust = 100.0-botton_px
+                        bottom_px_adjust = 100.0-bottom_px
                     else:
                         left_px_adjust = left_px
-                        botton_px_adjust = botton_px
+                        bottom_px_adjust = bottom_px
 
                 elif shot_score_adjust == "black" and home_attack_left == 0:
                     if period in [1, 2]:
                         left_px_adjust = left_px
-                        botton_px_adjust = botton_px
+                        bottom_px_adjust = bottom_px
                     else:
                         left_px_adjust = 100.0-left_px
-                        botton_px_adjust = 100.0-botton_px
+                        bottom_px_adjust = 100.0-bottom_px
 
                 if elem.attr['title']:
                     tag = elem.attr['title']
@@ -228,35 +226,34 @@ class Shotchart(BaseModel):
                         display_name = list_tags[1].strip()
                         shot_txt = list_tags[2].strip()
 
-                game_id = Game.get(Game.game_acbid == game_acbid).id
+                # Matching display_name with actor_id
+                if team_id == team_home_id:
+                    actors_names_ids = actors_home
+                elif team_id == team_away_id:
+                    actors_names_ids = actors_away
+                else:
+                    actors_names_ids = None
 
-                try:  ## In case the name of the actor is exactly the same as one stated in our database this game
-                    query_actor_id = Participant.get(
-                        (Participant.game == game_id) & (Participant.display_name % display_name)).actor
-
-                except Participant.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
-                    query = Participant.select(Participant.actor, Participant.display_name).where((Participant.game == game_id) & (Participant.actor.is_null(False)) & (Participant.team == team_id))
-                    actors_names_ids = dict()
-                    for q in query:
-                        actors_names_ids[q.display_name] = q.actor.id
-
+                if display_name in actors_names_ids.keys():
+                    query_actor_id = actors_names_ids[display_name]
+                else:
                     most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
-                    query_actor_id = Actor.get(Actor.id == actors_names_ids[most_likely_actor]).id
+                    query_actor_id = actors_names_ids[most_likely_actor]
                     logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
 
 
                 #Fixing ACB errors
                 if shot=="2PT" and left_px_adjust > 50.0:
                     left_px_adjust = 100.0 - left_px
-                    botton_px_adjust = 100.0 - botton_px
+                    bottom_px_adjust = 100.0 - bottom_px
 
                 left_m_adjust = (left_px_adjust * 28) / 100
-                botton_m_adjust = (botton_px_adjust * 15) / 100
+                bottom_m_adjust = (bottom_px_adjust * 15) / 100
 
                 center_left = 1.575
-                center_botton=7.5
+                center_bottom=7.5
 
-                distance = math.sqrt((left_m_adjust - center_left) ** 2 + (botton_m_adjust - center_botton) ** 2)
+                distance = math.sqrt((left_m_adjust - center_left) ** 2 + (bottom_m_adjust - center_bottom) ** 2)
 
                 actions[cont] = {"shotchart_game_acbid": shotchart_game_acbid,
                                  "game_acbid": game_acbid,
@@ -265,11 +262,11 @@ class Shotchart(BaseModel):
                                  "jersey": jersey,
                                  "scored": scored,
                                  "period": period,
-                                 "botton_px": botton_px,
+                                 "bottom_px": bottom_px,
                                  "left_px": left_px,
-                                 "botton_px_adjust": botton_px_adjust,
+                                 "bottom_px_adjust": bottom_px_adjust,
                                  "left_px_adjust": left_px_adjust,
-                                 "botton_m_adjust": botton_m_adjust,
+                                 "bottom_m_adjust": bottom_m_adjust,
                                  "left_m_adjust": left_m_adjust,
                                  "distance": distance,
                                  "shot": shot_type_dict[shot_txt],

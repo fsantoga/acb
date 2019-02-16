@@ -3,8 +3,9 @@ from models.basemodel import db, reset_database, delete_records, create_schema
 from models.event import *
 from models.team import TeamName, Team
 from models.actor import Actor
-from models.shotchart import Shotchart
+from models.game import Game
 from models.participant import Participant
+from models.shotchart import Shotchart
 from models.roster import Roster
 from ml.train import *
 from ml.predict import *
@@ -206,14 +207,28 @@ def insert_events(season):
                 try:
                     query = Event.select().where(Event.events_game_acbid == events_game_acbid)
                     if not query:
-                        events_with_errors=Event.scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id)
-                        logger.info('Finish game {} with {} errors.'.format(game_acbid,events_with_errors))
+
+                        game_id = Game.get(Game.game_acbid == game_acbid).id
+                        query_actors_home = Participant.select(Participant.actor, Participant.display_name).where(
+                            (Participant.game == game_id) & (Participant.actor.is_null(False)) & (Participant.team == team_home_id))
+                        actors_home = dict()
+                        for q in query_actors_home:
+                            actors_home[q.display_name] = q.actor.id
+
+                        query_actors_away = Participant.select(Participant.actor, Participant.display_name).where(
+                            (Participant.game == game_id) & (Participant.actor.is_null(False)) & (Participant.team == team_away_id))
+                        actors_away = dict()
+                        for q in query_actors_away:
+                            actors_away[q.display_name] = q.actor.id
+
+                        events_with_errors=Event.scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id, actors_home, actors_away)
+                        logger.info('Finish game {} with {} errors.'.format(game_acbid, events_with_errors))
                         if events_with_errors>0:
                             events_game_errors[game_acbid] = events_with_errors
                     else:
                         continue
                 except Exception as e:
-                    print(e,game_id_file)
+                    print(e, game_id_file)
 
         logger.info('Game events with errors in year {}: {}.'.format(year,events_game_errors))
 
@@ -281,7 +296,23 @@ def insert_shotchart(season):
                 try:
                     query = Shotchart.select().where(Shotchart.shotchart_game_acbid == shotchart_game_acbid)
                     if not query:
-                        Shotchart.scrap_and_insert(shotchart_game_acbid, game_acbid, shotchart_data, team_home_id, team_away_id)
+
+                        game_id = Game.get(Game.game_acbid == game_acbid).id
+                        query_actors_home = Participant.select(Participant.actor, Participant.display_name).where(
+                            (Participant.game == game_id) & (Participant.actor.is_null(False)) & (
+                                        Participant.team == team_home_id))
+                        actors_home = dict()
+                        for q in query_actors_home:
+                            actors_home[q.display_name] = q.actor.id
+
+                        query_actors_away = Participant.select(Participant.actor, Participant.display_name).where(
+                            (Participant.game == game_id) & (Participant.actor.is_null(False)) & (
+                                        Participant.team == team_away_id))
+                        actors_away = dict()
+                        for q in query_actors_away:
+                            actors_away[q.display_name] = q.actor.id
+
+                        Shotchart.scrap_and_insert(shotchart_game_acbid, game_acbid, shotchart_data, team_home_id, team_away_id, actors_home, actors_away)
                     else:
                         continue
                 except Exception as e:
@@ -334,11 +365,11 @@ def main(args):
         for year in reversed(range(first_season, last_season + 1)):
             logger.info('Inserting data into database for season '+str(year)+'...\n')
             season = Season(year)
-            #insert_teams(season)
-            #insert_games(season)
+            insert_teams(season)
+            insert_games(season)
             if year >= 2016:
-                #insert_events(season)
-                #update_events()
+                insert_events(season)
+                update_events()
                 #insert_roster()
                 insert_shotchart(season)
 

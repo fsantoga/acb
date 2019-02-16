@@ -3,8 +3,6 @@ from src.download import get_page,save_content,sanity_check_events
 from models.basemodel import BaseModel, db
 from models.team import Team
 from models.actor import Actor
-from models.game import Game
-from models.participant import Participant
 from src.utils import convert_time, create_driver
 from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField)
 import time
@@ -272,7 +270,7 @@ class Event(BaseModel):
         sanity_check_events(driver_path,season.EVENTS_PATH, logging_level)
 
     @staticmethod
-    def _fix_short_roster(game_acbid,roster_home_or_away,roster,list_include_actor,legend):
+    def _fix_short_roster(game_acbid, roster_home_or_away, roster, list_include_actor, legend):
         if roster_home_or_away==0:
             try:
                 wrong_roster = Event.get((Event.game_acbid==game_acbid) & (Event.roster_home==roster) & (Event.legend==legend))
@@ -635,13 +633,11 @@ class Event(BaseModel):
         Event._fix_short_roster(63108,1,"[226, 232, 234, 230]",[236],"miss3")
 
     @staticmethod
-    def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id):
+    def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id, actors_home, actors_away):
         logging.basicConfig(level=logging.INFO)
         logger = logging.getLogger(__name__)
 
-        periods = set()
         actions = {}
-        rosters = {}
         cont = 1
         events_with_errors=0
         home_score = away_score = 0
@@ -666,22 +662,20 @@ class Event(BaseModel):
                     jersey, display_name, _ = elem('.pbp-action').text().split(", ")
                     jersey = int(jersey)
 
+                    # Matching display_name with actor_id
+                    if team_id == team_home_id:
+                        actors_names_ids = actors_home
+                    elif team_id == team_away_id:
+                        actors_names_ids = actors_away
+                    else:
+                        actors_names_ids = None
 
-                    game_id = Game.get(Game.game_acbid == game_acbid ).id
-
-                    try:  ## In case the name of the actor is exactly the same as one stated in our database this game
-                        query_actor_id = Participant.get((Participant.game == game_id) & (Participant.display_name % display_name)).actor.id
-
-                    except Participant.DoesNotExist:  ## In case there is not an exact correspondance within our database, let's find the closest match.
-                        query = Participant.select(Participant.actor, Participant.display_name).where((Participant.game == game_id) & (Participant.actor.is_null(False)) & (Participant.team==team_id))
-                        actors_names_ids = dict()
-                        for q in query:
-                            actors_names_ids[q.display_name] = q.actor.id
-
+                    if display_name in actors_names_ids.keys():
+                        query_actor_id = actors_names_ids[display_name]
+                    else:
                         most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
-                        query_actor_id = Actor.get(Actor.id == actors_names_ids[most_likely_actor]).id
-                        #logger.info('Actor {} has been matched to: {}'.format(display_name,most_likely_actor))
-
+                        query_actor_id = actors_names_ids[most_likely_actor]
+                        logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
 
                 except:  # Cells without player associated (e.g. timeouts and missing info)
                     legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
@@ -700,7 +694,7 @@ class Event(BaseModel):
                         try:
                             roster_home.remove(query_actor_id)
                         except:
-                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid,events_game_acbid,query_actor_id, roster_home))
+                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_home))
 
                 #roster away
                 elif "pbpt2" in tag:
@@ -711,7 +705,7 @@ class Event(BaseModel):
                         try:
                             roster_away.remove(query_actor_id)
                         except:
-                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid,events_game_acbid,query_actor_id, roster_away))
+                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_away))
 
                 if legend in play_events_dict:
                     if len(roster_home) != 5:
@@ -735,7 +729,7 @@ class Event(BaseModel):
                                  "jersey": jersey,
                                  "home_score": home_score,
                                  "away_score": away_score,
-                                 "roster_home":str(roster_home),
+                                 "roster_home": str(roster_home),
                                  "roster_away": str(roster_away)}
                 cont+=1
 
