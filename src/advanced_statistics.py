@@ -121,7 +121,8 @@ def calculate_possessions():
             # print(name)
             # print(individual_possessions[name])
             sql = "UPDATE participant SET possessions = %s WHERE participant.actor_id = %s AND participant.game_id = %s "
-            val = (individual_possessions[name], name, game_id_bueno)
+            #print(individual_possessions[name], int(name), game_id_bueno)
+            val = (individual_possessions[name], int(name), game_id_bueno)
             cursor.execute(sql,val)
 
 
