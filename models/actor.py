@@ -98,7 +98,6 @@ class Actor(BaseModel):
         twitter = self._get_twitter(content)
         photo_url = self._get_photo(content)
 
-        """
         photo_filename = os.path.join(folder, self.actor_acbid + '.jpg')
         try:
             urllib.request.urlretrieve(photo_url,photo_filename)
@@ -106,7 +105,6 @@ class Actor(BaseModel):
             logger.info('Error downloading image: {}'.format(photo_url))
 
         personal_info.update({'twitter': twitter})
-        """
 
         if personal_info is None:
             pass

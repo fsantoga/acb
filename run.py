@@ -385,6 +385,7 @@ def main(args):
 
         download_games(season)
         download_events(season, driver_path)
+        download_shotchart(season,driver_path)
         insert_teams(season)
         insert_games(season)
         insert_events(season)
