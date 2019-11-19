@@ -29,18 +29,27 @@ class Season:
     def __init__(self, season):
         self.season = season
         self.season_id = season - FIRST_SEASON + 1  # First season in 1956 noted as 1.
+        self.season_id_copa = season - FIRST_SEASON + 21  # First season in 1956 noted as 1.
         self.SEASON_PATH = os.path.join(DATA_PATH, str(self.season))
         self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games/')
+        self.GAMES_COPA_PATH = os.path.join(self.SEASON_PATH, 'games/copa/')
 
         validate_dir(self.SEASON_PATH)
         validate_dir(self.GAMES_PATH)
+        validate_dir(self.GAMES_COPA_PATH)
 
         if self.season >= 2016:
             self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events/')
+            self.EVENTS_PATH_COPA = os.path.join(self.SEASON_PATH, 'events/copa/')
+
             self.SHOTCHART_PATH = os.path.join(self.SEASON_PATH, 'shotchart/')
+            self.SHOTCHART_PATH_COPA = os.path.join(self.SEASON_PATH, 'shotchart/copa/')
 
             validate_dir(self.EVENTS_PATH)
+            validate_dir(self.EVENTS_PATH_COPA)
+
             validate_dir(self.SHOTCHART_PATH)
+            validate_dir(self.SHOTCHART_PATH_COPA)
 
         #self.current_journey=self.get_current_journey(season)
         self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
@@ -88,6 +97,40 @@ class Season:
             current_game_events_ids.update(dict(zip(fls_ids, game_ids)))
 
         return current_game_events_ids
+
+    def get_current_game_events_ids_copa(self):
+        current_game_events_ids = {}
+        for i in range(from_journey, self.get_current_journey() + 1):
+            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=CREY&cod_edicion={}".format(i,self.season_id_copa)
+            content = get_page(url)
+
+            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
+            game_ids = re.findall(r'"http://www.acb.com/fichas/CREY([0-9]+).php', content, re.DOTALL)
+            current_game_events_ids.update(dict(zip(fls_ids, game_ids)))
+
+        return current_game_events_ids
+
+    def get_game_events_ids_copa(self):
+        game_events_ids = {}
+        for i in range(from_journey, to_journey + 1):
+            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=CREY&cod_edicion={}".format(i,self.season_id_copa)
+            content = get_page(url)
+
+            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
+            game_ids = re.findall(r'"http://www.acb.com/fichas/CREY([0-9]+).php', content, re.DOTALL)
+            game_events_ids.update(dict(zip(fls_ids, game_ids)))
+
+        return game_events_ids
+
+    def get_game_ids_copa(self):
+        game_ids_list=[]
+        for i in range(from_journey, to_journey + 1):
+            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=CREY&cod_edicion={}".format(i,self.season_id_copa)
+            content = get_page(url)
+
+            game_ids = re.findall(r'"http://www.acb.com/fichas/CREY([0-9]+).php', content, re.DOTALL)
+            game_ids_list+=game_ids
+        return game_ids_list
 
     def save_teams(self):
         filename = os.path.join(self.SEASON_PATH, 'teams' + '.html')

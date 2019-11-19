@@ -1,5 +1,5 @@
 import os.path, re, difflib, logging
-from src.download import get_page,save_content,sanity_check_shotchart
+from src.download import get_page,save_content,sanity_check_shotchart,sanity_check_shotchart_copa
 from models.basemodel import BaseModel, db
 from models.team import Team
 from models.actor import Actor
@@ -101,6 +101,54 @@ class Shotchart(BaseModel):
     @staticmethod
     def sanity_check_shotchart(driver_path,season, logging_level=logging.INFO):
         sanity_check_shotchart(driver_path,season.SHOTCHART_PATH, logging_level)
+
+    @staticmethod
+    def save_shotchart_copa(season, driver_path, logging_level=logging.INFO):
+        """
+        Method for saving locally the games of a season.
+        :param season: int
+        :param logging_level: logging object
+        :return:
+        """
+
+        logging.basicConfig(level=logging_level)
+        logger = logging.getLogger(__name__)
+
+        logger.info('Taking all the ids for the shotchart-games...')
+
+        if season.season == get_current_season():
+            fibalivestats_ids = season.get_current_game_events_ids_copa()
+        else:
+            fibalivestats_ids = season.get_game_events_ids_copa()
+
+        logger.info('Starting the download of shotchart...')
+
+        driver = create_driver(driver_path)
+        n_checkpoints = 10
+        checkpoints = [int(i * float(len(fibalivestats_ids)) / n_checkpoints) for i in range(n_checkpoints + 1)]
+        for i, (fls_id, game_acbid) in enumerate(fibalivestats_ids.items()):
+            filename = os.path.join(season.SHOTCHART_PATH_COPA, str(game_acbid)+"-"+str(fls_id) + ".html")
+            shotchartURL="http://www.fibalivestats.com/u/ACBS/{}/sc.html".format(fls_id)
+            if not os.path.isfile(filename):
+                try:
+                    driver.get(shotchartURL)
+                    time.sleep(1)
+                    html = driver.page_source
+                    save_content(filename,html)
+                except Exception as e:
+                    logger.info(str(e) + ' when trying to retrieve ' + filename)
+                    pass
+
+            # Debugging
+            if i-1 in checkpoints:
+                logger.info('{}% already downloaded'.format(round(float(i-1) / len(fibalivestats_ids) * 100)))
+
+        driver.close()
+        logger.info('Download finished!)\n')
+
+    @staticmethod
+    def sanity_check_shotchart_copa(driver_path,season, logging_level=logging.INFO):
+        sanity_check_shotchart_copa(driver_path,season.SHOTCHART_PATH_COPA, logging_level)
 
     @staticmethod
     def scrap_and_insert(shotchart_game_acbid, game_acbid, shotchart, team_home_id, team_away_id, actors_home, actors_away):

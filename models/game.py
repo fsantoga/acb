@@ -1,6 +1,6 @@
 import os.path, re, datetime, difflib, logging
 from pyquery import PyQuery as pq
-from src.download import open_or_download, get_page, sanity_check_game
+from src.download import open_or_download, get_page, sanity_check_game,sanity_check_game_copa
 from src.season import BASE_URL
 from models.basemodel import BaseModel
 from models.team import Team, TeamName
@@ -78,12 +78,51 @@ class Game(BaseModel):
 
 
     @staticmethod
-    def sanity_check(season, logging_level=logging.INFO):
-        sanity_check_game(season.GAMES_PATH, logging_level)
+    def save_games_copa(season, logging_level=logging.INFO):
+        """
+        Method for saving locally the games of a season.
+
+        :param season: int
+        :param logging_level: logging object
+        :return:
+        """
+        logging.basicConfig(level=logging_level)
+        logger = logging.getLogger(__name__)
+
+        logger.info('Starting the download of games...')
+
+        if season.season == get_current_season():
+            current_game_events_ids = season.get_current_game_events_ids_copa()
+            game_ids_list = list(current_game_events_ids.values())
+        else:
+            game_ids_list=season.get_game_ids_copa()
+
+        n_checkpoints = 4
+        checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
+        for i in range(len(game_ids_list)):
+
+            game_id=int(game_ids_list[i]) % 1000
+            url2 = BASE_URL + "/fichas/CREY{}.php".format(game_ids_list[i])
+            filename = os.path.join(season.GAMES_COPA_PATH, str(game_id)+"-" +str(game_ids_list[i]) + '.html')
+
+            open_or_download(file_path=filename, url=url2)
+            if i in checkpoints:
+                logger.info('{}% already downloaded'.format(round(float(i * 100) / len(game_ids_list))))
+
+        logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_COPA_PATH))
 
 
     @staticmethod
-    def create_instance(raw_game, game_acbid, season, competition_phase, round_phase=None):
+    def sanity_check(season, logging_level=logging.INFO):
+        sanity_check_game(season.GAMES_PATH, logging_level)
+
+    @staticmethod
+    def sanity_check_copa(season, logging_level=logging.INFO):
+        sanity_check_game_copa(season.GAMES_COPA_PATH, logging_level)
+
+
+    @staticmethod
+    def create_instance(raw_game, game_acbid, season, competition_phase,round_phase=None):
         """
         Extract all the information regarding the game such as the date, attendance, venue, score per quarter or teams.
         Therefore, we need first to extract and insert the teams in the database in order to get the references to the db.
@@ -116,6 +155,7 @@ class Game(BaseModel):
         game_dict['season'] = season.season
         game_dict['competition_phase'] = competition_phase
         game_dict['round_phase'] = round_phase
+
 
         # Information about the teams.
         info_teams_data = doc(estadisticas_tag).eq(1)
@@ -178,6 +218,14 @@ class Game(BaseModel):
 
         if journey:
             game_dict['journey'] = journey.split(" ")[1]
+
+        if competition_phase=='cup':
+            if int(journey.split(" ")[1])==1:
+                game_dict['round_phase'] ="quarter_final"
+            elif int(journey.split(" ")[1])==2:
+                game_dict['round_phase'] ="semi_final"
+            elif int(journey.split(" ")[1])==3:
+                game_dict['round_phase'] ="final"
 
         for i in range(2, 7):
             score_home_attribute = ''
