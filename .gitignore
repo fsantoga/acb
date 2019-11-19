@@ -61,3 +61,5 @@ target/
 
 # Repo data directory
 data/
+
+credentials.py
