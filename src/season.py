@@ -1,8 +1,9 @@
-import os, re, logging
+import os
+import re
 import numpy as np
 from src.download import validate_dir, open_or_download,download,get_page
-import pandas as pd
 from pyquery import PyQuery as pq
+from utils.log import logger
 
 
 FIRST_SEASON = 1956
@@ -22,38 +23,55 @@ validate_dir(COACHES_PATH)
 from_journey = 1
 to_journey = 54
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+PLAYOFF_MAPPER = {
+    1994: [3, 5, 5],
+    1995: [3, 5, 5],
+    1996: [5, 5, 5],
+    1997: [5, 5, 5],
+    1998: [5, 5, 5],
+    1999: [5, 5, 5],
+    2000: [5, 5, 5],
+    2001: [5, 5, 5],
+    2002: [5, 5, 5],
+    2003: [5, 5, 5],
+    2004: [5, 5, 5],
+    2005: [5, 5, 5],
+    2006: [5, 5, 5],
+    2007: [3, 3, 5],
+    2008: [3, 3, 5],
+    2009: [3, 5, 5],
+    2010: [3, 5, 5],
+    2011: [3, 5, 5],
+    2012: [3, 5, 5],
+    2013: [3, 5, 5],
+    2014: [3, 5, 5],
+    2015: [3, 5, 5],
+    2016: [3, 5, 5],
+    2017: [3, 5, 5],
+    2018: [3, 5, 5],
+}
 
 class Season:
     def __init__(self, season):
+        logger.info(f"Creating Season: {season}")
+
         self.season = season
         self.season_id = season - FIRST_SEASON + 1  # First season in 1956 noted as 1.
-        self.season_id_copa = season - FIRST_SEASON + 21  # First season in 1956 noted as 1.
         self.SEASON_PATH = os.path.join(DATA_PATH, str(self.season))
-        self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games/')
-        self.GAMES_COPA_PATH = os.path.join(self.SEASON_PATH, 'games/copa/')
+        self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games')
 
         validate_dir(self.SEASON_PATH)
         validate_dir(self.GAMES_PATH)
-        validate_dir(self.GAMES_COPA_PATH)
 
         if self.season >= 2016:
-            self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events/')
-            self.EVENTS_PATH_COPA = os.path.join(self.SEASON_PATH, 'events/copa/')
-
-            self.SHOTCHART_PATH = os.path.join(self.SEASON_PATH, 'shotchart/')
-            self.SHOTCHART_PATH_COPA = os.path.join(self.SEASON_PATH, 'shotchart/copa/')
+            self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events')
+            self.SHOTCHART_PATH = os.path.join(self.SEASON_PATH, 'shotchart')
 
             validate_dir(self.EVENTS_PATH)
-            validate_dir(self.EVENTS_PATH_COPA)
-
             validate_dir(self.SHOTCHART_PATH)
-            validate_dir(self.SHOTCHART_PATH_COPA)
 
         #self.current_journey=self.get_current_journey(season)
         self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
-        self.missing_playoff_format = [1994, 1995]
         self.num_teams = self.get_number_teams()
         self.playoff_format = self.get_playoff_format()
         self.mismatched_teams = []
@@ -98,53 +116,45 @@ class Season:
 
         return current_game_events_ids
 
-    def get_current_game_events_ids_copa(self):
-        current_game_events_ids = {}
-        for i in range(from_journey, self.get_current_journey() + 1):
-            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=CREY&cod_edicion={}".format(i,self.season_id_copa)
-            content = get_page(url)
-
-            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
-            game_ids = re.findall(r'"http://www.acb.com/fichas/CREY([0-9]+).php', content, re.DOTALL)
-            current_game_events_ids.update(dict(zip(fls_ids, game_ids)))
-
-        return current_game_events_ids
-
-    def get_game_events_ids_copa(self):
-        game_events_ids = {}
-        for i in range(from_journey, to_journey + 1):
-            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=CREY&cod_edicion={}".format(i,self.season_id_copa)
-            content = get_page(url)
-
-            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
-            game_ids = re.findall(r'"http://www.acb.com/fichas/CREY([0-9]+).php', content, re.DOTALL)
-            game_events_ids.update(dict(zip(fls_ids, game_ids)))
-
-        return game_events_ids
-
-    def get_game_ids_copa(self):
-        game_ids_list=[]
-        for i in range(from_journey, to_journey + 1):
-            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=CREY&cod_edicion={}".format(i,self.season_id_copa)
-            content = get_page(url)
-
-            game_ids = re.findall(r'"http://www.acb.com/fichas/CREY([0-9]+).php', content, re.DOTALL)
-            game_ids_list+=game_ids
-        return game_ids_list
-
     def save_teams(self):
-        filename = os.path.join(self.SEASON_PATH, 'teams' + '.html')
-        # There is a bug in 2007 that the first journey has duplicated teams.
-        url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada=2".format(self.season_id)
-        return open_or_download(file_path=filename, url=url)
+        """
+        Saves a webpage containing all the teams of the season.
+
+        E.g.: http://www.acb.com/club/index/temporada_id/2019
+        :return:
+        """
+        teams_filename = os.path.join(self.SEASON_PATH, 'teams.html')
+        teams_url = BASE_URL + f"club/index/temporada_id/{self.season}"
+        logger.info(f"Downloading teams from {teams_url}")
+        return open_or_download(file_path=teams_filename, url=teams_url)
 
     def get_number_teams(self):
+        """
+        Extracts the number of teams for the season.
+
+        Example of team:
+        <a href="/club/plantilla/id/2" class="clase_mostrar_block960 equipo_logo primer_logo">
+        <img src="http://static.acb.com/img/32/1d/a/1453105588.png" alt="Barça " /></a>
+        :return:
+        """
         content = self.save_teams()
-        teams_match = re.findall(r'<td class="rojo" align="right"><b>([0-9]+)</b>', content, re.DOTALL)
-        if len(teams_match) == 0:  # from 1994 and backward there isn't standings, we just count the games
-            return len(re.findall(r'http://www.acb.com/imgs//flechitaroja.gif', content, re.DOTALL))*2
-        else:
-            return len(teams_match)
+        doc = pq(content)
+        teams = doc("div[class='contenedor_logos_equipos']").items('img')
+        teams = [t.attr('alt') for t in teams]
+
+        logger.info(f"There are {len(teams)} teams: {teams}")
+        return len(teams)
+
+    def get_playoff_format(self):
+        """
+        Gets the playoff format of the season
+
+        Source:
+        - https://web.archive.org/web/20190403020219/http://www.acb.com/playoff.php?cod_competicion=LACB&cod_edicion=62
+        - For 1994 and 1995: page 32 in http://www.acb.com/publicaciones/guia1995
+        """
+        logger.info(f"The playoff format is {PLAYOFF_MAPPER[self.season]}")
+        return PLAYOFF_MAPPER[self.season]
 
     def get_teams_ids(self):
         content = self.save_teams()
@@ -158,45 +168,6 @@ class Season:
             teams_ids+=[id]
 
         return teams_ids
-
-    def get_playoff_round_format(self, page, round_tag):
-        doc = pq(page)
-        round_format = doc(round_tag)
-        round_format = round_format(".resultado-equipo").text().split(" ")
-        round_format = list(map(int, round_format))
-        round_format = 2 * round_format[0] - 1 if round_format[0] > round_format[1] else 2 * round_format[1] - 1
-        return round_format
-
-    def get_playoff_format(self):
-        if self.season in self.missing_playoff_format:
-            return [3, 5, 5]  # page 32 in http://www.acb.com/publicaciones/guia1995
-        else:
-            filename = os.path.join(self.SEASON_PATH, 'playoff.html')
-            url = BASE_URL + "playoff.php?cod_competicion=LACB&cod_edicion={}".format(self.season_id)
-            content = open_or_download(file_path=filename, url=url)
-
-            playoff_format = list()
-            try:
-                playoff_format.append(self.get_playoff_round_format(content, "#columnacuartos"))
-            except Exception as e:
-                logger.info("Quarter-finals haven't been played yet.")
-                #print(e)
-                pass
-
-            try:
-                playoff_format.append(self.get_playoff_round_format(content, "#columnasemi"))
-            except Exception as e:
-                logger.info("Semi-finals haven't been played yet.")
-                #print(e)
-                pass
-            try:
-                playoff_format.append(self.get_playoff_round_format(content, "#columnafinal"))
-            except Exception as e:
-                logger.info("Finals haven't been played yet.\n")
-                #print(e)
-                pass
-
-            return playoff_format
 
     def get_number_games_regular_season(self):
         return (self.num_teams - 1) * self.num_teams

@@ -1,5 +1,11 @@
 # acb-database-scraping
 
+# TODO:
+
+- Change MySQL database credentials to external file and load them as environment variables.
+
+
+
 The aim of this project is to collect information about all the games of the ACB Spanish Basketball League from 1994 to 2016.  A SQLite database has been used for this purpose.
 
 Why from 1994? In 1994, the ACB changed to the current modern league format, which consists of a regular season and a playoff competition between the best 8. 
