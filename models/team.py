@@ -16,6 +16,7 @@ class Team(BaseModel):
     Because the name of a team can change between seasons (and even in a same season).
     """
     id = PrimaryKeyField()
+    # TODO, change this, it has been changed, now they are integers. Check intervals.
     team_acbid = CharField(max_length=3, unique=True, index=True)
     founded_year = IntegerField(null=True)
 
