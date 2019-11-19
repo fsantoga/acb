@@ -1,11 +1,12 @@
-import os.path, logging
+import os.path
+import logging
 from peewee import (Model, MySQLDatabase, Proxy)
 import sqlparse
 import pymysql
-
+from credentials import DATABASE_HOST, DATABASE_PASSWORD, DATABASE_PORT, DATABASE_USER
 SCHEMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'mysql_schema.sql'))
 SCRIPT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'initial_sql.sql'))
-db = MySQLDatabase("acb", host="localhost", port=3306, user="root", passwd="root")
+db = MySQLDatabase("acb", host=DATABASE_HOST, port=DATABASE_PORT, user=DATABASE_USER, passwd=DATABASE_PASSWORD)
 
 
 def reset_database(logging_level=logging.INFO):
@@ -14,7 +15,7 @@ def reset_database(logging_level=logging.INFO):
     logger = logging.getLogger(__name__)
 
     try:
-        conn=pymysql.connect(host="localhost", port=3306, user="root", passwd="root")
+        conn=pymysql.connect(host=DATABASE_HOST, port=DATABASE_PORT, user=DATABASE_USER, passwd=DATABASE_PASSWORD)
         cursor=conn.cursor()
         try:
             logger.info('Creating Database...\n')
