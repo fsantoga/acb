@@ -151,17 +151,3 @@ class TeamName(BaseModel):
             if team_name_dict:
                 teams_names.append(team_name_dict)
         TeamName.insert_many(teams_names).on_conflict('IGNORE').execute()
-
-
-
-
-
-
-from src.season import Season
-from models.basemodel import reset_database, create_schema
-
-reset_database()
-create_schema()
-s = Season(2018)
-
-Team.create_instances(s)

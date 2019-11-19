@@ -55,7 +55,6 @@ class Game(BaseModel):
         :return:
         """
         logger.info('Starting the download of games...')
-
         # TODO: move this to Season class as an attribute
         if season.season == get_current_season():
             current_game_events_ids = season.get_current_game_events_ids()
@@ -63,20 +62,17 @@ class Game(BaseModel):
         else:
             game_ids_list = season.get_game_ids()
 
-
         n_checkpoints = 4
         checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
-        for i in range(len(game_ids_list)):
-            game_id = int(game_ids_list[i]) % 1000
-            url2 = BASE_URL + "/fichas/LACB{}.php".format(game_ids_list[i])
-            filename = os.path.join(season.GAMES_PATH, str(game_id)+"-" +str(game_ids_list[i]) + '.html')
-
-            open_or_download(file_path=filename, url=url2)
+        for i, game_id in enumerate(game_ids_list):
+            url = os.path.join(BASE_URL, f"partido/estadisticas/id/{game_id}")
+            filename = os.path.join(season.GAMES_PATH, f"{game_id}.html")
+            open_or_download(file_path=filename, url=url)
             if i in checkpoints:
-                logger.info('{}% already downloaded'.format(round(float(i * 100) / len(game_ids_list))))
+                progress = round(float(i * 100) / len(game_ids_list))
+                logger.info(f"{progress}% already downloaded")
 
-        logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_PATH))
-
+        logger.info(f"Download finished! (new {len(game_ids_list)} games in {season.GAMES_PATH})\n")
 
     @staticmethod
     def save_games_copa(season, logging_level=logging.INFO):
@@ -120,7 +116,6 @@ class Game(BaseModel):
     @staticmethod
     def sanity_check_copa(season, logging_level=logging.INFO):
         sanity_check_game_copa(season.GAMES_COPA_PATH, logging_level)
-
 
     @staticmethod
     def create_instance(raw_game, game_acbid, season, competition_phase,round_phase=None):

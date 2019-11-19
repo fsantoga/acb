@@ -8,17 +8,21 @@ from tools.log import logger
 
 FIRST_SEASON = 1956
 LAST_SEASON = 2018
-BASE_URL = 'http://www.acb.com/'
-DATA_PATH = './data/'
-TEAMS_PATH = os.path.join(DATA_PATH, 'teams/')
-ACTORS_PATH = os.path.join(DATA_PATH, 'actors/')
-PLAYERS_PATH = os.path.join(ACTORS_PATH, 'players/')
-COACHES_PATH = os.path.join(ACTORS_PATH, 'coaches/')
 
+# TODO, FIX THIS AND MAKE IT ABSOLUTE TO THE PROJECT
+BASE_URL = 'http://www.acb.com/'
+DATA_PATH = 'data'
+TEAMS_PATH = os.path.join(DATA_PATH, 'teams')
+ACTORS_PATH = os.path.join(DATA_PATH, 'actors')
+PLAYERS_PATH = os.path.join(ACTORS_PATH, 'players')
+COACHES_PATH = os.path.join(ACTORS_PATH, 'coaches')
+
+validate_dir(DATA_PATH)
 validate_dir(TEAMS_PATH)
 validate_dir(ACTORS_PATH)
 validate_dir(PLAYERS_PATH)
 validate_dir(COACHES_PATH)
+
 
 from_journey = 1
 to_journey = 54
@@ -59,9 +63,11 @@ class Season:
         self.season_id = season - FIRST_SEASON + 1  # First season in 1956 noted as 1.
         self.SEASON_PATH = os.path.join(DATA_PATH, str(self.season))
         self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games')
+        self.JOURNEYS_PATH = os.path.join(self.GAMES_PATH, 'journeys')
 
         validate_dir(self.SEASON_PATH)
         validate_dir(self.GAMES_PATH)
+        validate_dir(self.JOURNEYS_PATH)
 
         if self.season >= 2016:
             self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events')
@@ -95,16 +101,37 @@ class Season:
 
         return game_events_ids
 
-    def get_game_ids(self):
-        game_ids_list = []
-        for i in range(from_journey, to_journey + 1):
-            url = f"http://jv.acb.com/historico.php?jornada={i}&cod_competicion=LACB&cod_edicion={self.season_id}"
-            logger.info(f"Retrieving games from {url}")
-            content = get_page(url)
+    def _get_journeys_ids(self):
+        """
+        TODO: comment
+        :return:
+        """
+        url = os.path.join(BASE_URL, f"resultados-clasificacion/ver/temporada_id/{self.season}/edicion_id/")
+        content = get_page(url)
+        doc = pq(content)
 
-            game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
-            game_ids_list+=game_ids
-        return game_ids_list
+        journeys_ids = doc("div[class='listado_elementos listado_jornadas bg_gris_claro']").eq(0)
+        journeys_ids = journeys_ids('div')
+        journeys_ids = [j.attr('data-t2v-id') for j in journeys_ids.items() if j.attr('data-t2v-id')]
+        return journeys_ids
+
+    def get_game_ids(self):
+        """
+        TODO: comment
+        Get the games ids of the season
+        :return:
+        """
+        journeys_ids = self._get_journeys_ids()
+        games_ids = list()
+        for i, journey_id in enumerate(journeys_ids, start=1):
+            url = os.path.join(BASE_URL, f"resultados-clasificacion/ver/temporada_id/{self.season}/edicion_id/undefined/jornada_id/{journey_id}")
+            logger.info(f"Retrieving games from {url}")
+            filename = os.path.join(self.JOURNEYS_PATH, f"journey-{i}.html")
+            content = open_or_download(file_path=filename, url=url)
+
+            game_ids_journey = re.findall(r'<a href="/partido/estadisticas/id/([0-9]+)" title="Estadísticas">', content, re.DOTALL)
+            games_ids.extend(game_ids_journey)
+        return games_ids
 
     def get_current_game_events_ids(self):
         current_game_events_ids = {}
