@@ -1,10 +1,11 @@
-import os.path, logging
+import os.path
 from pyquery import PyQuery as pq
 from peewee import ForeignKeyField
 from src.download import open_or_download
 from models.basemodel import BaseModel
 from peewee import (PrimaryKeyField, CharField, IntegerField)
 from src.season import BASE_URL, TEAMS_PATH, FIRST_SEASON, LAST_SEASON
+from tools.log import logger
 
 
 class Team(BaseModel):
@@ -17,6 +18,51 @@ class Team(BaseModel):
     id = PrimaryKeyField()
     team_acbid = CharField(max_length=3, unique=True, index=True)
     founded_year = IntegerField(null=True)
+
+    def update_founded_year(self):
+        content = self._download_team_information_page()
+
+        # Extract founded_year from webpage
+        doc = pq(content)
+        club_data = doc("section[class='datos_club f-l-a-100']")
+        club_data = club_data("div[class='fila f-l-a-100 border_bottom']").eq(1)
+        title = club_data("div[class='titulo roboto_bold']").text()
+        founded_year = club_data("div[class='datos']").text()
+
+        assert title == 'AÑO FUNDACIÓN:', title
+        assert founded_year != ''
+        self.founded_year = int(founded_year)
+        self.save()
+
+        # TODO: Let us assume we do not have errors here...
+        # except:
+        #     founded_year = team.get_hardcoded_foundation_years(team.team_acbid)
+        #     if founded_year != None:
+        #         team.founded_year = founded_year
+        #         team.save()
+        #         logger.info(
+        #             "Team {} doesn't have foundation year. Hardcoded with year: {}".format(team.team_acbid, founded_year))
+        #     else:
+        #         logger.info("Team {} doesn't have foundation year. No matches found.".format(team.team_acbid))
+
+        # @staticmethod
+        # def get_hardcoded_foundation_years(team_acbid):
+        #     hardcoded_teams = {
+        #         'LEO': '1981',
+        #         'SAL': '1993',
+        #         'ZAR': '1981',
+        #         'HUE': '1977',
+        #         'HLV': '1996'
+        #     }
+        #     year = hardcoded_teams.get(team_acbid)
+        #     return year
+
+    def _download_team_information_page(self):
+        filename = os.path.join(TEAMS_PATH, self.team_acbid + '-information.html')
+        url = os.path.join(BASE_URL, f"club/informacion/id/{self.team.team_acbid}")
+        logger.info(f"Retrieving information page for foundation year from: {url}")
+        content = open_or_download(file_path=filename, url=url)
+        return content
 
     @staticmethod
     def create_instances(season):
@@ -33,43 +79,9 @@ class Team(BaseModel):
         for team_acbid in teams_ids:
             team, created = Team.get_or_create(**{'team_acbid': team_acbid})
             if created:  # If the team was not in our database before
-                teams_names = []  # Look for all historical team names and save them
-                for s in range(1, LAST_SEASON - FIRST_SEASON + 2):
-                    filename = os.path.join(TEAMS_PATH, team_acbid + str(s) + '.html')
-                    url = os.path.join(BASE_URL, 'club.php?cod_competicion=LACB&cod_edicion={}&id={}'.format(s, team_acbid))
-                    content = open_or_download(file_path=filename, url=url)
-                    doc = pq(content)
-                    team_name_season = doc('#portadadertop').eq(0).text().upper()
-                    if team_name_season != '':
-                        teams_names.append({'team_id': team.id, 'name': str(team_name_season), 'season': FIRST_SEASON + s - 1})
-                TeamName.insert_many(teams_names).on_conflict('IGNORE').execute()
-                try:
-                    # Add the year of foundation (from last url content)
-                    if doc('.titulojug').eq(0).text().startswith('Año de fundac'):
-                        team.founded_year = int(doc('.datojug').eq(0).text())
-                        team.save()
-                except:
-                    founded_year=team.get_hardcoded_foundation_years(team_acbid)
-                    if founded_year!=None:
-                        team.founded_year=founded_year
-                        team.save()
-                        logging.info("Team {} doesn't have foundation year. Hardcoded with year: {}".format(team_acbid,founded_year))
-                    else:
-                        logging.info("Team {} doesn't have foundation year. No matches found.".format(team_acbid))
-                        pass
-
-    @staticmethod
-    def get_hardcoded_foundation_years(team_acbid):
-
-        hardcoded_teams = {
-            'LEO': '1981',
-            'SAL': '1993',
-            'ZAR': '1981',
-            'HUE': '1977',
-            'HLV': '1996'
-        }
-        year=hardcoded_teams.get(team_acbid)
-        return year
+                logger.info(f"New team created: {team.team_acbid}")
+                TeamName.populate(team)
+                Team.update_founded_year(team)
 
 
 class TeamName(BaseModel):
@@ -100,3 +112,55 @@ class TeamName(BaseModel):
         team = Team.get(Team.team_acbid == team_acbid)
         TeamName.get_or_create(**{'name': team_name, 'team': team, 'season': season})
 
+    @staticmethod
+    def populate(team):
+        def _download_team_webpage(team, season):
+            filename = os.path.join(TEAMS_PATH, team.team_acbid + '-' + season + '.html')
+            url = os.path.join(BASE_URL, f"club/plantilla/id/{team.team_acbid}/temporada_id/{season}")
+            logger.info(f"Retrieving information of the team from: {url}")
+
+            cookies = {
+                'acepta_uso_cookies': '1',
+                'forosacbcom_u': '1',
+                'forosacbcom_k': '',
+                'forosacbcom_sid': 'FFD~21d43aee99bee89138ba91bc285687d4',
+                'PHPSESSID': 'neq0ak7jfjv1spa5ion3gkm43r',
+            }
+            content = open_or_download(file_path=filename, url=url, cookies=cookies)
+            return content
+
+        def _get_team_name(from_content, team, season):
+            doc = pq(from_content)
+            team_name_season = doc("div[id='listado_equipo_nacional']")
+            team_name_season = team_name_season(f"div[data-t2v-id='{team.team_acbid}']").text().upper()
+            if team_name_season != '':
+                logger.info(f"Season: {season}; Team name: {team_name_season}")
+                return {'team_id': team.id, 'name': str(team_name_season), 'season': int(season)}
+            return
+
+        # TODO: why do we need all the names from previous season????
+        # TODO: maybe just take the name from this year, and the combine in the database from previous years?
+        # TODO: or have another logic...
+        teams_names = []  # Look for all historical team names and save them
+        for season_id in range(1, LAST_SEASON - FIRST_SEASON + 2):
+            season = FIRST_SEASON + season_id - 1
+            season = str(season)
+            content = _download_team_webpage(team=team, season=season)
+            team_name_dict = _get_team_name(from_content=content, team=team, season=season)
+            if team_name_dict:
+                teams_names.append(team_name_dict)
+        TeamName.insert_many(teams_names).on_conflict('IGNORE').execute()
+
+
+
+
+
+
+from src.season import Season
+from models.basemodel import reset_database, create_schema
+
+reset_database()
+create_schema()
+s = Season(2018)
+
+Team.create_instances(s)

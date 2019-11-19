@@ -1,12 +1,12 @@
 import os.path, re, datetime, difflib, logging
 from pyquery import PyQuery as pq
-from src.download import open_or_download, get_page, sanity_check_game
+from src.download import open_or_download, sanity_check_game
 from src.season import BASE_URL
 from models.basemodel import BaseModel
 from models.team import Team, TeamName
 from peewee import (PrimaryKeyField, IntegerField, DateTimeField, ForeignKeyField, BooleanField, CharField)
 from src.utils import get_current_season
-from utils.log import logger, init_logging
+from tools.log import logger, init_logging
 
 init_logging('game.log')
 
@@ -56,6 +56,7 @@ class Game(BaseModel):
         """
         logger.info('Starting the download of games...')
 
+        # TODO: move this to Season class as an attribute
         if season.season == get_current_season():
             current_game_events_ids = season.get_current_game_events_ids()
             game_ids_list = list(current_game_events_ids.values())

@@ -3,7 +3,7 @@ import re
 import numpy as np
 from src.download import validate_dir, open_or_download,download,get_page
 from pyquery import PyQuery as pq
-from utils.log import logger
+from tools.log import logger
 
 
 FIRST_SEASON = 1956
@@ -72,7 +72,8 @@ class Season:
 
         #self.current_journey=self.get_current_journey(season)
         self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
-        self.num_teams = self.get_number_teams()
+        self.teams = self.get_teams()
+        self.num_teams = len(self.teams)
         self.playoff_format = self.get_playoff_format()
         self.mismatched_teams = []
 
@@ -95,9 +96,10 @@ class Season:
         return game_events_ids
 
     def get_game_ids(self):
-        game_ids_list=[]
+        game_ids_list = []
         for i in range(from_journey, to_journey + 1):
-            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,self.season_id)
+            url = f"http://jv.acb.com/historico.php?jornada={i}&cod_competicion=LACB&cod_edicion={self.season_id}"
+            logger.info(f"Retrieving games from {url}")
             content = get_page(url)
 
             game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
@@ -128,9 +130,9 @@ class Season:
         logger.info(f"Downloading teams from {teams_url}")
         return open_or_download(file_path=teams_filename, url=teams_url)
 
-    def get_number_teams(self):
+    def get_teams(self):
         """
-        Extracts the number of teams for the season.
+        Extracts the teams for the season (id -> team_name)
 
         Example of team:
         <a href="/club/plantilla/id/2" class="clase_mostrar_block960 equipo_logo primer_logo">
@@ -139,15 +141,27 @@ class Season:
         """
         content = self.save_teams()
         doc = pq(content)
-        teams = doc("div[class='contenedor_logos_equipos']").items('img')
-        teams = [t.attr('alt') for t in teams]
+        teams = doc("div[class='contenedor_logos_equipos']")
 
+        # Get the teams ids
+        teams_ids = teams.items('a')
+        teams_ids = [t.attr('href') for t in teams_ids]
+        teams_ids = [t.split('/')[-1] for t in teams_ids]
+
+        # Get the teams names
+        teams_names = teams.items('img')
+        teams_names = [t.attr('alt') for t in teams_names]
+
+        teams = dict(zip(teams_ids, teams_names))
         logger.info(f"There are {len(teams)} teams: {teams}")
-        return len(teams)
+        return teams
 
     def get_playoff_format(self):
         """
-        Gets the playoff format of the season
+        Gets the playoff format of the season.
+
+        TODO: now we do not have access to the playoff webpage, this method might fail in other cases...
+        TODO: e.g: get_number_games_playoff()
 
         Source:
         - https://web.archive.org/web/20190403020219/http://www.acb.com/playoff.php?cod_competicion=LACB&cod_edicion=62
@@ -157,17 +171,8 @@ class Season:
         return PLAYOFF_MAPPER[self.season]
 
     def get_teams_ids(self):
-        content = self.save_teams()
-        teams_doc = pq(content)
-        teams_tag = '.resultados2'
-        teams_info = teams_doc(teams_tag)('tr')('a')
-
-        teams_ids = []
-        for team in teams_info.items():
-            id = re.search(r'id=(.*)', team.attr('href')).group(1)
-            teams_ids+=[id]
-
-        return teams_ids
+        # TODO: temporary solution
+        return list(self.teams.keys())
 
     def get_number_games_regular_season(self):
         return (self.num_teams - 1) * self.num_teams
@@ -192,11 +197,11 @@ class Season:
             return {1994: ['VALVI GIRONA', 'BREOGÁN LUGO', 'PAMESA VALENCIA', 'SOMONTANO HUESCA']}[self.season]
         else:
             filename = os.path.join(self.SEASON_PATH, 'relegation_playoff.html')
-            url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, (self.get_number_teams()-1)*2)
+            url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, (self.num_teams-1)*2)
             content = open_or_download(file_path=filename, url=url)
             doc = pq(content)
             relegation_teams = []
-            for team_id in range(self.get_number_teams()-4, self.get_number_teams()):
+            for team_id in range(self.num_teams-4, self.num_teams):
                 relegation_teams.append(doc('.negro').eq(team_id).text().upper())
 
             return relegation_teams
@@ -221,7 +226,7 @@ class Season:
         current_journey=(re.findall('\d+', prox_journey ))
         return int(current_journey[0])
 
-    def get_journey(self,journey):
+    def get_journey(self, journey):
         filename = os.path.join(self.SEASON_PATH, 'journey_{}_calendar.html').format(journey)
         url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, journey)
         content = download(file_path=filename, url=url)
@@ -229,7 +234,3 @@ class Season:
         prox_journey = doc('.estnegro')('td').eq(1).text()
         current_journey = (re.findall('\d+', prox_journey))
         return int(current_journey[0])
-
-
-
-
