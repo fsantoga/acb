@@ -24,6 +24,15 @@ def download_games(season):
     Game.sanity_check(season)
 
 
+def download_games_copa(season):
+    """
+    Download locally the games of a certain season
+    :param season: Season object.
+    """
+    Game.save_games_copa(season)
+    Game.sanity_check_copa(season)
+
+
 def download_events(season,driver_path):
     """
     Download locally the events of a certain season
@@ -32,6 +41,15 @@ def download_events(season,driver_path):
     Event.save_events(season,driver_path)
     Event.sanity_check_events(driver_path,season)
 
+def download_events_copa(season,driver_path):
+    """
+    Download locally the events of a certain season
+    :param season: Season object.
+    """
+    Event.save_events_copa(season,driver_path)
+    Event.sanity_check_events_copa(driver_path,season)
+
+
 def download_shotchart(season,driver_path):
     """
     Download locally the shotchart of a certain season
@@ -39,6 +57,15 @@ def download_shotchart(season,driver_path):
     """
     Shotchart.save_shotchart(season,driver_path)
     Shotchart.sanity_check_shotchart(driver_path,season)
+
+
+def download_shotchart_copa(season,driver_path):
+    """
+    Download locally the shotchart of a certain season
+    :param season: Season object.
+    """
+    Shotchart.save_shotchart_copa(season,driver_path)
+    Shotchart.sanity_check_shotchart_copa(driver_path,season)
 
 
 def insert_teams(season):
@@ -84,7 +111,7 @@ def insert_games(season):
 
         # For all games available
         list_files=sorted(os.listdir(season.GAMES_PATH))
-        for file_name in list_files:
+        for file_name in [f for f in list_files if os.path.isfile(os.path.join(season.GAMES_PATH, f))]:
             game_number = int(file_name.split("-")[0])
             game_acbid = int(file_name.split("-")[1].split(".")[0])
 
@@ -155,6 +182,63 @@ def insert_games(season):
                     logger.info("Game {} could not be inserted as it didn't exist or had some errors...".format(game_acbid))
 
 
+def insert_games_copa(season):
+    """
+    Extract and insert the information regarding the games of a season.
+    :param season: Season object.
+    """
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    with db.atomic():
+
+        # Games iformation
+        logger.info('Retrieving all data from games and storing it.')
+
+        n_regular = season.get_number_games_regular_season()
+
+        # Specific info for the playoffs
+        relegation_teams = season.get_relegation_teams()  # in some seasons there was a relegation playoff.
+        cont = 0
+        playoff_format = season.get_playoff_format()
+        try:
+            quarter_finals_limit = 4 * playoff_format[0]
+            try:
+                semifinals_limit = quarter_finals_limit + 2 * playoff_format[1]
+            except Exception as e:
+                # print(e)
+                pass
+        except Exception as e:
+            # print(e)
+            pass
+
+        # For all games available
+        list_files=sorted(os.listdir(season.GAMES_COPA_PATH))
+        for file_name in list_files:
+            game_number = int(file_name.split("-")[0])
+            game_acbid = int(file_name.split("-")[1].split(".")[0])
+
+            # Check it was not in the database already (-u option)
+            query = Game.select().where(Game.game_acbid == game_acbid)
+            if not query:
+                pass
+            else:
+                continue
+
+            competition_phase = 'cup'
+            try:
+                with open(os.path.join(season.GAMES_COPA_PATH, file_name), 'r', encoding='utf-8') as f:
+                    raw_game = f.read()
+                    game = Game.create_instance(raw_game=raw_game, game_acbid=game_acbid,
+                                                season=season,
+                                                competition_phase=competition_phase)
+                    Participant.create_instances(raw_game=raw_game, game=game)
+            except Exception as e:
+                print(e)
+                logger.info(
+                    "Game {} could not be inserted as it didn't exist or had some errors...".format(game_acbid))
+
+
 def update_games():
     """
     Update the information about teams and actors and correct errors.
@@ -170,6 +254,7 @@ def update_games():
             print(e)
             pass
         Actor.update_content()
+
 
 def update_events():
 
@@ -192,8 +277,61 @@ def insert_events(season):
     logger.info('Retrieving all data from events and storing it.')
     events_game_errors = {}
     if year >= 2016:
-        for game_id_file in os.listdir(season.EVENTS_PATH):
+        for game_id_file in [f for f in os.listdir(season.EVENTS_PATH) if os.path.isfile(os.path.join(season.EVENTS_PATH, f))]:
             with open('./data/{}/events/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
+                game_event_acbid = os.path.splitext(game_id_file)[0]
+                game_acbid=game_event_acbid.split("-")[0]
+                events_game_acbid = game_event_acbid.split("-")[1]
+                content = f.read()
+                doc = pyquery.PyQuery(content)
+                playbyplay = doc('#playbyplay')
+                query_teams = Game.get(Game.game_acbid == game_acbid)
+                team_home_id = query_teams.team_home_id
+                team_away_id = query_teams.team_away_id
+
+                try:
+                    query = Event.select().where(Event.events_game_acbid == events_game_acbid)
+                    if not query:
+
+                        game_id = Game.get(Game.game_acbid == game_acbid).id
+                        query_actors_home = Participant.select(Participant.actor, Participant.display_name).where(
+                            (Participant.game == game_id) & (Participant.actor.is_null(False)) & (Participant.team == team_home_id))
+                        actors_home = dict()
+                        for q in query_actors_home:
+                            actors_home[q.display_name] = q.actor.id
+
+                        query_actors_away = Participant.select(Participant.actor, Participant.display_name).where(
+                            (Participant.game == game_id) & (Participant.actor.is_null(False)) & (Participant.team == team_away_id))
+                        actors_away = dict()
+                        for q in query_actors_away:
+                            actors_away[q.display_name] = q.actor.id
+
+                        events_with_errors=Event.scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id, actors_home, actors_away)
+                        logger.info('Finish game {} with {} errors.'.format(game_acbid, events_with_errors))
+                        if events_with_errors>0:
+                            events_game_errors[game_acbid] = events_with_errors
+                    else:
+                        continue
+                except Exception as e:
+                    print(e, game_id_file)
+
+        logger.info('Game events with errors in year {}: {}.'.format(year,events_game_errors))
+
+    else:
+        pass
+
+
+def insert_events_copa(season):
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    year=season.season
+
+    logger.info('Retrieving all data from events and storing it.')
+    events_game_errors = {}
+    if year >= 2016:
+        for game_id_file in os.listdir(season.EVENTS_PATH_COPA):
+            with open('./data/{}/events/copa/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
                 game_event_acbid = os.path.splitext(game_id_file)[0]
                 game_acbid=game_event_acbid.split("-")[0]
                 events_game_acbid = game_event_acbid.split("-")[1]
@@ -281,8 +419,57 @@ def insert_shotchart(season):
     logger.info('Retrieving all data from shotcharts and storing it.')
 
     if year >= 2016:
-        for game_id_file in os.listdir(season.EVENTS_PATH):
+        for game_id_file in [f for f in os.listdir(season.SHOTCHART_PATH) if os.path.isfile(os.path.join(season.SHOTCHART_PATH, f))]:
             with open('./data/{}/shotchart/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
+                game_shotchart_acbid = os.path.splitext(game_id_file)[0]
+                game_acbid=game_shotchart_acbid.split("-")[0]
+                shotchart_game_acbid = game_shotchart_acbid.split("-")[1]
+                content = f.read()
+                doc = pyquery.PyQuery(content)
+                shotchart_data = doc('#shotchart_data')
+                query_teams = Game.get(Game.game_acbid == game_acbid)
+                team_home_id = query_teams.team_home_id
+                team_away_id = query_teams.team_away_id
+
+                try:
+                    query = Shotchart.select().where(Shotchart.shotchart_game_acbid == shotchart_game_acbid)
+                    if not query:
+
+                        game_id = Game.get(Game.game_acbid == game_acbid).id
+                        query_actors_home = Participant.select(Participant.actor, Participant.display_name).where(
+                            (Participant.game == game_id) & (Participant.actor.is_null(False)) & (
+                                        Participant.team == team_home_id))
+                        actors_home = dict()
+                        for q in query_actors_home:
+                            actors_home[q.display_name] = q.actor.id
+
+                        query_actors_away = Participant.select(Participant.actor, Participant.display_name).where(
+                            (Participant.game == game_id) & (Participant.actor.is_null(False)) & (
+                                        Participant.team == team_away_id))
+                        actors_away = dict()
+                        for q in query_actors_away:
+                            actors_away[q.display_name] = q.actor.id
+
+                        Shotchart.scrap_and_insert(shotchart_game_acbid, game_acbid, shotchart_data, team_home_id, team_away_id, actors_home, actors_away)
+                    else:
+                        continue
+                except Exception as e:
+                    print(e,game_id_file)
+    else:
+        pass
+
+
+def insert_shotchart_copa(season):
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    year=season.season
+
+    logger.info('Retrieving all data from shotcharts and storing it.')
+
+    if year >= 2016:
+        for game_id_file in os.listdir(season.EVENTS_PATH_COPA):
+            with open('./data/{}/shotchart/copa/{}'.format(season.season,game_id_file), 'r', encoding='utf-8') as f:
                 game_shotchart_acbid = os.path.splitext(game_id_file)[0]
                 game_acbid=game_shotchart_acbid.split("-")[0]
                 shotchart_game_acbid = game_shotchart_acbid.split("-")[1]
@@ -370,7 +557,7 @@ def main(args):
             if year >= 2016:
                 insert_events(season)
                 update_events()
-                #insert_roster()
+                insert_roster()
                 insert_shotchart(season)
 
         # Update missing info about actors and participants.
@@ -383,18 +570,35 @@ def main(args):
         if not driver_path:
             driver_path = get_driver_path(driver_path)
 
-        download_games(season)
-        download_events(season, driver_path)
-        download_shotchart(season,driver_path)
+        #download_games(season)
+        #download_events(season, driver_path)
+        #download_shotchart(season,driver_path)
         insert_teams(season)
         insert_games(season)
         insert_events(season)
+        # insert_roster()
         update_events()
         insert_shotchart(season)
         update_games()
 
     if args.a:  # Calculate advanced statistics
         calculate_possessions()
+
+    if args.copa:  # copa
+        driver_path = args.driver_path
+        if not driver_path:
+            driver_path = get_driver_path(driver_path)
+
+        season = Season(int(args.copa))
+
+        download_games_copa(season)
+        download_events_copa(season, driver_path)
+        download_shotchart_copa(season,driver_path)
+        insert_games_copa(season)
+        insert_events_copa(season)
+        update_events()
+        insert_shotchart_copa(season)
+        update_games()
 
     from_year = 2016
     to_year = 2018
@@ -443,8 +647,9 @@ if __name__ == "__main__":
 
     parser.add_argument("--model", action='store', dest="model", type=str)
     parser.add_argument("--journeys", action='store', dest="journeys", type=int)
-    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=1994, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
+    parser.add_argument("--copa", action='store', dest="copa", default=False)
 
     main(parser.parse_args())

@@ -126,6 +126,46 @@ def sanity_check_game(directory_name, logging_level=logging.INFO):
 
     errors = []
     directory = os.fsencode(directory_name)
+    for file in [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]:
+        with open(os.path.join(directory, file), encoding="utf-8") as f:
+            raw_html = f.read()
+
+            doc = pq(raw_html)
+            if doc("title").text() == '404 Not Found':
+                errors.append(os.fsdecode(file))
+
+            filename=file.decode("utf-8")
+            statinfo2=os.stat(directory_name+filename)
+            f.close()
+            if statinfo2.st_size < 20000:
+                logger.info('The game ' + filename +' data is not correct. Missing data. Deleting game html...')
+                try:
+                    os.remove(directory_name+filename)
+                    logger.info('game ' + filename + ' deleted...')
+                    continue
+
+                except:
+                    logger.info('game ' + filename + ' cannot be deleted...')
+
+    if errors:
+        raise Exception('There were {} errors in the downloads!'.format(len(errors)))
+
+    logger.info('Sanity check of {} correctly finished!\n'.format(os.fsdecode(directory)))
+    return errors
+
+
+def sanity_check_game_copa(directory_name, logging_level=logging.INFO):
+    """
+    Checks if thes file within a directoy have been correctly downloaded
+
+    :param directory_name: String
+    :param logging_level: logging object
+    """
+    logging.basicConfig(level=logging_level)
+    logger = logging.getLogger(__name__)
+
+    errors = []
+    directory = os.fsencode(directory_name)
     for file in os.listdir(directory):
         with open(os.path.join(directory, file), encoding="utf-8") as f:
             raw_html = f.read()
@@ -168,7 +208,7 @@ def sanity_check_events(driver_path,directory_name, logging_level=logging.INFO):
 
     errors = []
     directory = os.fsencode(directory_name)
-    for file in os.listdir(directory):
+    for file in [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]:
         with open(os.path.join(directory, file), encoding="utf-8") as f:
             raw_html = f.read()
 
@@ -215,6 +255,66 @@ def sanity_check_events(driver_path,directory_name, logging_level=logging.INFO):
     return errors
 
 def sanity_check_shotchart(driver_path,directory_name, logging_level=logging.INFO):
+    """
+    Checks if thes file within a directoy have been correctly downloaded
+
+    :param directory_name: String
+    :param logging_level: logging object
+    """
+    logging.basicConfig(level=logging_level)
+    logger = logging.getLogger(__name__)
+
+    driver = create_driver(driver_path)
+
+    errors = []
+    directory = os.fsencode(directory_name)
+    for file in [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]:
+        with open(os.path.join(directory, file), encoding="utf-8") as f:
+            raw_html = f.read()
+
+            doc = pq(raw_html)
+            if doc("title").text() == '404 Not Found':
+                errors.append(os.fsdecode(file))
+
+            filename=file.decode("utf-8")
+            statinfo=os.stat(directory_name+filename)
+
+            #we assume that the shotchart files with a size lower than 69kB need to be revised and download again.
+            if statinfo.st_size <69000:
+                logger.info(filename+' was not properly downladed. Missing data.')
+                game_shotchart_id = os.path.splitext(filename)[0]
+                shotchart_id=game_shotchart_id.split("-")[1]
+                shotchartURL = "http://www.fibalivestats.com/u/ACBS/{}/sc.html".format(shotchart_id)
+                driver.get(shotchartURL)
+                html = driver.page_source
+                time.sleep(1)
+                save_content(directory_name+filename, html)
+                errors.append(filename)
+
+            statinfo2=os.stat(directory_name+filename)
+            f.close()
+            if statinfo2.st_size < 69000:
+                logger.info('The game-shotchart ' + filename +' data is not correct. Missing data. Deleting game-shotchart...')
+                try:
+                    os.remove(directory_name+filename)
+                    logger.info('game-shotchart ' + filename + ' deleted...')
+                    continue
+
+                except:
+                    logger.info('game-shotchart ' + filename + ' cannot be deleted...')
+                    continue
+
+    #recursive call to sanity_check to check if there are more errors with the html
+    if errors:
+        logger.info('There were {} errors in the downloads!'.format(len(errors)))
+        sanity_check_shotchart(driver_path,directory_name, logging_level=logging.INFO)
+
+    driver.close()
+    driver.quit()
+    logger.info('Sanity check of {} correctly finished!\n'.format(os.fsdecode(directory)))
+    return errors
+
+def sanity_check_shotchart_copa(driver_path,directory_name, logging_level=logging.INFO):
     """
     Checks if thes file within a directoy have been correctly downloaded
 
