@@ -2,7 +2,7 @@ import os
 import logging
 
 from datetime import datetime
-from utils import LoggerException
+from tools.exceptions import LoggerException
 
 logger = logging.getLogger(__name__)
 
