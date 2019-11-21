@@ -51,10 +51,12 @@ class Season:
         self.SEASON_PATH = os.path.join(DATA_PATH, str(self.season))
         self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games')
         self.JOURNEYS_PATH = os.path.join(self.GAMES_PATH, 'journeys')
+        self.TEAMS_PATH = os.path.join(self.SEASON_PATH, 'teams')
 
         validate_dir(self.SEASON_PATH)
         validate_dir(self.GAMES_PATH)
         validate_dir(self.JOURNEYS_PATH)
+        validate_dir(self.TEAMS_PATH)
 
         if self.season >= 2016:
             self.EVENTS_PATH = os.path.join(self.SEASON_PATH, 'events')
@@ -96,6 +98,9 @@ class Season:
         :return:
         """
         Actor.download_actors(self)
+
+    def populate_teams(self):
+        Team.create_instances(self)
 
 
     def get_game_events_ids(self):
@@ -201,6 +206,3 @@ class Season:
         prox_journey = doc('.estnegro')('td').eq(1).text()
         current_journey = (re.findall('\d+', prox_journey))
         return int(current_journey[0])
-
-s = Season(2017)
-s.download_actors()
