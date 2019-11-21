@@ -1,27 +1,14 @@
-import os
 import re
 import numpy as np
-from src.download import validate_dir, open_or_download,download,get_page
+from src.download import open_or_download, download, get_page
 from pyquery import PyQuery as pq
 from tools.log import logger
+from models.game import Game
+from models.team import Team
+from models.actor import Actor
+from variables import *
 
 
-FIRST_SEASON = 1956
-LAST_SEASON = 2018
-
-# TODO, FIX THIS AND MAKE IT ABSOLUTE TO THE PROJECT
-BASE_URL = 'http://www.acb.com/'
-DATA_PATH = 'data'
-TEAMS_PATH = os.path.join(DATA_PATH, 'teams')
-ACTORS_PATH = os.path.join(DATA_PATH, 'actors')
-PLAYERS_PATH = os.path.join(ACTORS_PATH, 'players')
-COACHES_PATH = os.path.join(ACTORS_PATH, 'coaches')
-
-validate_dir(DATA_PATH)
-validate_dir(TEAMS_PATH)
-validate_dir(ACTORS_PATH)
-validate_dir(PLAYERS_PATH)
-validate_dir(COACHES_PATH)
 
 
 from_journey = 1
@@ -78,9 +65,9 @@ class Season:
 
         #self.current_journey=self.get_current_journey(season)
         self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
-        self.teams = self.get_teams()
-        self.num_teams = len(self.teams)
-        self.playoff_format = self.get_playoff_format()
+        # self.teams = self.get_teams()
+        # self.num_teams = len(self.teams)
+        # self.playoff_format = self.get_playoff_format()
         self.mismatched_teams = []
 
         #self.game_events_ids=self.get_game_events_ids()
@@ -88,6 +75,28 @@ class Season:
 
         #if self.season == get_current_season():
         #    self.current_game_events_ids=self.get_current_game_events_ids()
+
+    def download_games(self):
+        """
+        Downloads the game of a season.
+        :return:
+        """
+        Game.download(self)
+
+    def download_teams(self):
+        """
+        Downloads the teams of a season.
+        :return:
+        """
+        Team.download_teams(self)
+
+    def download_actors(self):
+        """
+        Downloads the actors (players and coaches) of a season
+        :return:
+        """
+        Actor.download_actors(self)
+
 
     def get_game_events_ids(self):
         game_events_ids = {}
@@ -101,38 +110,6 @@ class Season:
 
         return game_events_ids
 
-    def _get_journeys_ids(self):
-        """
-        TODO: comment
-        :return:
-        """
-        url = os.path.join(BASE_URL, f"resultados-clasificacion/ver/temporada_id/{self.season}/edicion_id/")
-        content = get_page(url)
-        doc = pq(content)
-
-        journeys_ids = doc("div[class='listado_elementos listado_jornadas bg_gris_claro']").eq(0)
-        journeys_ids = journeys_ids('div')
-        journeys_ids = [j.attr('data-t2v-id') for j in journeys_ids.items() if j.attr('data-t2v-id')]
-        return journeys_ids
-
-    def get_game_ids(self):
-        """
-        TODO: comment
-        Get the games ids of the season
-        :return:
-        """
-        journeys_ids = self._get_journeys_ids()
-        games_ids = list()
-        for i, journey_id in enumerate(journeys_ids, start=1):
-            url = os.path.join(BASE_URL, f"resultados-clasificacion/ver/temporada_id/{self.season}/edicion_id/undefined/jornada_id/{journey_id}")
-            logger.info(f"Retrieving games from {url}")
-            filename = os.path.join(self.JOURNEYS_PATH, f"journey-{i}.html")
-            content = open_or_download(file_path=filename, url=url)
-
-            game_ids_journey = re.findall(r'<a href="/partido/estadisticas/id/([0-9]+)" title="Estadísticas">', content, re.DOTALL)
-            games_ids.extend(game_ids_journey)
-        return games_ids
-
     def get_current_game_events_ids(self):
         current_game_events_ids = {}
         for i in range(from_journey, self.get_current_journey() + 1):
@@ -145,43 +122,6 @@ class Season:
 
         return current_game_events_ids
 
-    def save_teams(self):
-        """
-        Saves a webpage containing all the teams of the season.
-
-        E.g.: http://www.acb.com/club/index/temporada_id/2019
-        :return:
-        """
-        teams_filename = os.path.join(self.SEASON_PATH, 'teams.html')
-        teams_url = BASE_URL + f"club/index/temporada_id/{self.season}"
-        logger.info(f"Downloading teams from {teams_url}")
-        return open_or_download(file_path=teams_filename, url=teams_url)
-
-    def get_teams(self):
-        """
-        Extracts the teams for the season (id -> team_name)
-
-        Example of team:
-        <a href="/club/plantilla/id/2" class="clase_mostrar_block960 equipo_logo primer_logo">
-        <img src="http://static.acb.com/img/32/1d/a/1453105588.png" alt="Barça " /></a>
-        :return:
-        """
-        content = self.save_teams()
-        doc = pq(content)
-        teams = doc("div[class='contenedor_logos_equipos']")
-
-        # Get the teams ids
-        teams_ids = teams.items('a')
-        teams_ids = [t.attr('href') for t in teams_ids]
-        teams_ids = [t.split('/')[-1] for t in teams_ids]
-
-        # Get the teams names
-        teams_names = teams.items('img')
-        teams_names = [t.attr('alt') for t in teams_names]
-
-        teams = dict(zip(teams_ids, teams_names))
-        logger.info(f"There are {len(teams)} teams: {teams}")
-        return teams
 
     def get_playoff_format(self):
         """
@@ -261,3 +201,6 @@ class Season:
         prox_journey = doc('.estnegro')('td').eq(1).text()
         current_journey = (re.findall('\d+', prox_journey))
         return int(current_journey[0])
+
+s = Season(2017)
+s.download_actors()

@@ -1,12 +1,14 @@
 import os.path, re, datetime, difflib, logging
 from pyquery import PyQuery as pq
 from src.download import open_or_download, sanity_check_game, sanity_check_game_copa
-from src.season import BASE_URL
 from models.basemodel import BaseModel
 from models.team import Team, TeamName
 from peewee import (PrimaryKeyField, IntegerField, DateTimeField, ForeignKeyField, BooleanField, CharField)
 from src.utils import get_current_season
 from tools.log import logger, init_logging
+from src.download import open_or_download, get_page
+from src.download import open_or_download, get_page
+from tools.checkpoint import Checkpoint
 
 init_logging('game.log')
 
@@ -46,33 +48,110 @@ class Game(BaseModel):
     db_flag = BooleanField(null=True)
 
     @staticmethod
-    def save_games(season, logging_level=logging.INFO):
+    def download(season):
         """
-        Method for saving locally the games of a season.
+        Downloads the games of a season.
 
-        :param season: int
-        :param logging_level: logging object
+        How? Finding the games ids.
+        Procedure
+        ---------
+        1. Get journeys ids from http://acb.com/resultados-clasificacion/ver/temporada_id/2017/edicion_id/
+        2. Download journeys
+        3. Get game ids from each journey: http://acb.com/resultados-clasificacion/ver/temporada_id/2017/edicion_id/undefined/jornada_id/2674
+        4. Download games.
+
+        :param season:
         :return:
         """
-        logger.info('Starting the download of games...')
-        # TODO: move this to Season class as an attribute
-        if season.season == get_current_season():
-            current_game_events_ids = season.get_current_game_events_ids()
-            game_ids_list = list(current_game_events_ids.values())
-        else:
-            game_ids_list = season.get_game_ids()
-
-        n_checkpoints = 4
-        checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
-        for i, game_id in enumerate(game_ids_list):
-            url = os.path.join(BASE_URL, f"partido/estadisticas/id/{game_id}")
+        def _download_game_webpage(game_id):
+            """
+            Downloads the game webpage.
+            :param game_id:
+            :return:
+            """
+            url = f"http://www.acb.com/partido/estadisticas/id/{game_id}"
             filename = os.path.join(season.GAMES_PATH, f"{game_id}.html")
             open_or_download(file_path=filename, url=url)
-            if i in checkpoints:
-                progress = round(float(i * 100) / len(game_ids_list))
-                logger.info(f"{progress}% already downloaded")
 
-        logger.info(f"Download finished! (new {len(game_ids_list)} games in {season.GAMES_PATH})\n")
+        # TODO: En la implementacion anterior hay una distincion si la season es la actual o no. Por que?
+        # TODO: ver metodo Game.save_games()
+        logger.info(f"Starting to download games for season {season.season}")
+        games_ids = Game.get_games_ids(season)
+        checkpoint = Checkpoint(length=len(games_ids), chunks=10, msg='already downloaded')
+
+        for game_id in games_ids:
+            _download_game_webpage(game_id)
+            next(checkpoint)
+        logger.info(f"Download finished! (new {len(games_ids)} games in {season.GAMES_PATH})\n")
+
+    @staticmethod
+    def get_games_ids(season):
+        """
+        Get the games ids of a given season.
+        :param season:
+        :return:
+        """
+        def _get_journeys_ids(season):
+            """
+            Gets the journeys ids of a given season
+            :param season:
+            :return:
+            """
+            url = f"http://www.acb.com/resultados-clasificacion/ver/temporada_id/{season.season}/edicion_id/"
+            filename = os.path.join(season.JOURNEYS_PATH, "journeys-ids.html")
+            content = open_or_download(file_path=filename, url=url)
+            doc = pq(content)
+
+            journeys_ids = doc("div[class='listado_elementos listado_jornadas bg_gris_claro']").eq(0)
+            journeys_ids = journeys_ids('div')
+            journeys_ids = [j.attr('data-t2v-id') for j in journeys_ids.items() if j.attr('data-t2v-id')]
+            return journeys_ids
+
+        # Get the journeys ids of the season
+        journeys_ids = _get_journeys_ids(season)
+        games_ids = list()
+        for i, journey_id in enumerate(journeys_ids, start=1):
+            url = f"http://www.acb.com/resultados-clasificacion/ver/temporada_id/{season.season}/edicion_id/undefined/jornada_id/{journey_id}"
+            logger.info(f"Retrieving games from {url}")
+            filename = os.path.join(season.JOURNEYS_PATH, f"journey-{i}.html")
+            content = open_or_download(file_path=filename, url=url)
+
+            game_ids_journey = re.findall(r'<a href="/partido/estadisticas/id/([0-9]+)" title="Estadísticas">', content, re.DOTALL)
+            games_ids.extend(game_ids_journey)
+        return games_ids
+
+
+
+
+
+    # @staticmethod
+    # def save_games(season, logging_level=logging.INFO):
+    #     """
+    #     Method for saving locally the games of a season.
+    #
+    #     :param season: int
+    #     :param logging_level: logging object
+    #     :return:
+    #     """
+    #     logger.info('Starting the download of games...')
+    #     # TODO: move this to Season class as an attribute
+    #     if season.season == get_current_season():
+    #         current_game_events_ids = season.get_current_game_events_ids()
+    #         game_ids_list = list(current_game_events_ids.values())
+    #     else:
+    #         game_ids_list = season.get_game_ids()
+    #
+    #     n_checkpoints = 4
+    #     checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
+    #     for i, game_id in enumerate(game_ids_list):
+    #         url = os.path.join(BASE_URL, f"partido/estadisticas/id/{game_id}")
+    #         filename = os.path.join(season.GAMES_PATH, f"{game_id}.html")
+    #         open_or_download(file_path=filename, url=url)
+    #         if i in checkpoints:
+    #             progress = round(float(i * 100) / len(game_ids_list))
+    #             logger.info(f"{progress}% already downloaded")
+    #
+    #     logger.info(f"Download finished! (new {len(game_ids_list)} games in {season.GAMES_PATH})\n")
 
     @staticmethod
     def save_games_copa(season, logging_level=logging.INFO):
@@ -263,6 +342,3 @@ class Game(BaseModel):
         return game
 
 
-from src.season import Season
-s = Season(2017)
-Game.save_games(s)

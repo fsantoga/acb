@@ -1,9 +1,18 @@
-import os.path, re, datetime, logging, urllib.request
+import os.path
+import re
+import datetime
+import urllib.request
+import glob
+import logging
 from pyquery import PyQuery as pq
 from src.download import open_or_download, sanity_check
 from models.basemodel import BaseModel
 from peewee import (PrimaryKeyField, TextField,
                     DoubleField, DateTimeField, BooleanField)
+from tools.exceptions import InvalidCallException
+from variables import PLAYERS_PATH, COACHES_PATH
+from tools.log import logger
+from tools.checkpoint import Checkpoint
 
 
 class Actor(BaseModel):
@@ -28,29 +37,135 @@ class Actor(BaseModel):
     twitter = TextField(null=True)
 
     @staticmethod
-    def save_actors(logging_level=logging.INFO):
-        from src.season import BASE_URL, PLAYERS_PATH, COACHES_PATH
+    def download_actors(season):
         """
-        Method for saving locally the actors.
-        :param logging_level: logging object
+        Downloads the actors webpages for a season.
+        :param season:
+        :return:
         """
-        logging.basicConfig(level=logging_level)
-        logger = logging.getLogger(__name__)
-
-        logger.info('Starting the download of actors...')
-        actors = Actor.select()
-        for cont, actor in enumerate(actors):
-            folder = COACHES_PATH if actor.is_coach else PLAYERS_PATH
-            url_tag = 'entrenador' if actor.is_coach else 'jugador'
-
-            filename = os.path.join(folder, actor.actor_acbid + '.html')
-            url = os.path.join(BASE_URL, '{}.php?id={}'.format(url_tag, actor.actor_acbid))
+        def _download_player(player_id):
+            """
+            Downloads the player webpage.
+            :param player_id:
+            :return:
+            """
+            filename = os.path.join(PLAYERS_PATH, f"{player_id}.html")
+            url = os.path.join(f"http://www.acb.com/jugador/temporada-a-temporada/id/{player_id}")
+            logger.info(f"Retrieving player webpage from: {url}")
             open_or_download(file_path=filename, url=url)
 
-            if cont % (round(len(actors) / 3)) == 0:
-                logger.info('{}% already downloaded'.format(round(float(cont) / len(actors) * 100)))
+        def _download_coach(coach_id):
+            """
+            Downloads the coach webpage.
+            :param coach_id:
+            :return:
+            """
+            filename = os.path.join(COACHES_PATH, f"{coach_id}.html")
+            url = os.path.join(f"http://www.acb.com/entrenador/trayectoria-logros/id/{coach_id}")
+            logger.info(f"Retrieving coach webpage from: {url}")
+            open_or_download(file_path=filename, url=url)
 
-        logger.info('Downloading finished!\n')
+        # Get the actors of the season
+        players, coaches = Actor.get_actors(season)
+
+        # Download players
+        unique_players_ids = [p[0] for p in players]
+        unique_players_ids = set(unique_players_ids)
+        checkpoint = Checkpoint(length=len(unique_players_ids), chunks=10, msg='players already downloaded')
+        for player_id in unique_players_ids:
+            _download_player(player_id)
+            next(checkpoint)
+
+        # Download coaches
+        unique_coaches_ids = [c[0] for c in coaches]
+        unique_coaches_ids = set(unique_coaches_ids)
+        checkpoint = Checkpoint(length=len(unique_coaches_ids), chunks=10, msg='coaches already downloaded')
+        for coach_id in unique_coaches_ids:
+            _download_coach(coach_id)
+            next(checkpoint)
+
+    @staticmethod
+    def get_actors(season):
+        """
+        Iterates over all the games and retrieve unique combinations of (actor_id, actor_name).
+
+        # TODO: Un mismo jugador puede tener varios nombres!!!
+        # print(len(players))
+        # unique_names = set()
+        # unique_ids = set()
+        # match = dict()
+        # for p_id, p_name in players:
+        #     if p_id in unique_ids:
+        #         print(p_name, match[p_id])
+        #     else:
+        #         unique_ids.add(p_id)
+        #         unique_names.add(p_name)
+        #         match[p_id] = p_name
+        # Vildoza, Luca Luca Vildoza
+        # Smits, Rolands Rolands Smits
+
+        :param season:
+        :return:
+        """
+        def _get_all_actors(game):
+            """
+            Iterates over all the games and extract the players and coaches
+            :param game:
+            :return:
+            """
+            with open(game, 'r', encoding="utf8") as f:
+                content = f.read()
+            players = re.findall(
+                r'<td class="nombre jugador ellipsis"><a href="/jugador/ver/([0-9]+)-.*?">(.*?)</a></td>',
+                content, re.DOTALL)
+            coaches = re.findall(r'<td class="nombre entrenador"><a href="/entrenador/ver/([0-9]+)-.*?">(.*?)</a></td>',
+                                 content, re.DOTALL)
+            return players, coaches
+
+        players_ids = set()
+        coaches_ids = set()
+        games_files = glob.glob(f"{season.GAMES_PATH}/*.html")
+        if len(games_files) == 0:
+            raise InvalidCallException(message='season.download_games() must be called first')
+
+        for game in games_files:
+            players, coaches = _get_all_actors(game)
+            players_ids.update(players)
+            coaches_ids.update(coaches)
+        return players_ids, coaches_ids
+
+
+
+
+
+
+
+
+
+
+
+    # def save_actors(logging_level=logging.INFO):
+    #     """
+    #     Method for saving locally the actors.
+    #     :param logging_level: logging object
+    #     """
+    #     logging.basicConfig(level=logging_level)
+    #     logger = logging.getLogger(__name__)
+    #
+    #     logger.info('Starting the download of actors...')
+    #     actors = Actor.select()
+    #     for cont, actor in enumerate(actors):
+    #         folder = COACHES_PATH if actor.is_coach else PLAYERS_PATH
+    #         url_tag = 'entrenador' if actor.is_coach else 'jugador'
+    #
+    #         filename = os.path.join(folder, actor.actor_acbid + '.html')
+    #         url = os.path.join(BASE_URL, '{}.php?id={}'.format(url_tag, actor.actor_acbid))
+    #         open_or_download(file_path=filename, url=url)
+    #
+    #         if cont % (round(len(actors) / 3)) == 0:
+    #             logger.info('{}% already downloaded'.format(round(float(cont) / len(actors) * 100)))
+    #
+    #     logger.info('Downloading finished!\n')
 
     @staticmethod
     def sanity_check(logging_level=logging.INFO):
