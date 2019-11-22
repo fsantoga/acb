@@ -31,7 +31,6 @@ class Team(BaseModel):
         teams = Team.get_teams(season)
         for team_id in teams.keys():
             Team._download_team_information_webpage(team_id)
-            validate_dir(os.path.join(season.TEAMS_PATH, team_id))
         logger.info(f"Download finished! (new {len(teams)} teams in {season.TEAMS_PATH})\n")
 
     @staticmethod
@@ -46,14 +45,14 @@ class Team(BaseModel):
         :return:
         """
         teams_ids = Team.get_teams(season)
-        for team_id in teams_ids:
+        for team_id, team_name in teams_ids.items():
             team, created = Team.get_or_create(**{'id': team_id})
             if created:
                 logger.info(f"New team created in the database: {team.id}")
             if not team.founded_year:
                 team.update_founded_year()
             # Insert the team name for that season.
-            TeamName.create_instance(team, season)
+            TeamName.create_instance(team_id, team_name, season)
 
     @staticmethod
     def get_teams(season):
@@ -141,6 +140,28 @@ class Team(BaseModel):
         logger.info(f"Retrieving information page from: {url}")
         return open_or_download(file_path=filename, url=url)
 
+    @staticmethod
+    def open_or_download_team_webpage(team_id, season):
+        """
+        Downloads the team webpage for a season.
+        :param team:
+        :param season:
+        :return:
+        """
+        filename = os.path.join(season.TEAMS_PATH, team_id, f"{team_id}.html")
+        url = os.path.join(f"http://www.acb.com/club/plantilla/id/{team_id}/temporada_id/{season.season}")
+        logger.info(f"Retrieving information of the team from: {url}")
+
+        cookies = {
+            'acepta_uso_cookies': '1',
+            'forosacbcom_u': '1',
+            'forosacbcom_k': '',
+            'forosacbcom_sid': 'FFD~21d43aee99bee89138ba91bc285687d4',
+            'PHPSESSID': 'neq0ak7jfjv1spa5ion3gkm43r',
+        }
+        content = open_or_download(file_path=filename, url=url, cookies=cookies)
+        return content
+
 
 class TeamName(BaseModel):
     """
@@ -159,51 +180,12 @@ class TeamName(BaseModel):
         )
 
     @staticmethod
-    def create_instance(team, season):
+    def create_instance(team_id, team_name, season):
         """
         Creates a TeamName instance for a team and season.
         :param team:
         :param season:
         :return:
         """
-        def _download_team_webpage(team, season):
-            """
-            Downloads the team webpage for a season.
-            :param team:
-            :param season:
-            :return:
-            """
-            filename = os.path.join(season.TEAMS_PATH, team.id, f"{team.id}.html")
-            url = os.path.join(f"http://www.acb.com/club/plantilla/id/{team.id}/temporada_id/{season.season}")
-            logger.info(f"Retrieving information of the team from: {url}")
-
-            cookies = {
-                'acepta_uso_cookies': '1',
-                'forosacbcom_u': '1',
-                'forosacbcom_k': '',
-                'forosacbcom_sid': 'FFD~21d43aee99bee89138ba91bc285687d4',
-                'PHPSESSID': 'neq0ak7jfjv1spa5ion3gkm43r',
-            }
-            content = open_or_download(file_path=filename, url=url, cookies=cookies)
-            return content
-
-        def _create_team_name(from_content, team, season):
-            """
-            Creates the TeamName object from the content
-            :param from_content:
-            :param team:
-            :param season:
-            :return:
-            """
-            doc = pq(from_content)
-            team_name_season = doc("div[id='listado_equipo_nacional']")
-            team_name_season = team_name_season(f"div[data-t2v-id='{team.id}']").text().upper()
-            if team_name_season != '':
-                logger.info(f"Season: {season}; Team name: {team_name_season}")
-                return {'team_id': team.id, 'name': str(team_name_season), 'season': int(season)}
-            return
-
-        content = _download_team_webpage(team=team, season=season)
-        team_name_dict = _create_team_name(from_content=content, team=team, season=season.season)
-        assert team_name_dict
+        team_name_dict = {'team_id': team_id, 'name': team_name, 'season': season.season}
         TeamName.get_or_create(**team_name_dict)

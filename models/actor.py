@@ -117,23 +117,23 @@ class Actor(BaseModel):
             # Insert referees
             for referee_id, referee_name in referees:
                 assert referee_id != 0
-                Actor.insert_actor(actor_id=referee_id, category='referee')
+                Actor.create_instance(actor_id=referee_id, category='referee')
                 ActorName.create_instance(actor_id=referee_id, actor_name=referee_name)
 
             # Insert coaches
             for coach_id, coach_name in coaches:
                 assert coach_id != 0
-                Actor.insert_actor(actor_id=coach_id, category='coach')
+                Actor.create_instance(actor_id=coach_id, category='coach')
                 ActorName.create_instance(actor_id=coach_id, actor_name=coach_name)
 
             # Insert players
             for player_id, player_name in players:
                 assert player_id != 0
-                Actor.insert_actor(actor_id=player_id, category='player')
+                Actor.create_instance(actor_id=player_id, category='player')
                 ActorName.create_instance(actor_id=player_id, actor_name=player_name)
 
     @staticmethod
-    def insert_actor(actor_id, category):
+    def create_instance(actor_id, category):
         actor, created = Actor.get_or_create(**{'id': actor_id, 'category': category})
         if not created:  # If the actor exists, we do not need to insert it
             return

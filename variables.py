@@ -12,6 +12,8 @@ PLAYERS_PATH = os.path.join(ACTORS_PATH, 'players')
 COACHES_PATH = os.path.join(ACTORS_PATH, 'coaches')
 REFEREES_PATH = os.path.join(ACTORS_PATH, 'referees')
 
+PLAYOFF_PATH = os.path.join(DATA_PATH, 'playoff')
+
 
 validate_dir(DATA_PATH)
 validate_dir(TEAMS_PATH)
@@ -22,3 +24,5 @@ validate_dir(REFEREES_PATH)
 validate_dir(os.path.join(PLAYERS_PATH, 'photos'))
 validate_dir(os.path.join(COACHES_PATH, 'photos'))
 validate_dir(os.path.join(REFEREES_PATH, 'photos'))
+
+validate_dir(PLAYOFF_PATH)
