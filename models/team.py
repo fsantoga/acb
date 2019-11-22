@@ -7,6 +7,7 @@ from peewee import (PrimaryKeyField, CharField, IntegerField)
 from tools.log import logger
 from variables import TEAMS_PATH
 from src.download import validate_dir
+import re
 
 
 class Team(BaseModel):
@@ -78,19 +79,9 @@ class Team(BaseModel):
             return season_page
 
         content = _get_season_page(season)
-        doc = pq(content)
-        teams = doc("div[class='contenedor_logos_equipos']")
-
-        # Get the teams ids
-        teams_ids = teams.items('a')
-        teams_ids = [t.attr('href') for t in teams_ids]
-        teams_ids = [t.split('/')[-1] for t in teams_ids]
-
-        # Get the teams names
-        teams_names = teams.items('img')
-        teams_names = [t.attr('alt') for t in teams_names]
-
-        teams = dict(zip(teams_ids, teams_names))
+        parser_string = f"<div class=\"foto\"><a href=\"/club/plantilla/id/([0-9]+)/temporada_id/{season.season}\" title=\"(.*?)\">"
+        teams = re.findall(r''+parser_string, content, re.DOTALL)
+        teams = dict(teams)
         logger.info(f"There are {len(teams)} teams: {teams}")
 
         return teams
