@@ -58,7 +58,7 @@ def open_or_download(file_path, url=None, cookies=None):
         html_file = get_page(url, cookies=cookies)
         return save_content(file_path, html_file)
     else:
-        raise FileNotFoundError
+        raise FileNotFoundError(file_path)
 
 
 def open_or_download_photo(file_path, url=None):

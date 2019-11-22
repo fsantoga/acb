@@ -66,7 +66,7 @@ CREATE INDEX game_team_away_id_idx ON game(team_away_id);
 /* An actor is a player or a coach. In this table, many fields may be set to NULL. */
 CREATE TABLE actor (
     id INTEGER PRIMARY KEY,  -- ACB player / coach ID.
-    is_coach BOOLEAN DEFAULT null,
+    category VARCHAR(255) DEFAULT null,
     display_name VARCHAR(255) CHARACTER SET utf8mb4 DEFAULT null,
     full_name VARCHAR(255) CHARACTER SET utf8mb4,
     nationality VARCHAR(255) DEFAULT null,
@@ -103,7 +103,7 @@ CREATE TABLE participant (
     -- Squad number of the player
     number INTEGER DEFAULT null,
     -- True if the actor is the coach.
-    is_coach BOOLEAN DEFAULT null,
+    category BOOLEAN DEFAULT null,
     -- True if the player starts the game.
     is_starter BOOLEAN DEFAULT null,
 

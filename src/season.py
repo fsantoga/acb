@@ -219,5 +219,7 @@ class Season:
         return int(current_journey[0])
 
 s = Season(2017)
+s.download_actors()
 s.populate_actors()
-s.populate_teams()
+#s.populate_teams()
+
