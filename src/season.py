@@ -100,7 +100,18 @@ class Season:
         Actor.download_actors(self)
 
     def populate_teams(self):
+        """
+        Populates the Team and TeamName tables for a season
+        :return:
+        """
         Team.create_instances(self)
+
+    def populate_actors(self):
+        """
+        Populates the Actor table for a season
+        :return:
+        """
+        Actor.create_instances(self)
 
 
     def get_game_events_ids(self):
@@ -206,3 +217,7 @@ class Season:
         prox_journey = doc('.estnegro')('td').eq(1).text()
         current_journey = (re.findall('\d+', prox_journey))
         return int(current_journey[0])
+
+s = Season(2017)
+s.populate_actors()
+s.populate_teams()

@@ -19,8 +19,7 @@ class Game(BaseModel):
 
     A game only contains basic information about the game and the scores.
     """
-    id = PrimaryKeyField()
-    game_acbid = IntegerField(unique=True, index=True)
+    id = IntegerField(primary_key=True)
     team_home_id = ForeignKeyField(Team, related_name='games_home', index=True, null=True)
     team_away_id = ForeignKeyField(Team, related_name='games_away', index=True, null=True)
     season = IntegerField(null=False)
@@ -197,13 +196,13 @@ class Game(BaseModel):
         sanity_check_game_copa(season.GAMES_COPA_PATH, logging_level)
 
     @staticmethod
-    def create_instance(raw_game, game_acbid, season, competition_phase,round_phase=None):
+    def create_instance(raw_game, game_id, season, competition_phase,round_phase=None):
         """
         Extract all the information regarding the game such as the date, attendance, venue, score per quarter or teams.
         Therefore, we need first to extract and insert the teams in the database in order to get the references to the db.
 
         :param raw_game: String
-        :param game_acbid: int
+        :param game_id: int
         :param season: Season
         :param competition_phase: String
         :param round_phase: String
@@ -222,7 +221,7 @@ class Game(BaseModel):
 
         This id can be used to access the concrete game within the link 'http://www.acb.com/fichas/LACBXXYYY.php'
         """
-        game_dict['game_acbid'] = game_acbid
+        game_dict['id'] = game_id
         game_dict['season'] = season.season
         game_dict['competition_phase'] = competition_phase
         game_dict['round_phase'] = round_phase
@@ -336,7 +335,7 @@ class Game(BaseModel):
                 n_ref+=1
 
         try:
-            game = Game.get(Game.game_acbid == game_dict['game_acbid'])
+            game = Game.get(Game.id == game_dict['id'])
         except:
             game = Game.create(**game_dict)
         return game

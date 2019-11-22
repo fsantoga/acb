@@ -1,6 +1,7 @@
 import requests
 import os
 import logging
+import urllib.request
 from pyquery import PyQuery as pq
 from src.utils import create_driver
 import os
@@ -42,7 +43,7 @@ def save_content(file_path, content):
         return content
 
 
-def open_or_download(file_path, url, cookies=None):
+def open_or_download(file_path, url=None, cookies=None):
     """
     Open or download a file.
 
@@ -53,9 +54,24 @@ def open_or_download(file_path, url, cookies=None):
     if os.path.isfile(file_path):
         with open(file_path, 'r', encoding="utf-8") as file:
             return file.read()
-    else:
+    elif url:
         html_file = get_page(url, cookies=cookies)
         return save_content(file_path, html_file)
+    else:
+        raise FileNotFoundError
+
+
+def open_or_download_photo(file_path, url=None):
+    if os.path.isfile(file_path):
+        return file_path
+    elif url:
+        try:
+            urllib.request.urlretrieve(url, file_path)
+        except urllib.request.HTTPError as e:
+            logger.error('Error downloading image: {}'.format(url))
+            logger.error(e)
+    else:
+        raise FileNotFoundError
 
 
 def download(file_path, url):

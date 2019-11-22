@@ -16,9 +16,7 @@ class Team(BaseModel):
     A team is basically defined by an acb id, and not a name.
     Because the name of a team can change between seasons (and even in a same season).
     """
-    id = PrimaryKeyField()
-    # TODO, change this, it has been changed, now they are integers. Check intervals.
-    team_acbid = CharField(max_length=3, unique=True, index=True)
+    id = IntegerField(primary_key=True)
     founded_year = IntegerField(null=True)
 
     @staticmethod
@@ -47,11 +45,10 @@ class Team(BaseModel):
         :return:
         """
         teams_ids = Team.get_teams(season)
-        for team_acbid in teams_ids:
-            team, created = Team.get_or_create(**{'team_acbid': team_acbid})
-
+        for team_id in teams_ids:
+            team, created = Team.get_or_create(**{'id': team_id})
             if created:
-                logger.info(f"New team created in the database: {team.team_acbid}")
+                logger.info(f"New team created in the database: {team.id}")
             if not team.founded_year:
                 team.update_founded_year()
             # Insert the team name for that season.
@@ -103,7 +100,7 @@ class Team(BaseModel):
         Updates the founded year of the team in the database.
         :return:
         """
-        content = Team._download_team_information_webpage(self.team_acbid)
+        content = Team._download_team_information_webpage(self.id)
 
         # Extract founded_year from webpage
         doc = pq(content)
@@ -113,7 +110,7 @@ class Team(BaseModel):
         founded_year = club_data("div[class='datos']").text()
 
         assert title == 'AÑO FUNDACIÓN:', title
-        assert founded_year and founded_year != '', self.team_acbid
+        assert founded_year and founded_year != '', self.id
         self.founded_year = int(founded_year)
         self.save()
 
@@ -185,8 +182,8 @@ class TeamName(BaseModel):
             :param season:
             :return:
             """
-            filename = os.path.join(season.TEAMS_PATH, team.team_acbid, f"{team.team_acbid}.html")
-            url = os.path.join(f"http://www.acb.com/club/plantilla/id/{team.team_acbid}/temporada_id/{season.season}")
+            filename = os.path.join(season.TEAMS_PATH, team.id, f"{team.id}.html")
+            url = os.path.join(f"http://www.acb.com/club/plantilla/id/{team.id}/temporada_id/{season.season}")
             logger.info(f"Retrieving information of the team from: {url}")
 
             cookies = {
@@ -209,7 +206,7 @@ class TeamName(BaseModel):
             """
             doc = pq(from_content)
             team_name_season = doc("div[id='listado_equipo_nacional']")
-            team_name_season = team_name_season(f"div[data-t2v-id='{team.team_acbid}']").text().upper()
+            team_name_season = team_name_season(f"div[data-t2v-id='{team.id}']").text().upper()
             if team_name_season != '':
                 logger.info(f"Season: {season}; Team name: {team_name_season}")
                 return {'team_id': team.id, 'name': str(team_name_season), 'season': int(season)}
