@@ -14,6 +14,7 @@ Why from 1994? In 1994, the ACB changed to the current modern league format, whi
 * Python 3
 * pyquery
 * peewee
+ *javi: windows - https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16#
 
 # Instructions on how to execute
 The database can be freely accessed from https://data.world/jgonzalezferrer/acb-1994-2016-spanish-basketball-league-results or https://www.kaggle.com/jgonzalezferrer/acb-spanish-basketball-league-results. However, if you want to execute the code by yourself you can just use the `run.py` script:

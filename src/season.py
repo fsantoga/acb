@@ -7,6 +7,7 @@ from models.game import Game
 from models.team import Team
 from models.actor import Actor
 from variables import *
+from tools.lengua import get_playoff_games
 
 
 
@@ -43,10 +44,11 @@ PLAYOFF_MAPPER = {
 }
 
 class Season:
-    def __init__(self, season):
+    def __init__(self, season, competition='Liga'):
         logger.info(f"Creating Season: {season}")
 
         self.season = season
+        self.competition = competition
         self.season_id = season - FIRST_SEASON + 1  # First season in 1956 noted as 1.
         self.SEASON_PATH = os.path.join(DATA_PATH, str(self.season))
         self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games')
@@ -67,8 +69,11 @@ class Season:
 
         #self.current_journey=self.get_current_journey(season)
         self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
-        # self.teams = self.get_teams()
-        # self.num_teams = len(self.teams)
+
+        # Get the teams of the season
+        self.teams = Team.get_teams(self)
+        self.num_teams = len(self.teams)
+        self.playoff_games_to_phase_mapper = get_playoff_games(self.season)
         # self.playoff_format = self.get_playoff_format()
         self.mismatched_teams = []
 
@@ -112,6 +117,13 @@ class Season:
         :return:
         """
         Actor.create_instances(self)
+
+    def populate_games(self):
+        """
+        Populates the Game table for a season
+        :return:
+        """
+        Game.create_instances(self)
 
 
     def get_game_events_ids(self):
@@ -170,24 +182,36 @@ class Season:
             return 0
 
     def get_number_games(self):
-        return self.get_number_games_regular_season() + self.get_number_games_playoff() + self.get_number_games_relegation_playoff()
+        return self.get_number_games_regular_season() \
+               + self.get_number_games_playoff() \
+               + self.get_number_games_relegation_playoff()
 
     def get_number_games_relegation_playoff(self):
         return 5*2 if self.season in self.relegation_playoff_seasons else 0
 
     def get_relegation_teams(self):
-        if self.season <= 1994:
-            return {1994: ['VALVI GIRONA', 'BREOGÁN LUGO', 'PAMESA VALENCIA', 'SOMONTANO HUESCA']}[self.season]
-        else:
-            filename = os.path.join(self.SEASON_PATH, 'relegation_playoff.html')
-            url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, (self.num_teams-1)*2)
-            content = open_or_download(file_path=filename, url=url)
-            doc = pq(content)
-            relegation_teams = []
-            for team_id in range(self.num_teams-4, self.num_teams):
-                relegation_teams.append(doc('.negro').eq(team_id).text().upper())
-
-            return relegation_teams
+        relegation_teams = {
+            # de aqui para atras incluso mas complicado...
+            1992: [48, 26, 12, 40], # Club Basket Ferrys Lliria, Caceres CB, CB Juver Murcia,  Argal Huesca
+            1993: [71, 12, 32, 40], # Fórum Valladolid, CB Murcia, Valvi Girona, Argal Huesca
+            1994: [13, 40, 32, 25], # Pamesa Valencia, Somontano Huesca, Valvi Girona, Breogán Lugo
+            1995: [58, 31, 22, 40], # Amway Zaragoza, Estudiantes Argentaria, Festina Andorra, Grupo AGB Huesca
+            1996: [71, 17, 58, 12], # Fórum Valladolid, Baloncesto Fuenlabrada, Xacobeo 99 Ourense, CB Murcia Artel
+            1997: [38,  1, 58, 26], # CB Ciudad De Huelva, Covirán Sierra Nevada Granada, Ourense Xacobeo 99, Caceres CB
+            # 1997-1998 fue la ultima temporada con esto
+        }
+        # if self.season <= 1994:
+        #     return {1994: }[self.season]
+        # else:
+        #     filename = os.path.join(self.SEASON_PATH, 'relegation_playoff.html')
+        #     url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, (self.num_teams-1)*2)
+        #     content = open_or_download(file_path=filename, url=url)
+        #     doc = pq(content)
+        #     relegation_teams = []
+        #     for team_id in range(self.num_teams-4, self.num_teams):
+        #         relegation_teams.append(doc('.negro').eq(team_id).text().upper())
+        #
+        #     return relegation_teams
 
     def get_current_journey(self):
         filename = os.path.join(self.SEASON_PATH, 'current_journey_calendar.html')
@@ -219,7 +243,11 @@ class Season:
         return int(current_journey[0])
 
 s = Season(2017)
-s.download_actors()
-s.populate_actors()
+s.download_teams()
+s.populate_teams()
+# s.download_teams()
+# s.download_games()
+# s.download_actors()
+#s.populate_games()
 #s.populate_teams()
 

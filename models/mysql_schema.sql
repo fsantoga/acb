@@ -24,8 +24,9 @@ CREATE TABLE game (
 
     season INTEGER NOT NULL,  -- Season year
     journey INTEGER NOT NULL,  -- Number of the journey. In regular season it is generally one journey per week. In playoff it is one journey per round match.
+    -- TODO: competition VARCHAR(255) NOT NULL, (ACB, Copa, SuperCopa)
     competition_phase VARCHAR(255) DEFAULT null,  -- Regular season or playoff
-    round_phase VARCHAR(255) DEFAULT null,  -- If playoff, round of the game (quarter final, semifinal, final)
+    round_phase VARCHAR(255) DEFAULT null,  -- If playoff or COPA, round of the game (quarter final, semifinal, final)
 
     -- Final score including extra time.
     score_home INTEGER,
