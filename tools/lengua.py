@@ -19,16 +19,16 @@ PLAYOFF_NAME_MAPPER = {
 
 
 
-def open_or_download_lengua(phase, season):
+def open_or_download_lengua(phase, season_year):
     """
     Open or download the lengua webpage for a given season and phase.
     :param phase:
     :param season:
     :return:
     """
-    season_year = season.season
+    season_lengua_year = season_year + 1  # they refer the season 2017-2018 as 2018
     url = 'http://www.linguasport.com/baloncesto/nacional/liga/seekff_esp.asp?'
-    url += f"s1=&s2=&saddtime1={season_year}&saddtime2={season_year}&sround1={phase}&sround2={phase}"
+    url += f"s1=&s2=&saddtime1={season_lengua_year}&saddtime2={season_lengua_year}&sround1={phase}&sround2={phase}"
     url += '&sphase=PO&teambis1=&teambis2=&steamnamex1=&steamnamex2=&sscorebis=&seek=BUSCAR'
     filename = f"{PLAYOFF_PATH}/{season_year}-{PLAYOFF_NAME_MAPPER[phase]}.html"
     return open_or_download(file_path=filename, url=url)
@@ -83,11 +83,13 @@ def get_playoff_games(season=None):
     :return:
     """
     def get_phase_games(results, phase, season):
-        content = open_or_download_lengua(phase=phase, season=season)
+        season_year = season.season
+        content = open_or_download_lengua(phase=phase, season_year=season_year)
         games = proccess_lengua(content=content)
+        print(games)
         games = convert_to_teams_ids(games=games, season=season)
         for i in games:
-            results[season][i] = PLAYOFF_NAME_MAPPER[phase]
+            results[season_year][i] = PLAYOFF_NAME_MAPPER[phase]
     if not season:
         # Generates the seasons
         FIRST_SEASON = 1998
