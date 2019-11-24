@@ -51,10 +51,6 @@ CREATE TABLE game (
     attendance INTEGER DEFAULT null,  -- Game attendance
     kickoff_time DATETIME DEFAULT null,  -- Kick-off time. In number of seconds since UNIX epoch, UTC timezone.
 
-    referee_1 VARCHAR(255) DEFAULT null,
-    referee_2 VARCHAR(255) DEFAULT null,
-    referee_3 VARCHAR(255) DEFAULT null,
-
     FOREIGN KEY (team_home_id) REFERENCES team(id),
     FOREIGN KEY (team_away_id) REFERENCES team(id),
 
