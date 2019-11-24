@@ -18,6 +18,8 @@ ROUND_PHASE_MAPPER = {
             2: "semi_final",
             3: "final",
         }
+
+
 class Game(BaseModel):
     """
     Class representing a Game.
@@ -235,10 +237,10 @@ class Game(BaseModel):
         print(home_scores)
         print(away_scores)
 
-        # if competition_phase == 'playoff':
-        #     round_phase = season.playoff_games_to_phase_mapper[(home_team_id, away_team_id)]
-        # else:
-        #     round_phase = None
+        if competition_phase == 'playoff':
+            round_phase = season.playoff_games_to_phase_mapper[(home_team_id, away_team_id)]
+        else:
+            round_phase = None
 
 
 

@@ -2,6 +2,7 @@ from src.download import open_or_download
 from variables import PLAYOFF_PATH
 from pyquery import PyQuery as pq
 from collections import defaultdict
+from tools.log import logger
 
 # Generate the phases we want to query
 FINAL = 'POT_FINAL'
@@ -25,10 +26,11 @@ def open_or_download_lengua(phase, season):
     :param season:
     :return:
     """
+    season_year = season.season
     url = 'http://www.linguasport.com/baloncesto/nacional/liga/seekff_esp.asp?'
-    url += f"s1=&s2=&saddtime1={season}&saddtime2={season}&sround1={phase}&sround2={phase}"
+    url += f"s1=&s2=&saddtime1={season_year}&saddtime2={season_year}&sround1={phase}&sround2={phase}"
     url += '&sphase=PO&teambis1=&teambis2=&steamnamex1=&steamnamex2=&sscorebis=&seek=BUSCAR'
-    filename = f"{PLAYOFF_PATH}/{season}-{PLAYOFF_NAME_MAPPER[phase]}.html"
+    filename = f"{PLAYOFF_PATH}/{season_year}-{PLAYOFF_NAME_MAPPER[phase]}.html"
     return open_or_download(file_path=filename, url=url)
 
 
@@ -53,6 +55,27 @@ def proccess_lengua(content):
     return phase_games
 
 
+def convert_to_teams_ids(games, season):
+    teams = season.teams
+    # Revert dict (name -> id)
+    teams = {v: k for k, v in teams.items()}
+    teams_names = list(teams.keys())
+
+    actual_games = list()
+    from fuzzywuzzy import process
+    from fuzzywuzzy import fuzz
+
+    for (team_1, team_2) in games:
+        most_likely_coincide_1, threshold_1 = process.extractOne(team_1, teams_names, scorer=fuzz.token_set_ratio)
+        most_likely_coincide_2, threshold_2 = process.extractOne(team_2, teams_names, scorer=fuzz.token_set_ratio)
+        assert threshold_1 > 70 and threshold_2 > 70, f"the threshold is too low"
+
+        team_1_id = teams[most_likely_coincide_1]
+        team_2_id = teams[most_likely_coincide_2]
+        actual_games.append((team_1_id, team_2_id))
+    return actual_games
+
+
 def get_playoff_games(season=None):
     """
     Gets the playoff games over a given season (or all the seasons)
@@ -60,11 +83,11 @@ def get_playoff_games(season=None):
     :return:
     """
     def get_phase_games(results, phase, season):
-        content = open_or_download_lengua(phase, season)
-        games = proccess_lengua(content)
+        content = open_or_download_lengua(phase=phase, season=season)
+        games = proccess_lengua(content=content)
+        games = convert_to_teams_ids(games=games, season=season)
         for i in games:
             results[season][i] = PLAYOFF_NAME_MAPPER[phase]
-
     if not season:
         # Generates the seasons
         FIRST_SEASON = 1998
@@ -79,3 +102,6 @@ def get_playoff_games(season=None):
         get_phase_games(results, phase=SEMIFINAL, season=season)
         get_phase_games(results, phase=FINAL, season=season)
     return results
+
+
+

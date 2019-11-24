@@ -73,7 +73,7 @@ class Season:
         # Get the teams of the season
         self.teams = Team.get_teams(self)
         self.num_teams = len(self.teams)
-        self.playoff_games_to_phase_mapper = get_playoff_games(self.season)
+        self.playoff_games_to_phase_mapper = get_playoff_games(self)
         # self.playoff_format = self.get_playoff_format()
         self.mismatched_teams = []
 
