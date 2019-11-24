@@ -1,13 +1,37 @@
 import re, logging
 from pyquery import PyQuery as pq
 from collections import defaultdict
-from src.utils import fill_dict, replace_nth_ocurrence
+from src.utils import find_all_indices
 from models.basemodel import BaseModel, db
 from models.game import Game
 from models.team import Team
 from models.actor import Actor
 from peewee import (PrimaryKeyField, TextField, IntegerField,
                     ForeignKeyField, BooleanField,)
+import os
+from src.download import open_or_download
+
+HEADER_TO_DB = {'D': 'number',
+                'Nombre': "display_name",
+                'Min': 'minutes',
+                'P': 'point',
+                'T2': 't2',
+                'T3': 't3',
+                'T1': 't1',
+                'REBD': 'defensive_reb',
+                'REBO': 'offensive_reb',
+                'A': 'assist',
+                'BR': 'steal',
+                'BP': 'turnover',
+                'C': 'counterattack',
+                'TAPF': 'block',
+                'TAPC': 'received_block',
+                'M': 'dunk',
+                'FPF': 'fault',
+                'FPC': 'received_fault',
+                '+/-': 'plus_minus',
+                'V': 'efficiency'
+                }
 
 
 class Participant(BaseModel):
@@ -58,17 +82,93 @@ class Participant(BaseModel):
         with db.atomic():
             # Insert games
             for game_id in games_ids:
-                Participant.create_instance(game_id)
+                Participant.create_instance(game_id, season)
 
     @staticmethod
-    def create_instance(game_id):
+    def create_instance(game_id, season):
         """
         Creates all the Participant objects of a game.
 
         :param game_id:
         :return:
         """
-        # TODO
+        def _get_stats_headers(doc):
+            """
+            Get the stats headers of the game.
+
+            :param doc:
+            :return:
+            """
+            stats_headers = doc("table[data-toggle='table-estadisticas']").eq(0)('tr').eq(1)
+            stats_headers = [s.text() for s in stats_headers('th').items()]
+
+            # However, the acb ids of the stats are not unique and some of them are repeated.
+            # We have three times a 'C' and two times an 'F'. We manually modify these ids.
+            # Example:
+            # ['D', 'Nombre', 'Min', 'P', 'T2', 'T2 %', 'T3', 'T3 %', 'T1', 'T1 %', 'T', 'D+O', 'A', 'BR', 'BP', 'C', 'F', 'C', 'M', 'F', 'C', '+/-', 'V']
+
+            # The first C is counterattack, the second C is received_block and the third received_fault.
+            c_indices = find_all_indices(stats_headers, 'C')
+            assert len(c_indices) == 3
+            stats_headers[c_indices[1]] = 'TAPC'
+            stats_headers[c_indices[2]] = 'FPC'
+
+            # The first F is block and the second F is fault.
+            f_indices = find_all_indices(stats_headers, 'F')
+            assert len(f_indices) == 2
+            stats_headers[f_indices[0]] = 'TAPF'
+            stats_headers[f_indices[1]] = 'FPF'
+
+            return stats_headers
+
+        def _get_participants_stats(doc, is_home, stats_headers):
+            participants = dict()
+            tag = 0 if is_home else 1
+            stats = doc("table[data-toggle='table-estadisticas']").eq(tag)('tr')
+            for i, stat_info in enumerate(stats.items()):
+                if i == 0 or i==1: continue  # first two are blank
+                if stat_info.attr('class') == 'totales': continue  #TODO: sacar info de EQUIPO o no?
+                for k, stat in enumerate(stat_info('td').items()):
+                    if stats_headers[k] == 'Nombre':  # extract id from href attribute
+                        # TODO: esta approach esta mal porque asume que siempre existe el id del actor
+                        # lo que no es cierto siempre... si no tiene id hay que ir a buscarlo...
+                        # TODO: hay que hacer algo similar a lo que se hace con los referees
+                        # tambien para players y para coaches en la clase Actor.
+                        actor_id = stat('a').attr('href')
+                        print(actor_id, game_id)
+                        actor_id = re.search(r'/jugador/ver/([0-9]+)-', actor_id).group(1)
+                        actor_id = int(actor_id)
+                        participants[stats_headers[k]] = actor_id
+                    else:
+                        participants[stats_headers[k]] = stat.text()
+            return stats
+
+        # Read game file
+        filename = os.path.join(season.GAMES_PATH, game_id + '.html')
+        content = open_or_download(file_path=filename)
+        doc = pq(content)
+
+        # Stats headers
+        stats_headers = _get_stats_headers(doc)
+
+        # Participants stats
+        home_participants = _get_participants_stats(doc=doc, is_home=True, stats_headers=stats_headers)
+        away_participants = _get_participants_stats(doc=doc, is_home=False, stats_headers=stats_headers)
+
+        print(home_participants)
+        # referees =
+
+
+        raise Exception
+
+        # Teams ids
+        teams = doc("div[class='logo_equipo']")
+        home_team_id = teams.eq(0)('a').attr('href')
+        away_team_id = teams.eq(1)('a').attr('href')
+        home_team_id = int(re.search(r'/id/([0-9]+)/', home_team_id).group(1))
+        away_team_id = int(re.search(r'/id/([0-9]+)/', away_team_id).group(1))
+
+
         pass
 
 

@@ -8,6 +8,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def find_all_indices(lst, item):
+    """
+    Finds the indices of item (even if duplicated)
+    :param lst:
+    :param item:
+    :return:
+    """
+    return [i for i, x in enumerate(lst) if x == item]
+
 def replace_nth_ocurrence(source, n, letter, new_value):
     """
     Replace the nth ocurrence from an array

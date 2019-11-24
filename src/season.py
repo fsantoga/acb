@@ -5,16 +5,16 @@ from pyquery import PyQuery as pq
 from tools.log import logger
 from models.game import Game
 from models.team import Team
+from models.participant import Participant
 from models.actor import Actor
 from variables import *
 from tools.lengua import get_playoff_games
 
 
-
-
 from_journey = 1
 to_journey = 54
 
+# TODO, hacer lingual mas generico y que cubra este caso
 PLAYOFF_MAPPER = {
     1994: [3, 5, 5],
     1995: [3, 5, 5],
@@ -124,6 +124,13 @@ class Season:
         :return:
         """
         Game.create_instances(self)
+
+    def populate_participants(self):
+        """
+        Populates the Participant table for a season
+        :return:
+        """
+        Participant.create_instances(self)
 
 
     def get_game_events_ids(self):
@@ -243,9 +250,10 @@ class Season:
         return int(current_journey[0])
 
 s = Season(2017)
-s.download_teams()
-s.populate_teams()
-s.populate_games()
+# s.download_teams()
+# s.populate_teams()
+# s.populate_games()
+s.populate_participants()
 # s.download_teams()
 # s.download_games()
 # s.download_actors()
