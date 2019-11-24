@@ -80,6 +80,7 @@ class Team(BaseModel):
         content = _get_season_page(season)
         parser_string = f"<div class=\"foto\"><a href=\"/club/plantilla/id/([0-9]+)/temporada_id/{season.season}\" title=\"(.*?)\">"
         teams = re.findall(r''+parser_string, content, re.DOTALL)
+        teams = [(int(team_id), team_name) for team_id, team_name in teams]  # convert ids to int
         teams = dict(teams)
         logger.info(f"There are {len(teams)} teams: {teams}")
 
@@ -135,8 +136,8 @@ class Team(BaseModel):
         :param team_id:
         :return:
         """
-        filename = os.path.join(TEAMS_PATH, team_id + '-information.html')
-        url = os.path.join(f"http://www.acb.com/club/informacion/id/{team_id}")
+        filename = os.path.join(TEAMS_PATH, str(team_id) + '-information.html')
+        url = os.path.join(f"http://www.acb.com/club/informacion/id/{str(team_id)}")
         logger.info(f"Retrieving information page from: {url}")
         return open_or_download(file_path=filename, url=url)
 

@@ -150,35 +150,27 @@ class Game(BaseModel):
         doc = pq(content)
 
         season_year = season.season
-        #game_dict['competition_phase'] = competition_phase
-        #game_dict['round_phase'] = round_phase
-
         teams = doc("div[class='logo_equipo']")
         home_team_id = teams.eq(0)('a').attr('href')
         away_team_id = teams.eq(1)('a').attr('href')
 
-        home_team_id = re.search(r'/id/([0-9]+)/', home_team_id).group(1)
-        away_team_id = re.search(r'/id/([0-9]+)/', away_team_id).group(1)
-        print(home_team_id, away_team_id)
+        home_team_id = int(re.search(r'/id/([0-9]+)/', home_team_id).group(1))
+        away_team_id = int(re.search(r'/id/([0-9]+)/', away_team_id).group(1))
 
         schedule = doc("div[class='datos_fecha roboto_bold colorweb_4 float-left bg_principal']").text()
         schedule = schedule.split('|')
         schedule = [s.strip() for s in schedule]
         journey, date, time, venue, attendance = schedule
-        print(game_id)
-        print(journey, date, time, attendance)
-        print(venue)
+
         if date and time:
             day, month, year = list(map(int, date.split("/")))
             hour, minute = list(map(int, time.split(":")))
             kickoff_time = datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute)
-            print(kickoff_time)
 
         if attendance:
             attendance = attendance.split(":")[1]
             attendance = attendance.replace('.', '')
             attendance = int(attendance)
-            print(attendance)
 
         if venue:  # the venue field is duplicated (e.g. Palau BlaugranaPalau Blaugrana)
             venue = venue[:len(venue)//2]
@@ -186,8 +178,6 @@ class Game(BaseModel):
         if journey:
             journey = journey.split()[1]
             journey = int(journey)
-            if season.competition in ['Copa', 'Supercopa']:
-                round_phase = ROUND_PHASE_MAPPER[journey]
 
         results = doc("div[class='info']")
 
@@ -234,25 +224,31 @@ class Game(BaseModel):
         home_scores = _get_scores(results, is_home=True)
         away_scores = _get_scores(results, is_home=False)
 
-        print(home_scores)
-        print(away_scores)
-
-        if competition_phase == 'playoff':
-            round_phase = season.playoff_games_to_phase_mapper[(home_team_id, away_team_id)]
+        if season.competition in ['Copa', 'Supercopa']:
+            round_phase = ROUND_PHASE_MAPPER[journey]
+        elif competition_phase == 'playoff':
+            print(season.playoff_games_to_phase_mapper[season_year])
+            print(home_team_id, away_team_id, game_id)
+            round_phase = season.playoff_games_to_phase_mapper[season_year][(home_team_id, away_team_id)]
         else:
             round_phase = None
 
+        game_data = {
+            'id': game_id,
+            'team_home_id': home_team_id,
+            'team_away_id': away_team_id,
+            'season': season_year,
+            'journey': journey,
+            'competition_phase': competition_phase,
+            'round_phase': round_phase,
+            'venue': venue,
+            'attendance': attendance,
+            'kickoff_time': kickoff_time,
 
-
-
-
-        # print(home_tag, away_tag)
-
-
-        raise Exception
-
-
-
+        }
+        game_data.update(home_scores)
+        game_data.update(away_scores)
+        Game.create(**game_data)
 
     # @staticmethod
     # def save_games(season, logging_level=logging.INFO):
