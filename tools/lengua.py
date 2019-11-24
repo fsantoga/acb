@@ -2,7 +2,8 @@ from src.download import open_or_download
 from variables import PLAYOFF_PATH
 from pyquery import PyQuery as pq
 from collections import defaultdict
-from tools.log import logger
+from fuzzywuzzy import process
+from fuzzywuzzy import fuzz
 
 # Generate the phases we want to query
 FINAL = 'POT_FINAL'
@@ -15,8 +16,6 @@ PLAYOFF_NAME_MAPPER = {
     SEMIFINAL: 'semifinal',
     QUARTER_FINALS: 'quarter_finals',
 }
-
-
 
 
 def open_or_download_lengua(phase, season_year):
@@ -56,15 +55,18 @@ def proccess_lengua(content):
 
 
 def convert_to_teams_ids(games, season):
+    """
+    Converts the lengua team names to acb team ids using fuzzy search
+    :param games:
+    :param season:
+    :return:
+    """
     teams = season.teams
     # Revert dict (name -> id)
     teams = {v: k for k, v in teams.items()}
     teams_names = list(teams.keys())
 
     actual_games = list()
-    from fuzzywuzzy import process
-    from fuzzywuzzy import fuzz
-
     for (team_1, team_2) in games:
         most_likely_coincide_1, threshold_1 = process.extractOne(team_1, teams_names, scorer=fuzz.token_set_ratio)
         most_likely_coincide_2, threshold_2 = process.extractOne(team_2, teams_names, scorer=fuzz.token_set_ratio)
@@ -86,7 +88,6 @@ def get_playoff_games(season=None):
         season_year = season.season
         content = open_or_download_lengua(phase=phase, season_year=season_year)
         games = proccess_lengua(content=content)
-        print(games)
         games = convert_to_teams_ids(games=games, season=season)
         for i in games:
             results[season_year][i] = PLAYOFF_NAME_MAPPER[phase]
