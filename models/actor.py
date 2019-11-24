@@ -111,6 +111,12 @@ class Actor(BaseModel):
 
     @staticmethod
     def create_instances(season):
+        """
+        Inserts all the actors and actornames of a season to the database.
+
+        :param season:
+        :return:
+        """
         players, coaches, referees = Actor.get_actors(season, unique=False)
 
         with db.atomic():
@@ -134,6 +140,14 @@ class Actor(BaseModel):
 
     @staticmethod
     def create_instance(actor_id, category):
+        """
+        Creates an Actor instance.
+        The category could be: `player`, `coach` or `referee`
+
+        :param actor_id:
+        :param category:
+        :return:
+        """
         actor, created = Actor.get_or_create(**{'id': actor_id, 'category': category})
         if not created:  # If the actor exists, we do not need to insert it
             return
@@ -249,6 +263,12 @@ class Actor(BaseModel):
             return players_ids, coaches_ids, referees_ids
 
     def _get_personal_info(self, content):
+        """
+        Extracts the personal information of an actor.
+
+        :param content:
+        :return:
+        """
         doc = pq(content)
 
         display_name = doc("h1[class='f-l-a-100 roboto_condensed_bold mayusculas']").text()
@@ -334,7 +354,7 @@ class Actor(BaseModel):
     def _get_instagram(self, content):
         """
         Get the instagram of an actor, if it exists.
-        :param raw_doc: String
+        :param content: String
         :return: twitter
         """
         doc = pq(content)
@@ -345,6 +365,12 @@ class Actor(BaseModel):
         return
 
     def _download_photo(self, content, folder):
+        """
+        Downloads the photo of a player.
+        :param content:
+        :param folder:
+        :return:
+        """
         doc = pq(content)
         photo_url = doc("div[class='foto']")
         photo_url = photo_url("img").attr("src")
@@ -375,4 +401,11 @@ class ActorName(BaseModel):
 
     @staticmethod
     def create_instance(actor_id, actor_name):
+        """
+        Creates an ActorName object.
+
+        :param actor_id:
+        :param actor_name:
+        :return:
+        """
         ActorName.get_or_create(**{'actor_id': actor_id, 'name': actor_name})

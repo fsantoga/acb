@@ -36,11 +36,8 @@ class Team(BaseModel):
     @staticmethod
     def create_instances(season):
         """
-        Create the database instances of the teams.
-        Whenever we introduce a new Team in our database we will also store all its historical names in teamnames.
-        Note that we have a teamname for a single team and season, as those may change due to the sponsors.
-        However, the same teams always have the same acbid so we can link them.
-        Besides we will add the founded year.
+        Inserts the teams and teamnames of a season in the database.
+
         :param season: int
         :return:
         """

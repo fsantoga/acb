@@ -128,6 +128,12 @@ class Game(BaseModel):
 
     @staticmethod
     def create_instances(season):
+        """
+        Inserts all the games of a season in the database.
+
+        :param season:
+        :return:
+        """
         games_ids = Game.get_games_ids(season)
 
         n_regular_games = season.get_number_games_regular_season()
@@ -143,6 +149,8 @@ class Game(BaseModel):
         """
         Creates a Game object.
 
+        Example from: acb.com/partido/estadisticas/id/18102
+
         :param game_id:
         :param season:
         :param competition_phase:
@@ -150,12 +158,15 @@ class Game(BaseModel):
         """
         def _get_scores(doc, is_home):
             """
-            Get the scores of the team for the game
+            Get the scores of the team for the game.
+
             :param doc:
             :param is_home:
             :return:
             """
             # Final score
+            # <div class="resultado local roboto_bold victoria">87</div>
+            # <div class="resultado visitante roboto_bold derrota">70</div>
             tag = 'local' if is_home else 'visitante'
             score = doc(f"div[class='resultado {tag} roboto_bold victoria']")
             if not score:
@@ -164,16 +175,44 @@ class Game(BaseModel):
             score = int(score)
 
             # Partial scores
+            # <tr>
+            #   <th>&nbsp;</th>
+            #   <th>&nbsp;</th>
+            #   <th>1</th>
+            #   <th>2</th>
+            #   <th>3</th>
+            #   <th>4</th>
+            # </tr>
+            # <tr>
+            #   <td class="equipo mayusculas victoria">KIR</td>
+            #   <td class="blanco">&nbsp;</td>
+            #   <td class="parcial victoria">18</td>
+            #   <td class="parcial victoria">26</td>
+            #   <td class="parcial derrota">15</td>
+            #   <td class="parcial victoria">28</td>
+            #   <td class="blanco">&nbsp;</td>
+            # </tr>
+            # <tr>
+            #   <td class="equipo mayusculas derrota">UNI</td>
+            #   <td class="blanco">&nbsp;</td>
+            #   <td class="parcial derrota">16</td>
+            #   <td class="parcial derrota">20</td>
+            #   <td class="parcial victoria">20</td>
+            #   <td class="parcial derrota">14</td>
+            #   <td class="blanco">&nbsp;</td>
+            # </tr>
             partial_scores = {}
             partial_scores_doc = doc('tr')
-            tr_id = 1 if is_home else 2
+            tr_id = 1 if is_home else 2  # index 0 is junk data
             partial_scores_doc = list(partial_scores_doc.eq(tr_id)('td').items())
-            start = 2
-            end = len(partial_scores_doc)-1
+            start = 2  # omit first two td
+            end = len(partial_scores_doc)-1  # omit last td
+            quarter = 1
             while start < end:
                 quarter_score = partial_scores_doc[start].text()
                 quarter_score = int(quarter_score) if quarter_score else None
-                partial_scores[start-1] = quarter_score
+                partial_scores[quarter] = quarter_score
+                quarter += 1
                 start += 1
             if 5 not in partial_scores:  # add extra time info is missing
                 partial_scores[5] = None
@@ -210,6 +249,10 @@ class Game(BaseModel):
         season_year = season.season
 
         # Teams ids
+        # <div class="logo_equipo">
+        #   <a href="/club/plantilla/id/3/equipo-KIROLBET-BASKONIA">
+        # <div class="logo_equipo">
+        #   <a href="/club/plantilla/id/14/equipo-UNICAJA">
         teams = doc("div[class='logo_equipo']")
         home_team_id = teams.eq(0)('a').attr('href')
         away_team_id = teams.eq(1)('a').attr('href')
@@ -217,10 +260,15 @@ class Game(BaseModel):
         away_team_id = int(re.search(r'/id/([0-9]+)/', away_team_id).group(1))
 
         # Schedule information
+        # <div class="datos_fecha roboto_bold colorweb_4 float-left bg_principal">
+        # JORNADA 35 | 27/05/2018 | 18:30<span class="clase_mostrar768"> |
+        # </span><br class="clase_ocultar_768" /><span class="clase_ocultar_1280">Fernando Buesa Arena</span>
+        # <span class="clase_mostrar1280">Fernando Buesa Arena</span> | Público: 10.084</div>
         schedule = doc("div[class='datos_fecha roboto_bold colorweb_4 float-left bg_principal']").text()
         schedule = schedule.split('|')
         schedule = [s.strip() for s in schedule]
         journey, date, time, venue, attendance = schedule
+        kickoff_time = None
 
         if date and time:
             day, month, year = list(map(int, date.split("/")))
