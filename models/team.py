@@ -9,6 +9,13 @@ from variables import TEAMS_PATH
 from src.download import validate_dir
 import re
 
+COOKIES = {
+    'acepta_uso_cookies': '1',
+    'forosacbcom_u': '1',
+    'forosacbcom_k': '',
+    'forosacbcom_sid': 'FFD~21d43aee99bee89138ba91bc285687d4',
+    'PHPSESSID': 'neq0ak7jfjv1spa5ion3gkm43r',
+}
 
 class Team(BaseModel):
     """
@@ -31,6 +38,7 @@ class Team(BaseModel):
         teams = Team.get_teams(season)
         for team_id in teams.keys():
             Team._download_team_information_webpage(team_id)
+            Team._download_roster(team_id, season)
         logger.info(f"Download finished! (new {len(teams)} teams in {season.TEAMS_PATH})\n")
 
     @staticmethod
@@ -139,6 +147,19 @@ class Team(BaseModel):
         return open_or_download(file_path=filename, url=url)
 
     @staticmethod
+    def _download_roster(team_id, season):
+        """
+        Downloads the roster of a team of a given season.
+        :param team_id:
+        :param season:
+        :return:
+        """
+        filename = os.path.join(season.TEAMS_PATH, str(team_id) + '-roster.html')
+        url = os.path.join(f"http://www.acb.com/club/plantilla/id/{str(team_id)}/temporada_id/{season.season}")
+        logger.info(f"Retrieving roster page from: {url}")
+        return open_or_download(file_path=filename, url=url, cookies=COOKIES)
+
+    @staticmethod
     def open_or_download_team_webpage(team_id, season):
         """
         Downloads the team webpage for a season.
@@ -150,14 +171,7 @@ class Team(BaseModel):
         url = os.path.join(f"http://www.acb.com/club/plantilla/id/{team_id}/temporada_id/{season.season}")
         logger.info(f"Retrieving information of the team from: {url}")
 
-        cookies = {
-            'acepta_uso_cookies': '1',
-            'forosacbcom_u': '1',
-            'forosacbcom_k': '',
-            'forosacbcom_sid': 'FFD~21d43aee99bee89138ba91bc285687d4',
-            'PHPSESSID': 'neq0ak7jfjv1spa5ion3gkm43r',
-        }
-        content = open_or_download(file_path=filename, url=url, cookies=cookies)
+        content = open_or_download(file_path=filename, url=url, cookies=COOKIES)
         return content
 
 

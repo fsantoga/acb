@@ -129,6 +129,7 @@ class Participant(BaseModel):
                 if i == 0 or i==1: continue  # first two are blank
                 if stat_info.attr('class') == 'totales': continue  #TODO: sacar info de EQUIPO o no?
                 for k, stat in enumerate(stat_info('td').items()):
+                    if k == 0 and stat.text() == '5f': break
                     if stats_headers[k] == 'Nombre':  # extract id from href attribute
                         # TODO: esta approach esta mal porque asume que siempre existe el id del actor
                         # lo que no es cierto siempre... si no tiene id hay que ir a buscarlo...
@@ -136,7 +137,14 @@ class Participant(BaseModel):
                         # tambien para players y para coaches en la clase Actor.
                         actor_id = stat('a').attr('href')
                         print(actor_id, game_id)
-                        actor_id = re.search(r'/jugador/ver/([0-9]+)-', actor_id).group(1)
+                        if not actor_id and stat.text() == 'Equipo':  # `Equipo` player
+                            actor_id = -1
+                        elif stat.attr('class') == 'nombre entrenador':
+                            actor_id = re.search(r'/entrenador/ver/([0-9]+)-', actor_id).group(1)
+                        elif stat.attr('class') == 'nombre jugador ellipsis':
+                            actor_id = re.search(r'/jugador/ver/([0-9]+)-', actor_id).group(1)
+                        else:
+                            raise NotImplementedError
                         actor_id = int(actor_id)
                         participants[stats_headers[k]] = actor_id
                     else:
@@ -159,7 +167,6 @@ class Participant(BaseModel):
         # referees =
 
 
-        raise Exception
 
         # Teams ids
         teams = doc("div[class='logo_equipo']")

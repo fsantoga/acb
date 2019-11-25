@@ -71,7 +71,7 @@ def open_or_download_photo(file_path, url=None):
             logger.error('Error downloading image: {}'.format(url))
             logger.error(e)
     else:
-        raise FileNotFoundError
+        raise FileNotFoundError(file_path)
 
 
 def download(file_path, url):

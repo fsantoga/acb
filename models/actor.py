@@ -23,8 +23,8 @@ ACTORS_FOLDER_MAPPER = {
     'referee': REFEREES_PATH,
 }
 
-class Actor(BaseModel):
 
+class Actor(BaseModel):
     """
     Class representing an Actor.
     An actor can be a `player`, `coach` or `referee`.
@@ -183,27 +183,32 @@ class Actor(BaseModel):
         :param: unique:
         :return:
         """
-        def _get_all_actors(game):
-            """
-            Iterates over all the games and extract the players and coaches
-            :param game:
-            :return:
-            """
+        def _get_actors_from_game(game):
             with open(game, 'r', encoding="utf8") as f:
                 content = f.read()
             players = re.findall(
-                r'<td class="nombre jugador ellipsis"><a href="/jugador/ver/([0-9]+)-.*?">(.*?)</a></td>',
+                r'<td class="nombre jugador ellipsis"><a href=".*?([0-9]+).*?">(.+?)</a></td>',
                 content, re.DOTALL)
-            coaches = re.findall(r'<td class="nombre entrenador"><a href="/entrenador/ver/([0-9]+)-.*?">(.*?)</a></td>',
+            coaches = re.findall(r'<td class="nombre entrenador"><a href=".*?([0-9]+).*?">(.+?)</a></td>',
                                  content, re.DOTALL)
-            referees = re.findall(r'<a href="/arbitro/ver/id/([0-9]+)">(.*?)</a>', content, re.DOTALL)
+            referees = re.findall(r'<a href="/arbitro/ver/id/([0-9]+)">(.+?)</a>', content, re.DOTALL)
             return players, coaches, referees
 
-        def fix_referees(referees):
-            """
-            Fix the missing ids of the referees of the season.
+        def _get_actors_from_team(team):
+            with open(team, 'r', encoding="utf8") as f:
+                content = f.read()
+            players = re.findall(
+                r'<div class="nombre roboto_condensed_bold ellipsis"><a href="/jugador/ver/([0-9]+).*?">(.+?)</a></td>',
+                content, re.DOTALL)
+            coaches = re.findall(r'<div class="nombre roboto_condensed_bold"><a href="/entrenador/ver/([0-9]+).*?">(.+?)</a></td>',
+                                 content, re.DOTALL)
+            return players, coaches
 
-            Sometimes there are referees with id=0. So far, we've seen this when the name of the referee
+        def fix_actors(actors):
+            """
+            Fix the missing ids of the actors of the season.
+
+            Sometimes there are referees with id=0. So far, we've seen this when the name of the actor
             is in contracted form:
             - ('0', 'Aliaga, Jordi')
             Its equivalent match is -so far- in the list of referees:
@@ -211,49 +216,80 @@ class Actor(BaseModel):
 
             The approach to solve this problem is to do fuzzy search.
 
-            :param referees:
+            :param actors:
             :return:
             """
-            correct_referees = dict()
-            invalid_referees = set()
+            correct_actors = dict()
+            invalid_actors = set()
 
-            # Distinguish referees with id=0 (invalid_referees) and referees with ids (correct_referees)
-            for referee_id, referee_name in referees:
-                if referee_id != '0':
-                    if referee_name in correct_referees and correct_referees[referee_name] != referee_id:
-                        raise DuplicatedActorId(f"{referee_name}, {correct_referees[referee_name]}, {referee_id}")
-                    correct_referees[referee_name] = referee_id
+            MISSING_PLAYERS = {
+                'Treviño, Pau': 20212992,
+                'Lecomte, Manu': 30000010,
+            }
+
+            # Distinguish actors with id=0 (invalid_actors) and actors with ids (correct_actors)
+            for actor_id, actor_name in actors:
+                if actor_id != '0':
+                    if actor_name in correct_actors and correct_actors[actor_name] != actor_id:  # duplicated
+                        raise DuplicatedActorId(f"{actor_name}, {correct_actors[actor_name]}, {actor_id}")
+                    correct_actors[actor_name] = actor_id
                 else:
-                    invalid_referees.add(referee_name)
+                    if actor_name in MISSING_PLAYERS:
+                        correct_actors[actor_name] = MISSING_PLAYERS[actor_name]
+                    else:
+                        invalid_actors.add(actor_name)
 
             # Do fuzzy search for each invalid referee
-            invalid_referees = list(invalid_referees)
-            correct_referees_names = list(correct_referees.keys())
-            for referee in invalid_referees:
-                most_likely_coincide, threshold = process.extractOne(referee, correct_referees_names, scorer=fuzz.token_set_ratio)
-                logger.warning(f"referee {referee} was match to {most_likely_coincide} with threshold {threshold}")
-                assert threshold > 75, f"the threshold is too low for {referee} and match: {most_likely_coincide}"
-                correct_referees[referee] = correct_referees[most_likely_coincide]
+            invalid_actors = list(invalid_actors)
+            correct_actors_names = list(correct_actors.keys())
+
+            # Check if the actor name exists in database
+            for actor_name in invalid_actors:
+                try:
+                    actor = ActorName.get(name=actor_name)
+                    correct_actors[actor_name] = actor.actor_id
+                    invalid_actors.remove(actor_name)
+                except ActorName.DoesNotExist:
+                    pass
+
+            # Otherwise, do fuzzy search
+            for actor_name in invalid_actors:
+                most_likely_coincide, threshold = process.extractOne(actor_name, correct_actors_names, scorer=fuzz.token_set_ratio)
+                logger.warning(f"actor {actor_name} was match to {most_likely_coincide} with threshold {threshold}")
+                assert threshold > 75, f"the threshold is too low for {actor_name} and match: {most_likely_coincide}"
+                correct_actors[actor_name] = correct_actors[most_likely_coincide]
 
             # Convert back to set
-            correct_referees = [(v, k) for k, v in correct_referees.items()]
-            return correct_referees
+            correct_actors = [(v, k) for k, v in correct_actors.items()]
+            return correct_actors
 
         players_ids = set()
         coaches_ids = set()
         referees_ids = set()
         games_files = glob.glob(f"{season.GAMES_PATH}/*.html")
+        teams_files = glob.glob(f"{season.TEAMS_PATH}/*-roster.html")
         if len(games_files) == 0:
             raise InvalidCallException(message='season.download_games() must be called first')
+        if len(teams_files) == 0:
+            raise InvalidCallException(message='season.download_teams() must be called first')
 
+        # Get actors from games
         for game in games_files:
-            players, coaches, referees = _get_all_actors(game)
+            players, coaches, referees = _get_actors_from_game(game)
             players_ids.update(players)
             coaches_ids.update(coaches)
             referees_ids.update(referees)
 
+        # Get actors from rosters (team)
+        for team in teams_files:
+            players, coaches = _get_actors_from_team(team)
+            players_ids.update(players)
+            coaches_ids.update(coaches)
+
         # Fix the referees
-        referees_ids = fix_referees(referees_ids)
+        players_ids = fix_actors(players_ids)
+        coaches_ids = fix_actors(coaches_ids)
+        referees_ids = fix_actors(referees_ids)
 
         # Elegant solution to remove duplicates
         # from https://www.geeksforgeeks.org/python-remove-tuples-having-duplicate-first-value-from-given-list-of-tuples/
@@ -374,7 +410,7 @@ class Actor(BaseModel):
         doc = pq(content)
         photo_url = doc("div[class='foto']")
         photo_url = photo_url("img").attr("src")
-        if photo_url == '/Images/Web/silueta2.gif':  # no photo
+        if not photo_url or photo_url == '/Images/Web/silueta2.gif':  # no photo
             return
         photo_filename = os.path.join(folder, 'photos', self.id + '.jpg')
         open_or_download_photo(file_path=photo_filename, url=photo_url)
@@ -392,7 +428,7 @@ class ActorName(BaseModel):
     """
     id = PrimaryKeyField()
     actor_id = ForeignKeyField(Actor, related_name='names', index=True)
-    name = CharField(max_length=255)
+    name = CharField(max_length=510)
 
     class Meta:
         indexes = (
