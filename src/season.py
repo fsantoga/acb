@@ -252,7 +252,7 @@ class Season:
 s = Season(2017)
 s.download_teams()
 # s.download_games()
-#s.download_actors()
+s.download_actors()
 s.populate_teams()
 s.populate_games()
 s.populate_actors()

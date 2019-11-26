@@ -5,7 +5,7 @@ import glob
 import logging
 from pyquery import PyQuery as pq
 from src.download import open_or_download, sanity_check, open_or_download_photo
-from src.utils import cast_duples
+from src.utils import cast_duples, flatten
 from models.basemodel import BaseModel, db
 from peewee import (PrimaryKeyField, TextField,
                     DoubleField, DateTimeField, CompositeKey, ForeignKeyField, CharField, IntegerField)
@@ -16,7 +16,7 @@ from models.team import Team
 from tools.log import logger
 from tools.checkpoint import Checkpoint
 from collections import OrderedDict
-from tools.exceptions import DuplicatedActorId
+from tools.exceptions import DuplicatedActorId, MissingActorName
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
@@ -124,24 +124,28 @@ class Actor(BaseModel):
 
         with db.atomic():
             # Insert referees
-            for referee_id, referee_name in referees:
-                assert referee_id != 0
-                Actor.create_instance(actor_id=referee_id, category='referee')
-                ActorName.create_instance(actor_id=referee_id, team_id=0, season=season.season, actor_name=referee_name)
+            for team_id, team_referees in referees.items():  # in this case team_id=0 for referees
+                for referee_id, referee_name in team_referees:
+                    assert referee_id != 0, (referee_id, referee_name)
+                    Actor.create_instance(actor_id=referee_id, category='referee')
+                    if referee_name != '':  # sometimes you have the id but not the name
+                        ActorName.create_instance(actor_id=referee_id, team_id=team_id, season=season.season, actor_name=referee_name)
 
             # Insert coaches
             for team_id, team_coaches in coaches.items():
                 for coach_id, coach_name in team_coaches:
-                    assert coach_id != 0
+                    assert coach_id != 0, (coach_id, coach_name)
                     Actor.create_instance(actor_id=coach_id, category='coach')
-                    ActorName.create_instance(actor_id=coach_id, team_id=team_id, season=season.season, actor_name=coach_name)
+                    if coach_name != '':
+                        ActorName.create_instance(actor_id=coach_id, team_id=team_id, season=season.season, actor_name=coach_name)
 
             # Insert players
             for team_id, team_players in players.items():
                 for player_id, player_name in team_players:
-                    assert player_id != 0
+                    assert player_id != 0, (player_id, player_name)
                     Actor.create_instance(actor_id=player_id, category='player')
-                    ActorName.create_instance(actor_id=player_id, team_id=team_id, season=season.season, actor_name=player_name)
+                    if player_name != '':
+                        ActorName.create_instance(actor_id=player_id, team_id=team_id, season=season.season, actor_name=player_name)
 
     @staticmethod
     def create_instance(actor_id, category):
@@ -193,36 +197,80 @@ class Actor(BaseModel):
                 content = f.read()
             doc = pq(content)
             tag = 'partido' if is_home else 'partido visitante'
-            doc = doc(f"section[class='{tag}']").html()
-            players = re.findall(
-                r'<td class="nombre jugador ellipsis"><a href=".*?([0-9]+).*?">(.+?)</a></td>',
-                doc, re.DOTALL)
-            coaches = re.findall(r'<td class="nombre entrenador"><a href=".*?([0-9]+).*?">(.+?)</a></td>',
-                                 doc, re.DOTALL)
+            doc = doc(f"section[class='{tag}']")
+            players = []
+            players_doc = doc("td[class='nombre jugador ellipsis']")
+            for player in players_doc.items():
+                p_name = player('a').text()
+                p_id = player('a').attr('href')
+                if p_name == '' and p_id is None:
+                    continue
+
+                p_id = re.search('/jugador/ver/([0-9]+).*?', p_id)
+                if p_id:
+                    p_id = p_id.group(1)
+                else:
+                    p_id = 0
+                players.append((p_id, p_name))
+
+            coaches = []
+            coaches_doc = doc("td[class='nombre entrenador']")
+            for coach in coaches_doc.items():
+                p_name = coach('a').text()
+                p_id = coach('a').attr('href')
+                if p_name == '' and p_id is None:
+                    continue
+
+                p_id = re.search('/entrenador/ver/([0-9]+).*?', p_id)
+                if p_id:
+                    p_id = p_id.group(1)
+                else:
+                    p_id = 0
+                coaches.append((p_id, p_name))
 
             # Get the referees from the content, not from the team
-            referees = re.findall(r'<a href="/arbitro/ver/id/([0-9]+)">(.+?)</a>', content, re.DOTALL)
-
-            players = cast_duples(players, int, str)
-            coaches = cast_duples(coaches, int, str)
-            referees = cast_duples(referees, int, str)
+            referees = re.findall(r'<a href="/arbitro/ver/id/([0-9]+)">(.*?)</a>', content, re.DOTALL)
+            players = cast_duples(players)
+            coaches = cast_duples(coaches)
+            referees = cast_duples(referees)
             return players, coaches, referees
 
         def _get_actors_from_team(team_file):
             with open(team_file, 'r', encoding="utf8") as f:
                 content = f.read()
-            players = re.findall(
-                r'<div class="nombre roboto_condensed_bold.*?"><a href="/jugador/ver/([0-9]+).*?">\s*(.*?)\s*</a></div>',
-                content, re.DOTALL)
-            coaches = re.findall(
-                r'<div class="nombre roboto_condensed_bold.*?"><a href="/entrenador/ver/([0-9]+).*?">\s*(.*?)\s*</a></div>',
-                content, re.DOTALL)
+            doc = pq(content)
+            players = []
+            players_doc = doc("div[class='grid_plantilla principal']")
+            players_doc = players_doc("div[class='foto']")
+            for player in players_doc.items():
+                p_id = player('a').attr('href')
+                p_id = re.search('/jugador/ver/([0-9]+).*?', p_id).group(1)
+                p_name = player('a').attr('title')
+                players.append((p_id, p_name))
 
-            players = cast_duples(players, int, str)
-            coaches = cast_duples(coaches, int, str)
+            # Categorias inferiores
+            players_doc = doc("div[class='grid_plantilla']")
+            players_doc = players_doc("div[class='foto']")
+            for player in players_doc.items():
+                p_id = player('a').attr('href')
+                p_id = re.search('/jugador/ver/([0-9]+).*?', p_id).group(1)
+                p_name = player('a').attr('title')
+                players.append((p_id, p_name))
+
+            coaches = []
+            coaches_doc = doc("div[class='grid_plantilla mb20']")
+            coaches_doc = coaches_doc("div[class='foto']")
+            for coach in coaches_doc.items():
+                p_id = coach('a').attr('href')
+                p_id = re.search('/entrenador/ver/([0-9]+).*?', p_id).group(1)
+                p_name = coach('a').attr('title')
+                coaches.append((p_id, p_name))
+
+            players = cast_duples(players)
+            coaches = cast_duples(coaches)
             return players, coaches
 
-        def fix_actors(actors):
+        def fix_actors(actors, category):
             """
             Fix the missing ids of the actors of the season.
 
@@ -237,54 +285,56 @@ class Actor(BaseModel):
             :param actors:
             :return:
             """
-            correct_actors = dict()
-            invalid_actors = set()
+            print(actors)
+            fixed_actors = dict()
+            for team_id, team_actors in actors.items():
+                correct_actors = dict()
+                invalid_actors = set()
 
-            MISSING_PLAYERS = {
-                'Treviño, Pau': 20212992,
-                'Lecomte, Manu': 30000010,
-            }
+                # Distinguish actors with id=0 (invalid_actors) and actors with ids (correct_actors)
+                for actor_id, actor_name in team_actors:
+                    if actor_id != 0:
+                        # Case when missing name but already inside
+                        if actor_name == '':
+                            if any(a_id == actor_id and a_name != '' for a_id, a_name in team_actors):
+                                continue
+                            else:
+                                raise MissingActorName(f"{actor_id} team {team_id} and category {category}")
 
-            # Distinguish actors with id=0 (invalid_actors) and actors with ids (correct_actors)
-            for actor_id, actor_name in actors:
-                if actor_id != '0':
-                    if actor_name in correct_actors and correct_actors[actor_name] != actor_id:  # duplicated
-                        raise DuplicatedActorId(f"{actor_name}, {correct_actors[actor_name]}, {actor_id}")
-                    correct_actors[actor_name] = actor_id
-                else:
-                    if actor_name in MISSING_PLAYERS:
-                        correct_actors[actor_name] = MISSING_PLAYERS[actor_name]
-                    else:
-                        invalid_actors.add(actor_name)
+                        # Case duplicated actors
+                        if actor_name in correct_actors and correct_actors[actor_name] != actor_id:  # duplicated
+                            raise DuplicatedActorId(f"{actor_name}, {correct_actors[actor_name]}, {actor_id}, team: {team_id} and category {category}")
+                        correct_actors[actor_name] = actor_id
 
-            # Do fuzzy search for each invalid referee
-            invalid_actors = list(invalid_actors)
-            correct_actors_names = list(correct_actors.keys())
+                # Do fuzzy search for each invalid referee
+                invalid_actors = list(invalid_actors)
+                correct_actors_names = list(correct_actors.keys())
 
-            # Check if the actor name exists in database
-            for actor_name in invalid_actors:
-                try:
-                    actor = ActorName.get(name=actor_name)
-                    correct_actors[actor_name] = actor.actor_id
-                    invalid_actors.remove(actor_name)
-                except ActorName.DoesNotExist:
-                    pass
+                # Check if the actor name exists in database for that team
+                for actor_name in invalid_actors:
+                    try:
+                        actor = ActorName.get(name=actor_name, team_id=team_id)
+                        correct_actors[actor_name] = actor.actor_id
+                        invalid_actors.remove(actor_name)
+                    except ActorName.DoesNotExist:
+                        pass
 
-            # Otherwise, do fuzzy search
-            for actor_name in invalid_actors:
-                most_likely_coincide, threshold = process.extractOne(actor_name, correct_actors_names, scorer=fuzz.token_set_ratio)
-                logger.warning(f"actor {actor_name} was match to {most_likely_coincide} with threshold {threshold}")
-                assert threshold > 75, f"the threshold is too low for {actor_name} and match: {most_likely_coincide}"
-                correct_actors[actor_name] = correct_actors[most_likely_coincide]
+                # Otherwise, do fuzzy search between the actors of the team
+                for actor_name in invalid_actors:
+                    most_likely_coincide, threshold = process.extractOne(actor_name, correct_actors_names, scorer=fuzz.token_set_ratio)
+                    logger.warning(f"actor {actor_name} was match to {most_likely_coincide} with threshold {threshold}")
+                    assert threshold > 75, f"the threshold is too low for {actor_name} and match: {most_likely_coincide}"
+                    correct_actors[actor_name] = correct_actors[most_likely_coincide]
 
-            # Convert back to set
-            correct_actors = [(v, k) for k, v in correct_actors.items()]
-            return correct_actors
+                # Convert back to set
+                correct_actors = [(v, k) for k, v in correct_actors.items()]
+                fixed_actors[team_id] = correct_actors
+            return fixed_actors
 
         from collections import defaultdict
         players_ids = defaultdict(set)
         coaches_ids = defaultdict(set)
-        referees_ids = set()
+        referees_ids = defaultdict(set)
         games_files = glob.glob(f"{season.GAMES_PATH}/*.html")
         teams_files = glob.glob(f"{season.TEAMS_PATH}/*-roster.html")
         if len(games_files) == 0:
@@ -301,7 +351,7 @@ class Actor(BaseModel):
             coaches_ids[home_team].update(home_coaches)
             players_ids[away_team].update(away_players)
             coaches_ids[away_team].update(away_coaches)
-            referees_ids.update(referees)
+            referees_ids[0].update(referees)
 
         # Get actors from rosters (team)
         for team in teams_files:
@@ -311,13 +361,16 @@ class Actor(BaseModel):
             coaches_ids[team_id].update(coaches)
 
         # Fix the referees
-        # players_ids = fix_actors(players_ids)
-        # coaches_ids = fix_actors(coaches_ids)
-        # referees_ids = fix_actors(referees_ids)
+        players_ids = fix_actors(players_ids, category='player')
+        coaches_ids = fix_actors(coaches_ids, category='coach')
+        referees_ids = fix_actors(referees_ids, category='referee')
 
         # Elegant solution to remove duplicates
         # from https://www.geeksforgeeks.org/python-remove-tuples-having-duplicate-first-value-from-given-list-of-tuples/
         if unique:
+            players_ids = flatten(players_ids.values())
+            coaches_ids = flatten(coaches_ids.values())
+            referees_ids = flatten(referees_ids.values())
             return OrderedDict(players_ids).items(), OrderedDict(coaches_ids).items(), OrderedDict(referees_ids).items()
         else:
             return players_ids, coaches_ids, referees_ids
@@ -436,7 +489,7 @@ class Actor(BaseModel):
         photo_url = photo_url("img").attr("src")
         if not photo_url or photo_url == '/Images/Web/silueta2.gif':  # no photo
             return
-        photo_filename = os.path.join(folder, 'photos', self.id + '.jpg')
+        photo_filename = os.path.join(folder, 'photos', str(self.id) + '.jpg')
         open_or_download_photo(file_path=photo_filename, url=photo_url)
 
     @staticmethod
@@ -456,7 +509,7 @@ class ActorName(BaseModel):
     name = CharField(max_length=510)
 
     class Meta:
-        primary_key = CompositeKey('actor_id', 'team_id', 'season')
+        primary_key = CompositeKey('actor_id', 'team_id', 'season', 'name')
 
     @staticmethod
     def create_instance(actor_id, team_id, season, actor_name):

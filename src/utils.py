@@ -8,9 +8,18 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def cast_duples(tuples, type_1, type_2):
+def flatten(to_flat):
     """
-    Cast the elements of a duple to type_1 and type_2 respectively.
+    Flattens a list. From: [[a], [b], [c,d]] -> [a,b,c,d]
+    :param to_flat:
+    :return:
+    """
+    return [item for sublist in to_flat for item in sublist]
+
+
+def cast_duples(tuples):
+    """
+    Cast the elements of a duple to int and str respectively.
 
     :param tuples:
     :param type_1:
@@ -20,7 +29,7 @@ def cast_duples(tuples, type_1, type_2):
     if len(tuples) == 0:
         return []
     assert len(tuples[0]) == 2
-    return [(type_1(x[0]), type_2(x[1])) for x in tuples]
+    return [(int(x[0]), str(x[1]).strip()) for x in tuples]
 
 
 def find_all_indices(lst, item):
