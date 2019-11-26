@@ -82,5 +82,5 @@ class BaseModel(Model):
     class Meta:
         database = db
 
-# reset_database()
-# create_schema()
+reset_database()
+create_schema()

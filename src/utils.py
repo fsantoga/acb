@@ -8,6 +8,21 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def cast_duples(tuples, type_1, type_2):
+    """
+    Cast the elements of a duple to type_1 and type_2 respectively.
+
+    :param tuples:
+    :param type_1:
+    :param type_2:
+    :return:
+    """
+    if len(tuples) == 0:
+        return []
+    assert len(tuples[0]) == 2
+    return [(type_1(x[0]), type_2(x[1])) for x in tuples]
+
+
 def find_all_indices(lst, item):
     """
     Finds the indices of item (even if duplicated)

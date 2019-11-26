@@ -124,7 +124,7 @@ class Participant(BaseModel):
         def _get_participants_stats(doc, is_home, stats_headers):
             participants = dict()
             tag = 0 if is_home else 1
-            stats = doc("table[data-toggle='table-estadisticas']").eq(tag)('tr')
+            stats = doc("div[class='logo_equipo']").eq(tag)('tr')
             for i, stat_info in enumerate(stats.items()):
                 if i == 0 or i==1: continue  # first two are blank
                 if stat_info.attr('class') == 'totales': continue  #TODO: sacar info de EQUIPO o no?

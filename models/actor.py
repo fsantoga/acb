@@ -5,11 +5,14 @@ import glob
 import logging
 from pyquery import PyQuery as pq
 from src.download import open_or_download, sanity_check, open_or_download_photo
+from src.utils import cast_duples
 from models.basemodel import BaseModel, db
 from peewee import (PrimaryKeyField, TextField,
-                    DoubleField, DateTimeField, BooleanField, ForeignKeyField, CharField, IntegerField)
+                    DoubleField, DateTimeField, CompositeKey, ForeignKeyField, CharField, IntegerField)
 from tools.exceptions import InvalidCallException
+from models.game import Game
 from variables import PLAYERS_PATH, COACHES_PATH, REFEREES_PATH
+from models.team import Team
 from tools.log import logger
 from tools.checkpoint import Checkpoint
 from collections import OrderedDict
@@ -124,19 +127,21 @@ class Actor(BaseModel):
             for referee_id, referee_name in referees:
                 assert referee_id != 0
                 Actor.create_instance(actor_id=referee_id, category='referee')
-                ActorName.create_instance(actor_id=referee_id, actor_name=referee_name)
+                ActorName.create_instance(actor_id=referee_id, team_id=0, season=season.season, actor_name=referee_name)
 
             # Insert coaches
-            for coach_id, coach_name in coaches:
-                assert coach_id != 0
-                Actor.create_instance(actor_id=coach_id, category='coach')
-                ActorName.create_instance(actor_id=coach_id, actor_name=coach_name)
+            for team_id, team_coaches in coaches.items():
+                for coach_id, coach_name in team_coaches:
+                    assert coach_id != 0
+                    Actor.create_instance(actor_id=coach_id, category='coach')
+                    ActorName.create_instance(actor_id=coach_id, team_id=team_id, season=season.season, actor_name=coach_name)
 
             # Insert players
-            for player_id, player_name in players:
-                assert player_id != 0
-                Actor.create_instance(actor_id=player_id, category='player')
-                ActorName.create_instance(actor_id=player_id, actor_name=player_name)
+            for team_id, team_players in players.items():
+                for player_id, player_name in team_players:
+                    assert player_id != 0
+                    Actor.create_instance(actor_id=player_id, category='player')
+                    ActorName.create_instance(actor_id=player_id, team_id=team_id, season=season.season, actor_name=player_name)
 
     @staticmethod
     def create_instance(actor_id, category):
@@ -152,7 +157,7 @@ class Actor(BaseModel):
         if not created:  # If the actor exists, we do not need to insert it
             return
 
-        filename = os.path.join(ACTORS_FOLDER_MAPPER[category], actor_id + '.html')
+        filename = os.path.join(ACTORS_FOLDER_MAPPER[category], str(actor_id) + '.html')
         content = open_or_download(file_path=filename)
 
         if '<div class="cuerpo cuerpo_equipo">' not in content:
@@ -183,25 +188,38 @@ class Actor(BaseModel):
         :param: unique:
         :return:
         """
-        def _get_actors_from_game(game):
+        def _get_actors_from_game(game, is_home):
             with open(game, 'r', encoding="utf8") as f:
                 content = f.read()
+            doc = pq(content)
+            tag = 'partido' if is_home else 'partido visitante'
+            doc = doc(f"section[class='{tag}']").html()
             players = re.findall(
                 r'<td class="nombre jugador ellipsis"><a href=".*?([0-9]+).*?">(.+?)</a></td>',
-                content, re.DOTALL)
+                doc, re.DOTALL)
             coaches = re.findall(r'<td class="nombre entrenador"><a href=".*?([0-9]+).*?">(.+?)</a></td>',
-                                 content, re.DOTALL)
+                                 doc, re.DOTALL)
+
+            # Get the referees from the content, not from the team
             referees = re.findall(r'<a href="/arbitro/ver/id/([0-9]+)">(.+?)</a>', content, re.DOTALL)
+
+            players = cast_duples(players, int, str)
+            coaches = cast_duples(coaches, int, str)
+            referees = cast_duples(referees, int, str)
             return players, coaches, referees
 
-        def _get_actors_from_team(team):
-            with open(team, 'r', encoding="utf8") as f:
+        def _get_actors_from_team(team_file):
+            with open(team_file, 'r', encoding="utf8") as f:
                 content = f.read()
             players = re.findall(
-                r'<div class="nombre roboto_condensed_bold ellipsis"><a href="/jugador/ver/([0-9]+).*?">(.+?)</a></td>',
+                r'<div class="nombre roboto_condensed_bold.*?"><a href="/jugador/ver/([0-9]+).*?">\s*(.*?)\s*</a></div>',
                 content, re.DOTALL)
-            coaches = re.findall(r'<div class="nombre roboto_condensed_bold"><a href="/entrenador/ver/([0-9]+).*?">(.+?)</a></td>',
-                                 content, re.DOTALL)
+            coaches = re.findall(
+                r'<div class="nombre roboto_condensed_bold.*?"><a href="/entrenador/ver/([0-9]+).*?">\s*(.*?)\s*</a></div>',
+                content, re.DOTALL)
+
+            players = cast_duples(players, int, str)
+            coaches = cast_duples(coaches, int, str)
             return players, coaches
 
         def fix_actors(actors):
@@ -263,8 +281,9 @@ class Actor(BaseModel):
             correct_actors = [(v, k) for k, v in correct_actors.items()]
             return correct_actors
 
-        players_ids = set()
-        coaches_ids = set()
+        from collections import defaultdict
+        players_ids = defaultdict(set)
+        coaches_ids = defaultdict(set)
         referees_ids = set()
         games_files = glob.glob(f"{season.GAMES_PATH}/*.html")
         teams_files = glob.glob(f"{season.TEAMS_PATH}/*-roster.html")
@@ -275,21 +294,26 @@ class Actor(BaseModel):
 
         # Get actors from games
         for game in games_files:
-            players, coaches, referees = _get_actors_from_game(game)
-            players_ids.update(players)
-            coaches_ids.update(coaches)
+            home_team, away_team = Game.get_teams(game)
+            home_players, home_coaches, referees = _get_actors_from_game(game, is_home=True)
+            away_players, away_coaches, _ = _get_actors_from_game(game, is_home=False)
+            players_ids[home_team].update(home_players)
+            coaches_ids[home_team].update(home_coaches)
+            players_ids[away_team].update(away_players)
+            coaches_ids[away_team].update(away_coaches)
             referees_ids.update(referees)
 
         # Get actors from rosters (team)
         for team in teams_files:
-            players, coaches = _get_actors_from_team(team)
-            players_ids.update(players)
-            coaches_ids.update(coaches)
+            team_id = re.search(r'([0-9]+)-roster.html', team).group(1)
+            players, coaches = _get_actors_from_team(team_file=team)
+            players_ids[team_id].update(players)
+            coaches_ids[team_id].update(coaches)
 
         # Fix the referees
-        players_ids = fix_actors(players_ids)
-        coaches_ids = fix_actors(coaches_ids)
-        referees_ids = fix_actors(referees_ids)
+        # players_ids = fix_actors(players_ids)
+        # coaches_ids = fix_actors(coaches_ids)
+        # referees_ids = fix_actors(referees_ids)
 
         # Elegant solution to remove duplicates
         # from https://www.geeksforgeeks.org/python-remove-tuples-having-duplicate-first-value-from-given-list-of-tuples/
@@ -426,17 +450,16 @@ class ActorName(BaseModel):
     """
         Class representing a ActorName.
     """
-    id = PrimaryKeyField()
-    actor_id = ForeignKeyField(Actor, related_name='names', index=True)
+    actor_id = ForeignKeyField(Actor)
+    team_id = ForeignKeyField(Team)
+    season = IntegerField()
     name = CharField(max_length=510)
 
     class Meta:
-        indexes = (
-            (('actor_id', 'name'), True),
-        )
+        primary_key = CompositeKey('actor_id', 'team_id', 'season')
 
     @staticmethod
-    def create_instance(actor_id, actor_name):
+    def create_instance(actor_id, team_id, season, actor_name):
         """
         Creates an ActorName object.
 
@@ -444,4 +467,4 @@ class ActorName(BaseModel):
         :param actor_name:
         :return:
         """
-        ActorName.get_or_create(**{'actor_id': actor_id, 'name': actor_name})
+        ActorName.get_or_create(**{'actor_id': actor_id, 'team_id': team_id, 'season': season, 'name': actor_name})
