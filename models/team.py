@@ -9,13 +9,7 @@ from variables import TEAMS_PATH
 from src.download import validate_dir
 import re
 
-COOKIES = {
-    'acepta_uso_cookies': '1',
-    'forosacbcom_u': '1',
-    'forosacbcom_k': '',
-    'forosacbcom_sid': 'FFD~21d43aee99bee89138ba91bc285687d4',
-    'PHPSESSID': 'neq0ak7jfjv1spa5ion3gkm43r',
-}
+
 
 class Team(BaseModel):
     """
@@ -154,10 +148,19 @@ class Team(BaseModel):
         :param season:
         :return:
         """
+
+        cookies = {
+            'validate_cookies': '1',
+            'acepta_uso_cookies': '1',
+            'forosacbcom_u': '1',
+            'forosacbcom_k': '',
+            'forosacbcom_sid': 'FFD~c54cdcf83d36966fa739316ef1eed79d',
+            'PHPSESSID': 'ac4qq6t0eshgn16knunmhn6j7f',
+        }
         filename = os.path.join(season.TEAMS_PATH, str(team_id) + '-roster.html')
         url = os.path.join(f"http://www.acb.com/club/plantilla/id/{str(team_id)}/temporada_id/{season.season}")
         logger.info(f"Retrieving roster page from: {url}")
-        return open_or_download(file_path=filename, url=url, cookies=COOKIES)
+        return open_or_download(file_path=filename, url=url, cookies=cookies)
 
     @staticmethod
     def open_or_download_team_webpage(team_id, season):
@@ -167,11 +170,18 @@ class Team(BaseModel):
         :param season:
         :return:
         """
+        cookies = {
+            'acepta_uso_cookies': '1',
+            'forosacbcom_u': '1',
+            'forosacbcom_k': '',
+            'forosacbcom_sid': 'FFD~21d43aee99bee89138ba91bc285687d4',
+            'PHPSESSID': 'neq0ak7jfjv1spa5ion3gkm43r',
+        }
         filename = os.path.join(season.TEAMS_PATH, team_id, f"{team_id}.html")
         url = os.path.join(f"http://www.acb.com/club/plantilla/id/{team_id}/temporada_id/{season.season}")
         logger.info(f"Retrieving information of the team from: {url}")
 
-        content = open_or_download(file_path=filename, url=url, cookies=COOKIES)
+        content = open_or_download(file_path=filename, url=url, cookies=cookies)
         return content
 
 
