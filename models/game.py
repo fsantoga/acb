@@ -91,6 +91,22 @@ class Game(BaseModel):
         logger.info(f"Download finished! (new {len(games_ids)} games in {season.GAMES_PATH})\n")
 
     @staticmethod
+    def get_teams(game_file):
+        def _get_team(game_file, is_home):
+            with open(game_file, 'r', encoding="utf8") as f:
+                content = f.read()
+            doc = pq(content)
+            doc = doc("div[class='contenedora_info_principal']")
+            tag = 0 if is_home else 1
+
+            team_id = doc("div[class='logo_equipo']").eq(tag)('a').attr('href')
+            team_id = re.search(r'/club/plantilla/id/([0-9]+)/', team_id).group(1)
+            return team_id
+        home_team = _get_team(game_file, is_home=True)
+        away_team = _get_team(game_file, is_home=False)
+        return home_team, away_team
+
+    @staticmethod
     def get_games_ids(season):
         """
         Get the games ids of a given season.
