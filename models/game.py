@@ -1,12 +1,12 @@
 import os.path, re, datetime, difflib, logging
 from pyquery import PyQuery as pq
-from src.download import open_or_download, sanity_check_game, sanity_check_game_copa
+# from src.download import open_or_download, sanity_check_game, sanity_check_game_copa
 from models.basemodel import BaseModel, db
 from models.team import Team, TeamName
 from peewee import (PrimaryKeyField, IntegerField, DateTimeField, ForeignKeyField, BooleanField, CharField)
 from src.utils import get_current_season
 from tools.log import logger, init_logging
-from src.download import open_or_download, get_page
+from src.download import DownloadManager, File
 from tools.checkpoint import Checkpoint
 
 init_logging('game.log')
@@ -53,6 +53,7 @@ class Game(BaseModel):
     referee_3 = CharField(max_length=255, null=True)
     db_flag = BooleanField(null=True)
 
+
     @staticmethod
     def download(season):
         """
@@ -77,12 +78,16 @@ class Game(BaseModel):
             """
             url = f"http://www.acb.com/partido/estadisticas/id/{game_id}"
             filename = os.path.join(season.GAMES_PATH, f"{game_id}.html")
-            open_or_download(file_path=filename, url=url)
+            file = File(filename)
+            file.open_or_download(url=url, download_manager=dm)
+
+        # Download manager object
+        dm = DownloadManager()
 
         # TODO: En la implementacion anterior hay una distincion si la season es la actual o no. Por que?
         # TODO: ver metodo Game.save_games()
         logger.info(f"Starting to download games for season {season.season}")
-        games_ids = Game.get_games_ids(season)
+        games_ids = Game.get_games_ids(season, download_manager=dm)
         checkpoint = Checkpoint(length=len(games_ids), chunks=10, msg='already downloaded')
 
         for game_id in games_ids:
@@ -93,8 +98,8 @@ class Game(BaseModel):
     @staticmethod
     def get_teams(game_file):
         def _get_team(game_file, is_home):
-            with open(game_file, 'r', encoding="utf8") as f:
-                content = f.read()
+            file = File(game_file)
+            content = file.open()
             doc = pq(content)
             doc = doc("div[class='contenedora_info_principal']")
             tag = 0 if is_home else 1
@@ -107,7 +112,7 @@ class Game(BaseModel):
         return home_team, away_team
 
     @staticmethod
-    def get_games_ids(season):
+    def get_games_ids(season, download_manager=None):
         """
         Get the games ids of a given season.
         :param season:
@@ -121,7 +126,8 @@ class Game(BaseModel):
             """
             url = f"http://www.acb.com/resultados-clasificacion/ver/temporada_id/{season.season}/edicion_id/"
             filename = os.path.join(season.JOURNEYS_PATH, "journeys-ids.html")
-            content = open_or_download(file_path=filename, url=url)
+            file = File(filename)
+            content = file.open_or_download(url=url, download_manager=download_manager)
             doc = pq(content)
 
             journeys_ids = doc("div[class='listado_elementos listado_jornadas bg_gris_claro']").eq(0)
@@ -136,7 +142,8 @@ class Game(BaseModel):
             url = f"http://www.acb.com/resultados-clasificacion/ver/temporada_id/{season.season}/edicion_id/undefined/jornada_id/{journey_id}"
             logger.info(f"Retrieving games from {url}")
             filename = os.path.join(season.JOURNEYS_PATH, f"journey-{i}.html")
-            content = open_or_download(file_path=filename, url=url)
+            file = File(filename)
+            content = file.open_or_download(url=url, download_manager=download_manager)
 
             game_ids_journey = re.findall(r'<a href="/partido/estadisticas/id/([0-9]+)" title="Estadísticas">', content, re.DOTALL)
             games_ids.extend(game_ids_journey)
@@ -258,7 +265,8 @@ class Game(BaseModel):
             return
 
         filename = os.path.join(season.GAMES_PATH, game_id + '.html')
-        content = open_or_download(file_path=filename)
+        file = File(filename)
+        content = file.open()
         doc = pq(content)
 
         # Season year
@@ -334,44 +342,44 @@ class Game(BaseModel):
         game_data.update(away_scores)
         Game.create(**game_data)
 
-    @staticmethod
-    def save_games_copa(season, logging_level=logging.INFO):
-        """
-        Method for saving locally the games of a season.
-
-        :param season: int
-        :param logging_level: logging object
-        :return:
-        """
-        logging.basicConfig(level=logging_level)
-        logger = logging.getLogger(__name__)
-
-        logger.info('Starting the download of games...')
-
-        if season.season == get_current_season():
-            current_game_events_ids = season.get_current_game_events_ids_copa()
-            game_ids_list = list(current_game_events_ids.values())
-        else:
-            game_ids_list=season.get_game_ids_copa()
-
-        n_checkpoints = 4
-        checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
-        for i in range(len(game_ids_list)):
-
-            game_id=int(game_ids_list[i]) % 1000
-            url2 = BASE_URL + "/fichas/CREY{}.php".format(game_ids_list[i])
-            filename = os.path.join(season.GAMES_COPA_PATH, str(game_id)+"-" +str(game_ids_list[i]) + '.html')
-
-            open_or_download(file_path=filename, url=url2)
-            if i in checkpoints:
-                logger.info('{}% already downloaded'.format(round(float(i * 100) / len(game_ids_list))))
-
-        logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_COPA_PATH))
-
-    @staticmethod
-    def sanity_check(season, logging_level=logging.INFO):
-        sanity_check_game(season.GAMES_PATH, logging_level)
-
-    @staticmethod
-    def sanity_check_copa(season, logging_level=logging.INFO):
-        sanity_check_game_copa(season.GAMES_COPA_PATH, logging_level)
+    # @staticmethod
+    # def save_games_copa(season, logging_level=logging.INFO):
+    #     """
+    #     Method for saving locally the games of a season.
+    #
+    #     :param season: int
+    #     :param logging_level: logging object
+    #     :return:
+    #     """
+    #     logging.basicConfig(level=logging_level)
+    #     logger = logging.getLogger(__name__)
+    #
+    #     logger.info('Starting the download of games...')
+    #
+    #     if season.season == get_current_season():
+    #         current_game_events_ids = season.get_current_game_events_ids_copa()
+    #         game_ids_list = list(current_game_events_ids.values())
+    #     else:
+    #         game_ids_list=season.get_game_ids_copa()
+    #
+    #     n_checkpoints = 4
+    #     checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
+    #     for i in range(len(game_ids_list)):
+    #
+    #         game_id=int(game_ids_list[i]) % 1000
+    #         url2 = BASE_URL + "/fichas/CREY{}.php".format(game_ids_list[i])
+    #         filename = os.path.join(season.GAMES_COPA_PATH, str(game_id)+"-" +str(game_ids_list[i]) + '.html')
+    #
+    #         open_or_download(file_path=filename, url=url2)
+    #         if i in checkpoints:
+    #             logger.info('{}% already downloaded'.format(round(float(i * 100) / len(game_ids_list))))
+    #
+    #     logger.info('Download finished! (new {} games in {})\n'.format(len(game_ids_list), season.GAMES_COPA_PATH))
+    #
+    # @staticmethod
+    # def sanity_check(season, logging_level=logging.INFO):
+    #     sanity_check_game(season.GAMES_PATH, logging_level)
+    #
+    # @staticmethod
+    # def sanity_check_copa(season, logging_level=logging.INFO):
+    #     sanity_check_game_copa(season.GAMES_COPA_PATH, logging_level)

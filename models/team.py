@@ -1,14 +1,13 @@
 import os.path
 from pyquery import PyQuery as pq
 from peewee import ForeignKeyField
-from src.download import open_or_download
+from src.download import File, DownloadManager
 from models.basemodel import BaseModel
 from peewee import (PrimaryKeyField, CharField, IntegerField)
 from tools.log import logger
 from variables import TEAMS_PATH
-from src.download import validate_dir
+from src.utils import validate_dir
 import re
-
 
 
 class Team(BaseModel):
@@ -28,11 +27,14 @@ class Team(BaseModel):
         :param season:
         :return:
         """
+        # Download manager object
+        dm = DownloadManager()
+
         # Get the teams of the season
-        teams = Team.get_teams(season)
+        teams = Team.get_teams(season, download_manager=dm)
         for team_id in teams.keys():
-            Team._download_team_information_webpage(team_id)
-            Team._download_roster(team_id, season)
+            Team._download_team_information_webpage(team_id, dm)
+            Team._download_roster(team_id, season, dm)
         logger.info(f"Download finished! (new {len(teams)} teams in {season.TEAMS_PATH})\n")
 
     @staticmethod
@@ -54,7 +56,7 @@ class Team(BaseModel):
             TeamName.create_instance(team_id, team_name, season)
 
     @staticmethod
-    def get_teams(season):
+    def get_teams(season, download_manager=None):
         """
         Extracts the teams for the season (id -> team_name)
 
@@ -73,8 +75,13 @@ class Team(BaseModel):
             teams_filename = os.path.join(season.TEAMS_PATH, 'teams.html')
             teams_url = f"http://www.acb.com/club/index/temporada_id/{season.season}"
             logger.info(f"Downloading teams from {teams_url}")
-            season_page = open_or_download(file_path=teams_filename, url=teams_url)
+            file = File(teams_filename)
+            season_page = file.open_or_download(url=teams_url, download_manager=download_manager)
             return season_page
+
+        # First call to http://www.acb.com/club
+        if download_manager:
+            download_manager.send_request('http://www.acb.com/club')
 
         content = _get_season_page(season)
         parser_string = f"<div class=\"foto\"><a href=\"/club/plantilla/id/([0-9]+)/temporada_id/{season.season}\" title=\"(.*?)\">"
@@ -127,7 +134,7 @@ class Team(BaseModel):
         #     year = hardcoded_teams.get(team_acbid)
         #     return year
     @staticmethod
-    def _download_team_information_webpage(team_id):
+    def _download_team_information_webpage(team_id, download_manager=None):
         """
         Downloads the team information webpage.
 
@@ -136,53 +143,27 @@ class Team(BaseModel):
         :return:
         """
         filename = os.path.join(TEAMS_PATH, str(team_id) + '-information.html')
+        file = File(filename)
         url = os.path.join(f"http://www.acb.com/club/informacion/id/{str(team_id)}")
         logger.info(f"Retrieving information page from: {url}")
-        return open_or_download(file_path=filename, url=url)
+        return file.open_or_download(url=url, download_manager=download_manager)
 
     @staticmethod
-    def _download_roster(team_id, season):
+    def _download_roster(team_id, season, download_manager):
         """
         Downloads the roster of a team of a given season.
         :param team_id:
         :param season:
         :return:
         """
+        # First call to main team webpage
+        download_manager.send_request(f"http://www.acb.com/club/plantilla/id/{team_id}/")
 
-        cookies = {
-            'validate_cookies': '1',
-            'acepta_uso_cookies': '1',
-            'forosacbcom_u': '1',
-            'forosacbcom_k': '',
-            'forosacbcom_sid': 'FFD~c54cdcf83d36966fa739316ef1eed79d',
-            'PHPSESSID': 'ac4qq6t0eshgn16knunmhn6j7f',
-        }
         filename = os.path.join(season.TEAMS_PATH, str(team_id) + '-roster.html')
+        file = File(filename)
         url = os.path.join(f"http://www.acb.com/club/plantilla/id/{str(team_id)}/temporada_id/{season.season}")
         logger.info(f"Retrieving roster page from: {url}")
-        return open_or_download(file_path=filename, url=url, cookies=cookies)
-
-    @staticmethod
-    def open_or_download_team_webpage(team_id, season):
-        """
-        Downloads the team webpage for a season.
-        :param team:
-        :param season:
-        :return:
-        """
-        cookies = {
-            'acepta_uso_cookies': '1',
-            'forosacbcom_u': '1',
-            'forosacbcom_k': '',
-            'forosacbcom_sid': 'FFD~21d43aee99bee89138ba91bc285687d4',
-            'PHPSESSID': 'neq0ak7jfjv1spa5ion3gkm43r',
-        }
-        filename = os.path.join(season.TEAMS_PATH, team_id, f"{team_id}.html")
-        url = os.path.join(f"http://www.acb.com/club/plantilla/id/{team_id}/temporada_id/{season.season}")
-        logger.info(f"Retrieving information of the team from: {url}")
-
-        content = open_or_download(file_path=filename, url=url, cookies=cookies)
-        return content
+        return file.open_or_download(url=url, download_manager=download_manager)
 
 
 class TeamName(BaseModel):

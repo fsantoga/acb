@@ -3,9 +3,21 @@ from selenium.webdriver.firefox.options import Options, FirefoxProfile
 import platform
 import logging
 import datetime
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def validate_dir(folder):
+    """
+    Creates a directory if it doesn't already exist.
+
+    :param folder: String
+    """
+    if not os.path.exists(folder):
+        #print(folder)
+        os.makedirs(folder)
 
 
 def flatten(to_flat):

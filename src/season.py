@@ -1,6 +1,5 @@
 import re
 import numpy as np
-from src.download import open_or_download, download, get_page
 from pyquery import PyQuery as pq
 from tools.log import logger
 from models.game import Game
@@ -68,14 +67,13 @@ class Season:
             validate_dir(self.SHOTCHART_PATH)
 
         #self.current_journey=self.get_current_journey(season)
-        self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
+        # self.relegation_playoff_seasons = [1994, 1995, 1996, 1997]
 
         # Get the teams of the season
-        self.teams = Team.get_teams(self)
-        self.num_teams = len(self.teams)
-        self.playoff_games_to_phase_mapper = get_playoff_games(self)
+        self.teams = None
+        # self.num_teams = len(self.teams)
         # self.playoff_format = self.get_playoff_format()
-        self.mismatched_teams = []
+        # self.mismatched_teams = []
 
         #self.game_events_ids=self.get_game_events_ids()
         #self.game_ids=self.get_game_ids()
@@ -131,82 +129,89 @@ class Season:
         :return:
         """
         Participant.create_instances(self)
+    #
+    #
+    # def get_game_events_ids(self):
+    #     game_events_ids = {}
+    #     for i in range(from_journey, to_journey + 1):
+    #         url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,self.season_id)
+    #         content = get_page(url)
+    #
+    #         fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
+    #         game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
+    #         game_events_ids.update(dict(zip(fls_ids, game_ids)))
+    #
+    #     return game_events_ids
+    #
+    # def get_current_game_events_ids(self):
+    #     current_game_events_ids = {}
+    #     for i in range(from_journey, self.get_current_journey() + 1):
+    #         url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,self.season_id)
+    #         content = get_page(url)
+    #
+    #         fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
+    #         game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
+    #         current_game_events_ids.update(dict(zip(fls_ids, game_ids)))
+    #
+    #     return current_game_events_ids
+    #
+    #
+    # def get_playoff_format(self):
+    #     """
+    #     Gets the playoff format of the season.
+    #
+    #     TODO: now we do not have access to the playoff webpage, this method might fail in other cases...
+    #     TODO: e.g: get_number_games_playoff()
+    #
+    #     Source:
+    #     - https://web.archive.org/web/20190403020219/http://www.acb.com/playoff.php?cod_competicion=LACB&cod_edicion=62
+    #     - For 1994 and 1995: page 32 in http://www.acb.com/publicaciones/guia1995
+    #     """
+    #     logger.info(f"The playoff format is {PLAYOFF_MAPPER[self.season]}")
+    #     return PLAYOFF_MAPPER[self.season]
 
+    # def get_teams_ids(self):
+    #     # TODO: temporary solution
+    #     return list(self.teams.keys())
 
-    def get_game_events_ids(self):
-        game_events_ids = {}
-        for i in range(from_journey, to_journey + 1):
-            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,self.season_id)
-            content = get_page(url)
-
-            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
-            game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
-            game_events_ids.update(dict(zip(fls_ids, game_ids)))
-
-        return game_events_ids
-
-    def get_current_game_events_ids(self):
-        current_game_events_ids = {}
-        for i in range(from_journey, self.get_current_journey() + 1):
-            url = "http://jv.acb.com/historico.php?jornada={}&cod_competicion=LACB&cod_edicion={}".format(i,self.season_id)
-            content = get_page(url)
-
-            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
-            game_ids = re.findall(r'"http://www.acb.com/fichas/LACB([0-9]+).php', content, re.DOTALL)
-            current_game_events_ids.update(dict(zip(fls_ids, game_ids)))
-
-        return current_game_events_ids
-
-
-    def get_playoff_format(self):
-        """
-        Gets the playoff format of the season.
-
-        TODO: now we do not have access to the playoff webpage, this method might fail in other cases...
-        TODO: e.g: get_number_games_playoff()
-
-        Source:
-        - https://web.archive.org/web/20190403020219/http://www.acb.com/playoff.php?cod_competicion=LACB&cod_edicion=62
-        - For 1994 and 1995: page 32 in http://www.acb.com/publicaciones/guia1995
-        """
-        logger.info(f"The playoff format is {PLAYOFF_MAPPER[self.season]}")
-        return PLAYOFF_MAPPER[self.season]
-
-    def get_teams_ids(self):
-        # TODO: temporary solution
-        return list(self.teams.keys())
+    @property
+    def playoff_games_to_phase_mapper(self):
+        # todo: comment
+        return get_playoff_games(self)
 
     def get_number_games_regular_season(self):
-        return (self.num_teams - 1) * self.num_teams
+        # todo: comment
+        self.teams = Team.get_teams(self)
+        return (len(self.teams) - 1) * len(self.teams)
 
-    def get_number_games_playoff(self):
-        games_per_round = [4, 2, 1]  # Quarter-finals, semifinals, final.
-        try:
-            return sum(np.array(self.playoff_format) * np.array(games_per_round))  # Element-wise multiplication.
-        except Exception as e:
-            logger.info('No se ha jugado ningun partido de playoff...\n')
-            #print(e)
-            return 0
-
-    def get_number_games(self):
-        return self.get_number_games_regular_season() \
-               + self.get_number_games_playoff() \
-               + self.get_number_games_relegation_playoff()
-
-    def get_number_games_relegation_playoff(self):
-        return 5*2 if self.season in self.relegation_playoff_seasons else 0
-
-    def get_relegation_teams(self):
-        relegation_teams = {
-            # de aqui para atras incluso mas complicado...
-            1992: [48, 26, 12, 40], # Club Basket Ferrys Lliria, Caceres CB, CB Juver Murcia,  Argal Huesca
-            1993: [71, 12, 32, 40], # Fórum Valladolid, CB Murcia, Valvi Girona, Argal Huesca
-            1994: [13, 40, 32, 25], # Pamesa Valencia, Somontano Huesca, Valvi Girona, Breogán Lugo
-            1995: [58, 31, 22, 40], # Amway Zaragoza, Estudiantes Argentaria, Festina Andorra, Grupo AGB Huesca
-            1996: [71, 17, 58, 12], # Fórum Valladolid, Baloncesto Fuenlabrada, Xacobeo 99 Ourense, CB Murcia Artel
-            1997: [38,  1, 58, 26], # CB Ciudad De Huelva, Covirán Sierra Nevada Granada, Ourense Xacobeo 99, Caceres CB
-            # 1997-1998 fue la ultima temporada con esto
-        }
+    # def get_number_games_playoff(self):
+    #     games_per_round = [4, 2, 1]  # Quarter-finals, semifinals, final.
+    #     try:
+    #         return sum(np.array(self.playoff_format) * np.array(games_per_round))  # Element-wise multiplication.
+    #     except Exception as e:
+    #         logger.info('No se ha jugado ningun partido de playoff...\n')
+    #         #print(e)
+    #         return 0
+    #
+    # def get_number_games(self):
+    #     return self.get_number_games_regular_season() \
+    #            + self.get_number_games_playoff() \
+    #            + self.get_number_games_relegation_playoff()
+    #
+    # def get_number_games_relegation_playoff(self):
+    #     return 5*2 if self.season in self.relegation_playoff_seasons else 0
+    #
+    # def get_relegation_teams(self):
+    #     relegation_teams = {
+    #         # de aqui para atras incluso mas complicado...
+    #         1992: [48, 26, 12, 40], # Club Basket Ferrys Lliria, Caceres CB, CB Juver Murcia,  Argal Huesca
+    #         1993: [71, 12, 32, 40], # Fórum Valladolid, CB Murcia, Valvi Girona, Argal Huesca
+    #         1994: [13, 40, 32, 25], # Pamesa Valencia, Somontano Huesca, Valvi Girona, Breogán Lugo
+    #         1995: [58, 31, 22, 40], # Amway Zaragoza, Estudiantes Argentaria, Festina Andorra, Grupo AGB Huesca
+    #         1996: [71, 17, 58, 12], # Fórum Valladolid, Baloncesto Fuenlabrada, Xacobeo 99 Ourense, CB Murcia Artel
+    #         1997: [38,  1, 58, 26], # CB Ciudad De Huelva, Covirán Sierra Nevada Granada, Ourense Xacobeo 99, Caceres CB
+    #         # 1997-1998 fue la ultima temporada con esto
+    #     }
         # if self.season <= 1994:
         #     return {1994: }[self.season]
         # else:
@@ -220,42 +225,42 @@ class Season:
         #
         #     return relegation_teams
 
-    def get_current_journey(self):
-        filename = os.path.join(self.SEASON_PATH, 'current_journey_calendar.html')
-        url = BASE_URL + "resulcla.php"
-        content = download(file_path=filename, url=url)
-        doc = pq(content)
-        prox_journey=doc('.estnegro')('td').eq(1).text()
-        current_journey=(re.findall('\d+', prox_journey ))
-        return int(current_journey[0])
+    # def get_current_journey(self):
+    #     filename = os.path.join(self.SEASON_PATH, 'current_journey_calendar.html')
+    #     url = BASE_URL + "resulcla.php"
+    #     content = download(file_path=filename, url=url)
+    #     doc = pq(content)
+    #     prox_journey=doc('.estnegro')('td').eq(1).text()
+    #     current_journey=(re.findall('\d+', prox_journey ))
+    #     return int(current_journey[0])
+    #
+    # def get_next_journey(self):
+    #     current_journey=self.get_current_journey()
+    #
+    #     filename = os.path.join(self.SEASON_PATH, 'next_journey_calendar.html')
+    #     url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, current_journey+1)
+    #     content = download(file_path=filename, url=url)
+    #     doc = pq(content)
+    #     prox_journey=doc('.estnegro')('td').eq(1).text()
+    #     current_journey=(re.findall('\d+', prox_journey ))
+    #     return int(current_journey[0])
 
-    def get_next_journey(self):
-        current_journey=self.get_current_journey()
-
-        filename = os.path.join(self.SEASON_PATH, 'next_journey_calendar.html')
-        url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, current_journey+1)
-        content = download(file_path=filename, url=url)
-        doc = pq(content)
-        prox_journey=doc('.estnegro')('td').eq(1).text()
-        current_journey=(re.findall('\d+', prox_journey ))
-        return int(current_journey[0])
-
-    def get_journey(self, journey):
-        filename = os.path.join(self.SEASON_PATH, 'journey_{}_calendar.html').format(journey)
-        url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, journey)
-        content = download(file_path=filename, url=url)
-        doc = pq(content)
-        prox_journey = doc('.estnegro')('td').eq(1).text()
-        current_journey = (re.findall('\d+', prox_journey))
-        return int(current_journey[0])
+    # def get_journey(self, journey):
+    #     filename = os.path.join(self.SEASON_PATH, 'journey_{}_calendar.html').format(journey)
+    #     url = BASE_URL + "resulcla.php?codigo=LACB-{}&jornada={}".format(self.season_id, journey)
+    #     content = download(file_path=filename, url=url)
+    #     doc = pq(content)
+    #     prox_journey = doc('.estnegro')('td').eq(1).text()
+    #     current_journey = (re.findall('\d+', prox_journey))
+    #     return int(current_journey[0])
 
 s = Season(2018)
-s.download_teams()
-s.download_games()
-s.download_actors()
-s.populate_teams()
-s.populate_games()
-s.populate_actors()
+# s.download_teams()
+# s.download_games()
+# s.download_actors()
+# s.populate_teams()
+# s.populate_games()
+# s.populate_actors()
 s.populate_participants()
 
 #s.populate_games()

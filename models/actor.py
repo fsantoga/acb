@@ -5,7 +5,7 @@ import glob
 import logging
 from pyquery import PyQuery as pq
 from collections import defaultdict
-from src.download import open_or_download, sanity_check, open_or_download_photo
+from src.download import File, DownloadManager
 from src.utils import cast_duples, flatten
 from models.basemodel import BaseModel, db
 from peewee import (PrimaryKeyField, TextField,
@@ -61,8 +61,9 @@ class Actor(BaseModel):
             """
             filename = os.path.join(PLAYERS_PATH, f"{player_id}.html")
             url = os.path.join(f"http://www.acb.com/jugador/temporada-a-temporada/id/{player_id}")
+            file = File(filename)
             logger.info(f"Retrieving player webpage from: {url}")
-            open_or_download(file_path=filename, url=url)
+            file.open_or_download(url=url, download_manager=dm)
 
         def _download_coach(coach_id):
             """
@@ -72,8 +73,9 @@ class Actor(BaseModel):
             """
             filename = os.path.join(COACHES_PATH, f"{coach_id}.html")
             url = os.path.join(f"http://www.acb.com/entrenador/trayectoria-logros/id/{coach_id}")
+            file = File(filename)
             logger.info(f"Retrieving coach webpage from: {url}")
-            open_or_download(file_path=filename, url=url)
+            file.open_or_download(url=url, download_manager=dm)
 
         def _download_referee(referee_id):
             """
@@ -83,8 +85,37 @@ class Actor(BaseModel):
             """
             filename = os.path.join(REFEREES_PATH, f"{referee_id}.html")
             url = os.path.join(f"http://www.acb.com/arbitro/hitos-logros/id/{referee_id}")
+            file = File(filename)
             logger.info(f"Retrieving referee webpage from: {url}")
-            open_or_download(file_path=filename, url=url)
+            file.open_or_download(url=url, download_manager=dm)
+
+        def _download_photo(actor_id, folder, download_manager):
+            """
+            Downloads the photo of a player.
+            :param content:
+            :param folder:
+            :return:
+            """
+            filename = os.path.join(ACTORS_FOLDER_MAPPER['player'], str(player_id) + '.html')
+            file = File(filename)
+            content = file.open()
+            doc = pq(content)
+
+            # Ghost actor
+            if '<div class="cuerpo cuerpo_equipo">' not in content:
+                logger.error(f"Ghost actor: {actor_id}")
+                return
+
+            photo_url = doc("div[class='foto']")
+            photo_url = photo_url("img").attr("src")
+            if not photo_url or photo_url == '/Images/Web/silueta2.gif':  # no photo
+                return
+            photo_filename = os.path.join(folder, 'photos', str(actor_id) + '.jpg')
+            file = File(photo_filename)
+            file.open_or_download(url=photo_url, download_manager=download_manager)
+
+        # Download manager object
+        dm = DownloadManager()
 
         # Get the actors of the season
         players, coaches, referees = Actor.get_actors(season)
@@ -112,6 +143,15 @@ class Actor(BaseModel):
             next(checkpoint)
         logger.info(f"Downloaded {len(coaches_ids)} referees!")
 
+        # Download pictures
+        for player_id in players_ids:
+            _download_photo(player_id, ACTORS_FOLDER_MAPPER['player'], download_manager=dm)
+
+        for coach_id in coaches_ids:
+            _download_photo(coach_id, ACTORS_FOLDER_MAPPER['coach'], download_manager=dm)
+
+        for referee_id in referees_ids:
+            _download_photo(referee_id, ACTORS_FOLDER_MAPPER['referee'], download_manager=dm)
 
     @staticmethod
     def create_instances(season):
@@ -163,7 +203,8 @@ class Actor(BaseModel):
             return
 
         filename = os.path.join(ACTORS_FOLDER_MAPPER[category], str(actor_id) + '.html')
-        content = open_or_download(file_path=filename)
+        file = File(filename)
+        content = file.open()
 
         if '<div class="cuerpo cuerpo_equipo">' not in content:
             logger.error(f"Ghost actor: {actor_id} category: {category}")
@@ -172,7 +213,6 @@ class Actor(BaseModel):
         personal_info = actor._get_personal_info(content)
         twitter = actor._get_twitter(content)
         instagram = actor._get_instagram(content)
-        actor._download_photo(content, ACTORS_FOLDER_MAPPER[category])
 
         if twitter:
             personal_info.update({'twitter': twitter})
@@ -230,7 +270,7 @@ class Actor(BaseModel):
                 coaches.append((p_id, p_name))
 
             # Get the referees from the content, not from the team
-            referees = re.findall(r'<a href="/arbitro/ver/id/([0-9]+)">(.*?)</a>', content, re.DOTALL)
+            referees = re.findall(r'<a href="([0-9]+)>(.*?)</a>', content, re.DOTALL)
             players = cast_duples(players)
             coaches = cast_duples(coaches)
             referees = cast_duples(referees)
@@ -266,7 +306,7 @@ class Actor(BaseModel):
                 if not p_id:  # mixed players and coaches
                     continue
                 p_id = p_id.group(1)
-                p_name = player('span').text()
+                p_name = player("span[class='nombre_corto']").text()
                 players.append((p_id, p_name))
 
             # Coaches
@@ -287,10 +327,9 @@ class Actor(BaseModel):
                 if not p_id:  # mixed players and coaches
                     continue
                 p_id = p_id.group(1)
-                p_name = coach('span')
+                p_name = coach("span[class='nombre_corto']").text()
                 coaches.append((p_id, p_name))
 
-            print(team_file, players)
             players = cast_duples(players)
             coaches = cast_duples(coaches)
             return players, coaches
@@ -310,6 +349,34 @@ class Actor(BaseModel):
             :param actors:
             :return:
             """
+            MISSING_PLAYERS = {
+                                2018: {'5': {
+                                            'Diop, Khalifa': 20212905,
+                                            'Casimiro, L.': 20300176,
+                                             },
+                                        '6': {
+                                            'Giedraitis, Dovydas': 20212871,
+                                            'Arroyo, Ignacio': 20212736,
+                                             },
+                                        '10':{
+                                            'Treviño, Pau': 20212992,
+                                            'Òrrit, David': 20212339,
+                                        },
+                                        '13': {'Pavelka, T.': 50000000, # invented, it's not in acb.com
+
+                                        },
+                                        '17': {
+                                            'Macoha, Rodijs': 20213018,
+                                    },
+
+                                        '22':
+                                            {
+                                                'Landing Sané': 30000007
+                                             },
+
+                                }
+            }
+
             fixed_actors = dict()
             for team_id, team_actors in actors.items():
                 correct_actors = dict()
@@ -324,14 +391,22 @@ class Actor(BaseModel):
                                 continue
                             else:
                                 raise MissingActorName(f"{actor_id} team {team_id} and category {category}")
-
-                        # Case duplicated actors
-                        if actor_name in correct_actors and correct_actors[actor_name] != actor_id:  # duplicated
-                            raise DuplicatedActorId(f"{actor_name}, {correct_actors[actor_name]}, {actor_id}, team: {team_id} and category {category}")
                         else:
-                            correct_actors[actor_name] = actor_id
+                            # Case duplicated actors
+                            if team_id in MISSING_PLAYERS[season.season] and actor_name in MISSING_PLAYERS[season.season][team_id]:
+                                correct_actors[actor_name] = MISSING_PLAYERS[season.season][team_id][actor_name]
+
+                            elif actor_name in correct_actors and correct_actors[actor_name] != actor_id:  # duplicated
+                                raise DuplicatedActorId(f"{actor_name}, {correct_actors[actor_name]}, {actor_id}, team: {team_id} and category {category}")
+                            else:
+                                correct_actors[actor_name] = actor_id
                     else:
-                        invalid_actors.add(actor_name)
+                        if team_id in MISSING_PLAYERS[season.season] and actor_name in MISSING_PLAYERS[season.season][team_id]:
+                            correct_actors[actor_name] = MISSING_PLAYERS[season.season][team_id][actor_name]
+                        elif actor_name == '': # case ('0', '') junk
+                            continue
+                        else:
+                            invalid_actors.add(actor_name)
 
                 # Do fuzzy search for each invalid referee
                 invalid_actors = list(invalid_actors)
@@ -350,7 +425,7 @@ class Actor(BaseModel):
                 for actor_name in invalid_actors:
                     most_likely_coincide, threshold = process.extractOne(actor_name, correct_actors_names, scorer=fuzz.token_set_ratio)
                     logger.warning(f"actor {actor_name} was match to {most_likely_coincide} with threshold {threshold}")
-                    assert threshold > 75, f"the threshold is too low for {actor_name} and match: {most_likely_coincide} {team_id} {team_actors}"
+                    assert threshold > 75, f"the threshold is too low for {actor_name} and match: {most_likely_coincide} {type(team_id)}{team_id} {team_actors}"
                     correct_actors[actor_name] = correct_actors[most_likely_coincide]
 
                 # Convert back to set
@@ -379,19 +454,13 @@ class Actor(BaseModel):
             coaches_ids[away_team].update(away_coaches)
             referees_ids[0].update(referees)
 
-        print(players_ids['9'])
-
         # Get actors from rosters (team)
         for team in teams_files:
             team_id = re.search(r'([0-9]+)-roster.html', team).group(1)
-
             players, coaches = _get_actors_from_team(team_file=team)
             players_ids[team_id].update(players)
             coaches_ids[team_id].update(coaches)
-            if team_id == '9':
-                print(players)
-
-        print(players_ids['9'])
+            print(coaches)
 
         # Fix the referees
         players_ids = fix_actors(players_ids, category='player')
@@ -510,26 +579,12 @@ class Actor(BaseModel):
             return instagram
         return
 
-    def _download_photo(self, content, folder):
-        """
-        Downloads the photo of a player.
-        :param content:
-        :param folder:
-        :return:
-        """
-        doc = pq(content)
-        photo_url = doc("div[class='foto']")
-        photo_url = photo_url("img").attr("src")
-        if not photo_url or photo_url == '/Images/Web/silueta2.gif':  # no photo
-            return
-        photo_filename = os.path.join(folder, 'photos', str(self.id) + '.jpg')
-        open_or_download_photo(file_path=photo_filename, url=photo_url)
 
-    @staticmethod
-    def sanity_check(logging_level=logging.INFO):
-        from src.season import BASE_URL, PLAYERS_PATH, COACHES_PATH
-        sanity_check(PLAYERS_PATH, logging_level)
-        sanity_check(COACHES_PATH, logging_level)
+    # @staticmethod
+    # def sanity_check(logging_level=logging.INFO):
+    #     from src.season import BASE_URL, PLAYERS_PATH, COACHES_PATH
+    #     sanity_check(PLAYERS_PATH, logging_level)
+    #     sanity_check(COACHES_PATH, logging_level)
 
 
 class ActorName(BaseModel):

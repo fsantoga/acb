@@ -1,5 +1,5 @@
 import os
-from src.download import validate_dir
+from src.utils import validate_dir
 
 FIRST_SEASON = 1956
 LAST_SEASON = 2018

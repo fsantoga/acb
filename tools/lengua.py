@@ -1,9 +1,9 @@
-from src.download import open_or_download
 from variables import PLAYOFF_PATH
 from pyquery import PyQuery as pq
 from collections import defaultdict
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
+from src.download import DownloadManager, File
 
 # Generate the phases we want to query
 FINAL = 'POT_FINAL'
@@ -18,7 +18,7 @@ PLAYOFF_NAME_MAPPER = {
 }
 
 
-def open_or_download_lengua(phase, season_year):
+def open_or_download_lengua(phase, season_year, download_manager):
     """
     Open or download the lengua webpage for a given season and phase.
     :param phase:
@@ -30,7 +30,8 @@ def open_or_download_lengua(phase, season_year):
     url += f"s1=&s2=&saddtime1={season_lengua_year}&saddtime2={season_lengua_year}&sround1={phase}&sround2={phase}"
     url += '&sphase=PO&teambis1=&teambis2=&steamnamex1=&steamnamex2=&sscorebis=&seek=BUSCAR'
     filename = f"{PLAYOFF_PATH}/{season_year}-{PLAYOFF_NAME_MAPPER[phase]}.html"
-    return open_or_download(file_path=filename, url=url)
+    file = File(filename)
+    return file.open_or_download(url=url, download_manager=download_manager)
 
 
 def proccess_lengua(content):
@@ -86,7 +87,7 @@ def get_playoff_games(season=None):
     """
     def get_phase_games(results, phase, season):
         season_year = season.season
-        content = open_or_download_lengua(phase=phase, season_year=season_year)
+        content = open_or_download_lengua(phase=phase, season_year=season_year, download_manager=dm)
         games = proccess_lengua(content=content)
         games = convert_to_teams_ids(games=games, season=season)
         for i in games:
@@ -99,6 +100,8 @@ def get_playoff_games(season=None):
     else:
         seasons = [season]
 
+    # Download manager object
+    dm = DownloadManager()
     results = defaultdict(dict)
     for season in seasons:
         get_phase_games(results, phase=QUARTER_FINALS, season=season)

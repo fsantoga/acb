@@ -1,5 +1,5 @@
 import os, re, logging,difflib,datetime
-from src.download import validate_dir, open_or_download,download,get_page
+from src.utils import validate_dir, open_or_download,download,get_page
 import pandas as pd
 from pyquery import PyQuery as pq
 from models.team import TeamName
