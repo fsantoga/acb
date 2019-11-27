@@ -5,7 +5,7 @@ from src.utils import find_all_indices
 from models.basemodel import BaseModel, db
 from models.game import Game
 from models.team import Team
-from models.actor import Actor
+from models.actor import Actor, ActorName
 from peewee import (PrimaryKeyField, TextField, IntegerField,
                     ForeignKeyField, BooleanField,)
 import os
@@ -121,35 +121,39 @@ class Participant(BaseModel):
 
             return stats_headers
 
-        def _get_participants_stats(doc, is_home, stats_headers):
+        def _get_participants_stats(doc, is_home, team_id, season, stats_headers):
             participants = dict()
-            tag = 0 if is_home else 1
-            stats = doc("div[class='logo_equipo']").eq(tag)('tr')
+            tag = 'partido' if is_home else 'partido visitante'
+            stats = doc(f"section[class='{tag}']")('tr')
             for i, stat_info in enumerate(stats.items()):
                 if i == 0 or i==1: continue  # first two are blank
-                if stat_info.attr('class') == 'totales': continue  #TODO: sacar info de EQUIPO o no?
+                if stat_info.attr('class') == 'totales': continue
                 for k, stat in enumerate(stat_info('td').items()):
                     if k == 0 and stat.text() == '5f': break
                     if stats_headers[k] == 'Nombre':  # extract id from href attribute
-                        # TODO: esta approach esta mal porque asume que siempre existe el id del actor
-                        # lo que no es cierto siempre... si no tiene id hay que ir a buscarlo...
-                        # TODO: hay que hacer algo similar a lo que se hace con los referees
-                        # tambien para players y para coaches en la clase Actor.
                         actor_id = stat('a').attr('href')
-                        print(actor_id, game_id)
-                        if not actor_id and stat.text() == 'Equipo':  # `Equipo` player
+                        category = ''
+                        actor_name = stat.text()
+                        print(game_id, actor_id, stat.text())
+                        if not actor_id and actor_name == 'Equipo':  # `Equipo` player
                             actor_id = -1
                         elif stat.attr('class') == 'nombre entrenador':
-                            actor_id = re.search(r'/entrenador/ver/([0-9]+)-', actor_id).group(1)
+                            actor_id = re.search(r'([0-9]+)', actor_id).group(1)
+                            category = 'player'
                         elif stat.attr('class') == 'nombre jugador ellipsis':
-                            actor_id = re.search(r'/jugador/ver/([0-9]+)-', actor_id).group(1)
+                            actor_id = re.search(r'([0-9]+)', actor_id).group(1)
                         else:
                             raise NotImplementedError
                         actor_id = int(actor_id)
+                        if actor_id == 0:  # the id is not in the game
+                            try:
+                                actor_id = ActorName.get(**{'team_id': team_id, 'season': season, 'name': actor_name})
+                            except ActorName.DoesNotExist:
+                                raise Exception(f"'actor does not exist team_id': {team_id}, 'season': {season}, 'name': {actor_name} {game_id}")
                         participants[stats_headers[k]] = actor_id
                     else:
                         participants[stats_headers[k]] = stat.text()
-            return stats
+            return participants
 
         # Read game file
         filename = os.path.join(season.GAMES_PATH, game_id + '.html')
@@ -159,21 +163,23 @@ class Participant(BaseModel):
         # Stats headers
         stats_headers = _get_stats_headers(doc)
 
-        # Participants stats
-        home_participants = _get_participants_stats(doc=doc, is_home=True, stats_headers=stats_headers)
-        away_participants = _get_participants_stats(doc=doc, is_home=False, stats_headers=stats_headers)
-
-        print(home_participants)
-        # referees =
-
-
-
         # Teams ids
         teams = doc("div[class='logo_equipo']")
         home_team_id = teams.eq(0)('a').attr('href')
         away_team_id = teams.eq(1)('a').attr('href')
         home_team_id = int(re.search(r'/id/([0-9]+)/', home_team_id).group(1))
         away_team_id = int(re.search(r'/id/([0-9]+)/', away_team_id).group(1))
+
+
+        # Participants stats
+        home_participants = _get_participants_stats(doc=doc, is_home=True, team_id=home_team_id, season=season.season, stats_headers=stats_headers)
+        away_participants = _get_participants_stats(doc=doc, is_home=False, team_id=away_team_id, season=season.season, stats_headers=stats_headers)
+
+        # referees =
+
+
+
+
 
 
         pass

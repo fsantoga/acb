@@ -4,6 +4,7 @@ import datetime
 import glob
 import logging
 from pyquery import PyQuery as pq
+from collections import defaultdict
 from src.download import open_or_download, sanity_check, open_or_download_photo
 from src.utils import cast_duples, flatten
 from models.basemodel import BaseModel, db
@@ -206,7 +207,7 @@ class Actor(BaseModel):
                 if p_name == '' and p_id is None:
                     continue
 
-                p_id = re.search('/jugador/ver/([0-9]+).*?', p_id)
+                p_id = re.search('([0-9]+)', p_id)
                 if p_id:
                     p_id = p_id.group(1)
                 else:
@@ -221,7 +222,7 @@ class Actor(BaseModel):
                 if p_name == '' and p_id is None:
                     continue
 
-                p_id = re.search('/entrenador/ver/([0-9]+).*?', p_id)
+                p_id = re.search('([0-9]+)', p_id)
                 if p_id:
                     p_id = p_id.group(1)
                 else:
@@ -244,7 +245,7 @@ class Actor(BaseModel):
             players_doc = players_doc("div[class='foto']")
             for player in players_doc.items():
                 p_id = player('a').attr('href')
-                p_id = re.search('/jugador/ver/([0-9]+).*?', p_id).group(1)
+                p_id = re.search(r'([0-9]+)', p_id).group(1)
                 p_name = player('a').attr('title')
                 players.append((p_id, p_name))
 
@@ -253,19 +254,43 @@ class Actor(BaseModel):
             players_doc = players_doc("div[class='foto']")
             for player in players_doc.items():
                 p_id = player('a').attr('href')
-                p_id = re.search('/jugador/ver/([0-9]+).*?', p_id).group(1)
+                p_id = re.search(r'([0-9]+)', p_id).group(1)
                 p_name = player('a').attr('title')
                 players.append((p_id, p_name))
 
+            # Dados de baja
+            players_doc = doc("td[class='jugador primero']")
+            for player in players_doc.items():
+                p_id = player('a').attr('href')
+                p_id = re.search(r'/jugador/ver/([0-9]+)', p_id)
+                if not p_id:  # mixed players and coaches
+                    continue
+                p_id = p_id.group(1)
+                p_name = player('span').text()
+                players.append((p_id, p_name))
+
+            # Coaches
             coaches = []
             coaches_doc = doc("div[class='grid_plantilla mb20']")
             coaches_doc = coaches_doc("div[class='foto']")
             for coach in coaches_doc.items():
                 p_id = coach('a').attr('href')
-                p_id = re.search('/entrenador/ver/([0-9]+).*?', p_id).group(1)
+                p_id = re.search(r'([0-9]+)', p_id).group(1)
                 p_name = coach('a').attr('title')
                 coaches.append((p_id, p_name))
 
+            # Dados de baja
+            coaches_doc = doc("td[class='jugador primero']")
+            for coach in coaches_doc.items():
+                p_id = coach('a').attr('href')
+                p_id = re.search('/entrenador/ver/([0-9]+)', p_id)
+                if not p_id:  # mixed players and coaches
+                    continue
+                p_id = p_id.group(1)
+                p_name = coach('span')
+                coaches.append((p_id, p_name))
+
+            print(team_file, players)
             players = cast_duples(players)
             coaches = cast_duples(coaches)
             return players, coaches
@@ -285,7 +310,6 @@ class Actor(BaseModel):
             :param actors:
             :return:
             """
-            print(actors)
             fixed_actors = dict()
             for team_id, team_actors in actors.items():
                 correct_actors = dict()
@@ -304,7 +328,10 @@ class Actor(BaseModel):
                         # Case duplicated actors
                         if actor_name in correct_actors and correct_actors[actor_name] != actor_id:  # duplicated
                             raise DuplicatedActorId(f"{actor_name}, {correct_actors[actor_name]}, {actor_id}, team: {team_id} and category {category}")
-                        correct_actors[actor_name] = actor_id
+                        else:
+                            correct_actors[actor_name] = actor_id
+                    else:
+                        invalid_actors.add(actor_name)
 
                 # Do fuzzy search for each invalid referee
                 invalid_actors = list(invalid_actors)
@@ -323,7 +350,7 @@ class Actor(BaseModel):
                 for actor_name in invalid_actors:
                     most_likely_coincide, threshold = process.extractOne(actor_name, correct_actors_names, scorer=fuzz.token_set_ratio)
                     logger.warning(f"actor {actor_name} was match to {most_likely_coincide} with threshold {threshold}")
-                    assert threshold > 75, f"the threshold is too low for {actor_name} and match: {most_likely_coincide}"
+                    assert threshold > 75, f"the threshold is too low for {actor_name} and match: {most_likely_coincide} {team_id} {team_actors}"
                     correct_actors[actor_name] = correct_actors[most_likely_coincide]
 
                 # Convert back to set
@@ -331,7 +358,6 @@ class Actor(BaseModel):
                 fixed_actors[team_id] = correct_actors
             return fixed_actors
 
-        from collections import defaultdict
         players_ids = defaultdict(set)
         coaches_ids = defaultdict(set)
         referees_ids = defaultdict(set)
@@ -353,12 +379,19 @@ class Actor(BaseModel):
             coaches_ids[away_team].update(away_coaches)
             referees_ids[0].update(referees)
 
+        print(players_ids['9'])
+
         # Get actors from rosters (team)
         for team in teams_files:
             team_id = re.search(r'([0-9]+)-roster.html', team).group(1)
+
             players, coaches = _get_actors_from_team(team_file=team)
             players_ids[team_id].update(players)
             coaches_ids[team_id].update(coaches)
+            if team_id == '9':
+                print(players)
+
+        print(players_ids['9'])
 
         # Fix the referees
         players_ids = fix_actors(players_ids, category='player')

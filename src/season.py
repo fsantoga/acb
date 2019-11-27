@@ -249,14 +249,14 @@ class Season:
         current_journey = (re.findall('\d+', prox_journey))
         return int(current_journey[0])
 
-s = Season(2017)
+s = Season(2018)
 s.download_teams()
-# s.download_games()
+s.download_games()
 s.download_actors()
 s.populate_teams()
 s.populate_games()
 s.populate_actors()
-#s.populate_participants()
+s.populate_participants()
 
 #s.populate_games()
 #s.populate_teams()
