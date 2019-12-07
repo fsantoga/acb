@@ -1,14 +1,11 @@
-import requests
-import os
-import logging
+import urllib.request, os, logging
 from pyquery import PyQuery as pq
 from src.utils import create_driver
 import os
 import time
-from src.utils import logger
 
 
-def get_page(url, cookies=None):
+def get_page(url):
     """
     Get data from URL.
 
@@ -17,15 +14,11 @@ def get_page(url, cookies=None):
     """
 
     try:
-        if cookies:
-            content = requests.request("GET", url, cookies=cookies).text
-        else:
-            content = requests.request("GET", url).text
-
+        content=urllib.request.urlopen(url).read().decode('utf-8')
         return content
     except Exception as e:
-        logger.error("Fail to download url: {}".format(url))
-        logger.error("Error: {}".format(e), exc_info=True)
+        logging.error("Fail to download url: {}".format(url))
+        logging.error("Error: {}".format(e))
         exit(-1)
 
 
@@ -39,10 +32,11 @@ def save_content(file_path, content):
     """
     with open(file_path, 'w', encoding="utf-8") as file:
         file.write(content)
+        file.close()
         return content
 
 
-def open_or_download(file_path, url, cookies=None):
+def open_or_download(file_path, url):
     """
     Open or download a file.
 
@@ -54,7 +48,7 @@ def open_or_download(file_path, url, cookies=None):
         with open(file_path, 'r', encoding="utf-8") as file:
             return file.read()
     else:
-        html_file = get_page(url, cookies=cookies)
+        html_file = get_page(url)
         return save_content(file_path, html_file)
 
 

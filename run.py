@@ -647,7 +647,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--model", action='store', dest="model", type=str)
     parser.add_argument("--journeys", action='store', dest="journeys", type=int)
-    parser.add_argument("--start", action='store', dest="first_season", default=1994, type=int)
+    parser.add_argument("--start", action='store', dest="first_season", default=2016, type=int)
     parser.add_argument("--end", action='store', dest="last_season", default=2018, type=int)
     parser.add_argument("--driverpath", action='store', dest="driver_path", default=False)
     parser.add_argument("--copa", action='store', dest="copa", default=False)

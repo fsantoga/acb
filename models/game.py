@@ -6,9 +6,6 @@ from models.basemodel import BaseModel
 from models.team import Team, TeamName
 from peewee import (PrimaryKeyField, IntegerField, DateTimeField, ForeignKeyField, BooleanField, CharField)
 from src.utils import get_current_season
-from utils.log import logger, init_logging
-
-init_logging('game.log')
 
 
 class Game(BaseModel):
@@ -54,19 +51,22 @@ class Game(BaseModel):
         :param logging_level: logging object
         :return:
         """
+        logging.basicConfig(level=logging_level)
+        logger = logging.getLogger(__name__)
+
         logger.info('Starting the download of games...')
 
         if season.season == get_current_season():
             current_game_events_ids = season.get_current_game_events_ids()
             game_ids_list = list(current_game_events_ids.values())
         else:
-            game_ids_list = season.get_game_ids()
-
+            game_ids_list=season.get_game_ids()
 
         n_checkpoints = 4
         checkpoints = [round(i * float(len(game_ids_list)) / n_checkpoints) for i in range(n_checkpoints + 1)]
         for i in range(len(game_ids_list)):
-            game_id = int(game_ids_list[i]) % 1000
+
+            game_id=int(game_ids_list[i]) % 1000
             url2 = BASE_URL + "/fichas/LACB{}.php".format(game_ids_list[i])
             filename = os.path.join(season.GAMES_PATH, str(game_id)+"-" +str(game_ids_list[i]) + '.html')
 
@@ -134,6 +134,10 @@ class Game(BaseModel):
         :param round_phase: String
         :return: Game object
         """
+
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+
         # There are two different statistics table in acb.com. I assume they created the new one to introduce the +/- stat.
         estadisticas_tag = '.estadisticasnew' if re.search(r'<table class="estadisticasnew"', raw_game) else '.estadisticas'
 
@@ -265,8 +269,3 @@ class Game(BaseModel):
         except:
             game = Game.create(**game_dict)
         return game
-
-
-from src.season import Season
-s = Season(2017)
-Game.save_games(s)
