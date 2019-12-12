@@ -5,8 +5,7 @@ from src.download import File, DownloadManager
 from models.basemodel import BaseModel
 from peewee import (PrimaryKeyField, CharField, IntegerField)
 from tools.log import logger
-from variables import TEAMS_PATH
-from src.utils import validate_dir
+from variables import TEAMS_PATH, validate_dir
 import re
 
 

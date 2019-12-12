@@ -69,9 +69,24 @@ def convert_to_teams_ids(games, season):
 
     actual_games = list()
     for (team_1, team_2) in games:
-        most_likely_coincide_1, threshold_1 = process.extractOne(team_1, teams_names, scorer=fuzz.token_set_ratio)
-        most_likely_coincide_2, threshold_2 = process.extractOne(team_2, teams_names, scorer=fuzz.token_set_ratio)
-        assert threshold_1 > 70 and threshold_2 > 70, f"the threshold is too low"
+        if team_1 == 'Blu:Sens Obradoiro CAB':
+            most_likely_coincide_1 = 'Blusens Monbus'
+        elif team_1 == 'CB Aunacable Gran Canaria':
+            most_likely_coincide_1 = 'Auna'
+        elif team_1 == 'Pamesa Valencia BC':
+            most_likely_coincide_1 = 'Pamesa Cerámica'
+        else:
+            most_likely_coincide_1, threshold_1 = process.extractOne(team_1, teams_names, scorer=fuzz.token_set_ratio)
+
+        if team_2 == 'Blu:Sens Obradoiro CAB':
+            most_likely_coincide_2 = 'Blusens Monbus'
+        elif team_2 == 'CB Aunacable Gran Canaria':
+            most_likely_coincide_2 = 'Auna'
+        elif team_2 == 'Pamesa Valencia BC':
+            most_likely_coincide_2 = 'Pamesa Cerámica'
+        else:
+            most_likely_coincide_2, threshold_2 = process.extractOne(team_2, teams_names, scorer=fuzz.token_set_ratio)
+        assert threshold_1 > 70 and threshold_2 > 70, f"the threshold is too low {team_1}: {most_likely_coincide_1} {team_2}: {most_likely_coincide_2}, {teams}"
 
         team_1_id = teams[most_likely_coincide_1]
         team_2_id = teams[most_likely_coincide_2]

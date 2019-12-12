@@ -1,13 +1,12 @@
-import re
-import numpy as np
-from pyquery import PyQuery as pq
 from tools.log import logger
 from models.game import Game
 from models.team import Team
 from models.participant import Participant
 from models.actor import Actor
+from models.event import Event
 from variables import *
 from tools.lengua import get_playoff_games
+import datetime
 
 
 from_journey = 1
@@ -42,13 +41,15 @@ PLAYOFF_MAPPER = {
     2018: [3, 5, 5],
 }
 
+
 class Season:
     def __init__(self, season, competition='Liga'):
         logger.info(f"Creating Season: {season}")
 
         self.season = season
-        self.competition = competition
         self.season_id = season - FIRST_SEASON + 1  # First season in 1956 noted as 1.
+        self.current_journey = None
+        self.competition = competition
         self.SEASON_PATH = os.path.join(DATA_PATH, str(self.season))
         self.GAMES_PATH = os.path.join(self.SEASON_PATH, 'games')
         self.JOURNEYS_PATH = os.path.join(self.GAMES_PATH, 'journeys')
@@ -102,6 +103,9 @@ class Season:
         """
         Actor.download_actors(self)
 
+    def download_events(self):
+        Event.download(self)
+
     def populate_teams(self):
         """
         Populates the Team and TeamName tables for a season
@@ -129,6 +133,7 @@ class Season:
         :return:
         """
         Participant.create_instances(self)
+
     #
     #
     # def get_game_events_ids(self):
@@ -181,8 +186,24 @@ class Season:
 
     def get_number_games_regular_season(self):
         # todo: comment
-        self.teams = Team.get_teams(self)
+        if not self.teams:
+            self.teams = Team.get_teams(self)
         return (len(self.teams) - 1) * len(self.teams)
+
+    def is_current_season(self):
+        # TODO: comment
+        # We take te current time
+        now = datetime.datetime.now()
+
+        # We extract the current year and the current month
+        current_year = now.year
+        current_month = now.month
+
+        # We check if the current_month is between January and July. We need to know the real year of the current season
+        if 1 <= current_month < 8:
+            current_year = current_year - 1
+
+        return current_year == self.season
 
     # def get_number_games_playoff(self):
     #     games_per_round = [4, 2, 1]  # Quarter-finals, semifinals, final.
@@ -256,13 +277,12 @@ class Season:
 
 s = Season(2018)
 # s.download_teams()
-# s.download_games()
+s.download_games()
 # s.download_actors()
+s.download_events()
 # s.populate_teams()
 # s.populate_games()
 # s.populate_actors()
-s.populate_participants()
+# s.populate_participants()
 
-#s.populate_games()
-#s.populate_teams()
 

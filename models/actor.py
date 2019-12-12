@@ -2,7 +2,6 @@ import os.path
 import re
 import datetime
 import glob
-import logging
 from pyquery import PyQuery as pq
 from collections import defaultdict
 from src.download import File, DownloadManager
@@ -27,14 +26,83 @@ ACTORS_FOLDER_MAPPER = {
     'referee': REFEREES_PATH,
 }
 
+MISSING_PLAYERS = {
+    2017: {
+           '2': {
+               'Reynolds, Jalen': 50000009, # invented, it's not in acb.com
+           },
+           '4': {
+               'Bentil, Ben': 50000010, # invented, it's not in acb.com
+               'Rebic, Nikola': 50000011,
+           },
+           '7': {
+               'De la Iglesia, A.': 50000002, # invented, it's not in acb.com
+           },
+           '8': {
+                'Conger, Demitrius': 20212935,
+           },
+           '9': {
+                 'Nakic, Mario': 20212744,
+                 'Pantzar, J.': 50000001,  # invented, it's not in acb.com
+                },
+           '14': {
+            'Jose Luis Ibañez': 50000006,  # invented, it's not in acb.com
+            'Jean-Charles, Livio': 50000007,  # invented, it's not in acb.com,
+            },
+           '15': {
+               'Booker, Askia' : 20212936,
+               'Gacesa, Nikola': 50000004, # invented, it's not in acb.com
+               'Vlahovic, S.': 50000005, # invented, it's not in acb.com
+           },
+           '16':{
+               'Stoll, Paul': 50000003, # invented, it's not in acb.com
+
+           },
+           '17': {
+               'Round, J.': 50000008,  # invented, it's not in acb.com,
+           },
+
+            '22': {
+                'Sanè, Landing': 30000007,
+            },
+            '28': {
+                'Odiase, Tai': 50000012,
+            }
+    },
+    2018: {'5': {
+        'Diop, Khalifa': 20212905,
+        'Casimiro, L.': 20300176,
+    },
+        '6': {
+            'Giedraitis, Dovydas': 20212871,
+            'Arroyo, Ignacio': 20212736,
+        },
+        '10': {
+            'Treviño, Pau': 20212992,
+            'Òrrit, David': 20212339,
+            'García, D.': 30000015,
+        },
+        '13': {'Pavelka, T.': 50000000,  # invented, it's not in acb.com
+               },
+        '17': {
+            'Macoha, Rodijs': 20213018,
+        },
+        '22':
+            {
+                'Landing Sané': 30000007,
+            },
+
+    }
+}
+
 
 class Actor(BaseModel):
     """
     Class representing an Actor.
     An actor can be a `player`, `coach` or `referee`.
     """
-    id = IntegerField(primary_key=True)
-    category = TextField(null=True)
+    id = IntegerField()
+    category = TextField()
     display_name = TextField(index=True, null=True)
     full_name = TextField(null=True)
     nationality = TextField(null=True)
@@ -45,6 +113,9 @@ class Actor(BaseModel):
     license = TextField(null=True)
     twitter = TextField(null=True)
     instagram = TextField(null=True)
+
+    class Meta:
+        primary_key = CompositeKey('id', 'category')
 
     @staticmethod
     def download_actors(season):
@@ -110,6 +181,8 @@ class Actor(BaseModel):
             photo_url = photo_url("img").attr("src")
             if not photo_url or photo_url == '/Images/Web/silueta2.gif':  # no photo
                 return
+            if photo_url.startswith('//'): #  <div class="foto"><img src="//www.acb.com/fotos_cara/jugadores/J1SHLACB62.jpg"
+                photo_url = 'http:' + photo_url
             photo_filename = os.path.join(folder, 'photos', str(actor_id) + '.jpg')
             file = File(photo_filename)
             file.open_or_download(url=photo_url, download_manager=download_manager)
@@ -164,13 +237,16 @@ class Actor(BaseModel):
         players, coaches, referees = Actor.get_actors(season, unique=False)
 
         with db.atomic():
+            # Special actor for Equipo
+            Actor.get_or_create(**{'id': -1, 'category': 'player', 'display_name': 'Equipo'})
+
             # Insert referees
             for team_id, team_referees in referees.items():  # in this case team_id=0 for referees
                 for referee_id, referee_name in team_referees:
                     assert referee_id != 0, (referee_id, referee_name)
                     Actor.create_instance(actor_id=referee_id, category='referee')
                     if referee_name != '':  # sometimes you have the id but not the name
-                        ActorName.create_instance(actor_id=referee_id, team_id=team_id, season=season.season, actor_name=referee_name)
+                        ActorName.create_instance(actor_id=referee_id, category='referee', team_id=team_id, season=season.season, actor_name=referee_name)
 
             # Insert coaches
             for team_id, team_coaches in coaches.items():
@@ -178,7 +254,7 @@ class Actor(BaseModel):
                     assert coach_id != 0, (coach_id, coach_name)
                     Actor.create_instance(actor_id=coach_id, category='coach')
                     if coach_name != '':
-                        ActorName.create_instance(actor_id=coach_id, team_id=team_id, season=season.season, actor_name=coach_name)
+                        ActorName.create_instance(actor_id=coach_id, category='coach', team_id=team_id, season=season.season, actor_name=coach_name)
 
             # Insert players
             for team_id, team_players in players.items():
@@ -186,7 +262,7 @@ class Actor(BaseModel):
                     assert player_id != 0, (player_id, player_name)
                     Actor.create_instance(actor_id=player_id, category='player')
                     if player_name != '':
-                        ActorName.create_instance(actor_id=player_id, team_id=team_id, season=season.season, actor_name=player_name)
+                        ActorName.create_instance(actor_id=player_id, category='player', team_id=team_id, season=season.season, actor_name=player_name)
 
     @staticmethod
     def create_instance(actor_id, category):
@@ -198,7 +274,11 @@ class Actor(BaseModel):
         :param category:
         :return:
         """
-        actor, created = Actor.get_or_create(**{'id': actor_id, 'category': category})
+        try:
+            actor, created = Actor.get_or_create(**{'id': actor_id, 'category': category})
+        except:
+            print(actor_id, category)
+            raise Exception
         if not created:  # If the actor exists, we do not need to insert it
             return
 
@@ -270,7 +350,10 @@ class Actor(BaseModel):
                 coaches.append((p_id, p_name))
 
             # Get the referees from the content, not from the team
-            referees = re.findall(r'<a href="([0-9]+)>(.*?)</a>', content, re.DOTALL)
+            doc = pq(content)
+            doc = doc("div[class='datos_arbitros bg_gris_claro colorweb_2 float-left roboto_light']")
+            referees = re.findall(r'<a href=".*?([0-9]+)">(.*?)</a>', doc.html(), re.DOTALL)
+
             players = cast_duples(players)
             coaches = cast_duples(coaches)
             referees = cast_duples(referees)
@@ -349,33 +432,6 @@ class Actor(BaseModel):
             :param actors:
             :return:
             """
-            MISSING_PLAYERS = {
-                                2018: {'5': {
-                                            'Diop, Khalifa': 20212905,
-                                            'Casimiro, L.': 20300176,
-                                             },
-                                        '6': {
-                                            'Giedraitis, Dovydas': 20212871,
-                                            'Arroyo, Ignacio': 20212736,
-                                             },
-                                        '10':{
-                                            'Treviño, Pau': 20212992,
-                                            'Òrrit, David': 20212339,
-                                        },
-                                        '13': {'Pavelka, T.': 50000000, # invented, it's not in acb.com
-
-                                        },
-                                        '17': {
-                                            'Macoha, Rodijs': 20213018,
-                                    },
-
-                                        '22':
-                                            {
-                                                'Landing Sané': 30000007
-                                             },
-
-                                }
-            }
 
             fixed_actors = dict()
             for team_id, team_actors in actors.items():
@@ -390,10 +446,17 @@ class Actor(BaseModel):
                             if any(a_id == actor_id and a_name != '' for a_id, a_name in team_actors):
                                 continue
                             else:
-                                raise MissingActorName(f"{actor_id} team {team_id} and category {category}")
+                                try:
+                                    actor = ActorName.get(actor_id=actor_id, category=category)
+                                    correct_actors[actor.name] = actor_id
+                                except ActorName.DoesNotExist:
+                                    if actor_id == 20212251:
+                                        correct_actors['Pietras Bartlomiej'] = 20211440
+                                    else:
+                                        raise MissingActorName(f"{actor_id} team {team_id} and category {category} {team_actors}")
                         else:
                             # Case duplicated actors
-                            if team_id in MISSING_PLAYERS[season.season] and actor_name in MISSING_PLAYERS[season.season][team_id]:
+                            if season.season in MISSING_PLAYERS and team_id in MISSING_PLAYERS[season.season] and actor_name in MISSING_PLAYERS[season.season][team_id]:
                                 correct_actors[actor_name] = MISSING_PLAYERS[season.season][team_id][actor_name]
 
                             elif actor_name in correct_actors and correct_actors[actor_name] != actor_id:  # duplicated
@@ -401,7 +464,7 @@ class Actor(BaseModel):
                             else:
                                 correct_actors[actor_name] = actor_id
                     else:
-                        if team_id in MISSING_PLAYERS[season.season] and actor_name in MISSING_PLAYERS[season.season][team_id]:
+                        if season.season in MISSING_PLAYERS and team_id in MISSING_PLAYERS[season.season] and actor_name in MISSING_PLAYERS[season.season][team_id]:
                             correct_actors[actor_name] = MISSING_PLAYERS[season.season][team_id][actor_name]
                         elif actor_name == '': # case ('0', '') junk
                             continue
@@ -415,7 +478,7 @@ class Actor(BaseModel):
                 # Check if the actor name exists in database for that team
                 for actor_name in invalid_actors:
                     try:
-                        actor = ActorName.get(name=actor_name, team_id=team_id)
+                        actor = ActorName.get(name=actor_name, category=category, team_id=team_id)
                         correct_actors[actor_name] = actor.actor_id
                         invalid_actors.remove(actor_name)
                     except ActorName.DoesNotExist:
@@ -460,7 +523,6 @@ class Actor(BaseModel):
             players, coaches = _get_actors_from_team(team_file=team)
             players_ids[team_id].update(players)
             coaches_ids[team_id].update(coaches)
-            print(coaches)
 
         # Fix the referees
         players_ids = fix_actors(players_ids, category='player')
@@ -591,7 +653,8 @@ class ActorName(BaseModel):
     """
         Class representing a ActorName.
     """
-    actor_id = ForeignKeyField(Actor)
+    actor_id = IntegerField()
+    category = TextField()
     team_id = ForeignKeyField(Team)
     season = IntegerField()
     name = CharField(max_length=510)
@@ -600,7 +663,7 @@ class ActorName(BaseModel):
         primary_key = CompositeKey('actor_id', 'team_id', 'season', 'name')
 
     @staticmethod
-    def create_instance(actor_id, team_id, season, actor_name):
+    def create_instance(actor_id, category, team_id, season, actor_name):
         """
         Creates an ActorName object.
 
@@ -608,4 +671,4 @@ class ActorName(BaseModel):
         :param actor_name:
         :return:
         """
-        ActorName.get_or_create(**{'actor_id': actor_id, 'team_id': team_id, 'season': season, 'name': actor_name})
+        ActorName.get_or_create(**{'actor_id': actor_id, 'category': category, 'team_id': team_id, 'season': season, 'name': actor_name})

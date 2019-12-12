@@ -1,5 +1,4 @@
 import os
-from src.utils import validate_dir
 
 FIRST_SEASON = 1956
 LAST_SEASON = 2018
@@ -13,6 +12,20 @@ COACHES_PATH = os.path.join(ACTORS_PATH, 'coaches')
 REFEREES_PATH = os.path.join(ACTORS_PATH, 'referees')
 
 PLAYOFF_PATH = os.path.join(DATA_PATH, 'playoff')
+
+WINDOWS_DRIVER = os.path.join(ROOT_DIR, 'geckodriver_windows.exe')
+LINUX_DRIVER = os.path.join(ROOT_DIR, 'geckodriver_linux')
+
+
+
+def validate_dir(folder):
+    """
+    Creates a directory if it doesn't already exist.
+
+    :param folder: String
+    """
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
 
 validate_dir(DATA_PATH)

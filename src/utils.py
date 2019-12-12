@@ -1,24 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options, FirefoxProfile
 import platform
+from variables import WINDOWS_DRIVER, LINUX_DRIVER
 import logging
 import datetime
 import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-def validate_dir(folder):
-    """
-    Creates a directory if it doesn't already exist.
-
-    :param folder: String
-    """
-    if not os.path.exists(folder):
-        #print(folder)
-        os.makedirs(folder)
-
 
 def flatten(to_flat):
     """
@@ -105,13 +94,13 @@ def create_driver(driver_path):
     return driver
 
 
-def get_driver_path(driver_path):
+def get_driver_path(driver_path=None):
     system = platform.system()
     if not driver_path:
         if system == "Linux":
-            driver_path = "./geckodriver_linux"
+            driver_path = LINUX_DRIVER
         elif system == "Windows":
-            driver_path = "./geckodriver_windows"
+            driver_path = WINDOWS_DRIVER
         else:
             print("ERROR: no --driverpath. When using a system different from Linux/Windows a driver path must be set")
             print("USAGE: --driverpath 'path/to/driver'")
@@ -121,31 +110,3 @@ def get_driver_path(driver_path):
     return driver_path
 
 
-def get_current_season():
-
-    #We take te current time
-    now = datetime.datetime.now()
-    #We extract the current year and the current month
-    current_year = now.year
-    current_month=now.month
-
-    #We check if the current_month is bewteen January and July. We need to know the real year of the current season
-    if current_month >= 1 & current_month <8:
-        real_current_year=current_year-1
-    #otherwise the real_current_year is equal to the current year because we are between august and december
-    else:
-        real_current_year=current_year
-
-
-    real_next_year = real_current_year + 1
-
-    #we set the first day of the current season and the last day of the current season
-    first_day_current_season = datetime.datetime(real_current_year, 9, 1)
-    last_day_current_season = datetime.datetime(real_next_year, 8, 1)
-
-    if first_day_current_season < now < last_day_current_season:
-        current_season = real_current_year
-    else:
-        current_season = now.year + 1
-
-    return current_season

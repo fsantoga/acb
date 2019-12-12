@@ -1,23 +1,32 @@
-import re, logging
+import re
 from pyquery import PyQuery as pq
+from peewee import IntegrityError
 from collections import defaultdict
 from src.utils import find_all_indices
 from models.basemodel import BaseModel, db
 from models.game import Game
 from models.team import Team
-from models.actor import Actor, ActorName
+from models.actor import Actor, ActorName, MISSING_PLAYERS
 from peewee import (PrimaryKeyField, TextField, IntegerField,
-                    ForeignKeyField, BooleanField,)
+                    ForeignKeyField, BooleanField, AutoField)
+from src.download import File
 import os
-from src.download import open_or_download
 
-HEADER_TO_DB = {'D': 'number',
+HEADER_TO_DB = {'game_id': 'game_id',
+                'actor_id': 'actor_id',
+                'team_id': 'team_id',
+                'category': 'category',
+                'is_starter': 'is_starter',
+                'D': 'number',
                 'Nombre': "display_name",
                 'Min': 'minutes',
-                'P': 'point',
+                'P': 'points',
                 'T2': 't2',
                 'T3': 't3',
                 'T1': 't1',
+                'T2_ATTEMPT': 't2_attempt',
+                'T3_ATTEMPT': 't3_attempt',
+                'T1_ATTEMPT': 't1_attempt',
                 'REBD': 'defensive_reb',
                 'REBO': 'offensive_reb',
                 'A': 'assist',
@@ -40,16 +49,16 @@ class Participant(BaseModel):
 
     A participant is a player, actor or referee that participates in a certain game.
     """
-    id = PrimaryKeyField()
+    id = AutoField(primary_key=True)
     game = ForeignKeyField(Game, related_name='participants', index=True)
     team = ForeignKeyField(Team, index=True, null=True)
     actor = ForeignKeyField(Actor, related_name='participations', index=True, null=True)
     display_name = TextField(null=True)
     number = IntegerField(null=True)
-    is_coach = BooleanField(null=True)
+    category = TextField(null=True)
     is_starter = BooleanField(null=True)
     minutes = IntegerField(null=True)
-    point = IntegerField(null=True)
+    points = IntegerField(null=True)
     t2_attempt = IntegerField(null=True)
     t2 = IntegerField(null=True)
     t3_attempt = IntegerField(null=True)
@@ -82,16 +91,32 @@ class Participant(BaseModel):
         with db.atomic():
             # Insert games
             for game_id in games_ids:
-                Participant.create_instance(game_id, season)
+                game = Game.get(Game.id == int(game_id))
+                if not game.db_flag:
+                    Participant.create_instance(game, season)
+                    game.db_flag = True
+                    game.save()
 
     @staticmethod
-    def create_instance(game_id, season):
+    def create_instance(game, season):
         """
         Creates all the Participant objects of a game.
 
         :param game_id:
         :return:
         """
+        def _translate_headers_to_database_columns(stats):
+            db_stats = dict()
+            for k, v in stats.items():
+                if k in HEADER_TO_DB:
+                    db_stats[HEADER_TO_DB[k]] = v
+                else:
+                    raise NotImplementedError(k)
+            for h in HEADER_TO_DB.values():
+                if h not in db_stats:
+                    db_stats[h] = None
+            return db_stats
+
         def _get_stats_headers(doc):
             """
             Get the stats headers of the game.
@@ -122,42 +147,101 @@ class Participant(BaseModel):
             return stats_headers
 
         def _get_participants_stats(doc, is_home, team_id, season, stats_headers):
-            participants = dict()
+            participants = []
+
             tag = 'partido' if is_home else 'partido visitante'
             stats = doc(f"section[class='{tag}']")('tr')
             for i, stat_info in enumerate(stats.items()):
-                if i == 0 or i==1: continue  # first two are blank
-                if stat_info.attr('class') == 'totales': continue
+                actors_stats = dict()
+                actors_stats['game_id'] = game.id
+                actors_stats['team_id'] = team_id
+                if i == 0 or i==1:
+                    continue  # first two are blank
+                if stat_info.attr('class') == 'totales' or stat_info('td').eq(0).text() == '5f':
+                    continue
                 for k, stat in enumerate(stat_info('td').items()):
-                    if k == 0 and stat.text() == '5f': break
+                    stat_value = stat.text()
                     if stats_headers[k] == 'Nombre':  # extract id from href attribute
                         actor_id = stat('a').attr('href')
-                        category = ''
-                        actor_name = stat.text()
-                        print(game_id, actor_id, stat.text())
+                        actor_name = stat_value
+                        if actor_name == '':  # ghost actor -. ejemplo: http://acb.com/partido/estadisticas/id/18287
+                            break
                         if not actor_id and actor_name == 'Equipo':  # `Equipo` player
                             actor_id = -1
+                            category = 'player'
                         elif stat.attr('class') == 'nombre entrenador':
                             actor_id = re.search(r'([0-9]+)', actor_id).group(1)
-                            category = 'player'
+                            category = 'coach'
                         elif stat.attr('class') == 'nombre jugador ellipsis':
                             actor_id = re.search(r'([0-9]+)', actor_id).group(1)
+                            category = 'player'
                         else:
                             raise NotImplementedError
                         actor_id = int(actor_id)
-                        if actor_id == 0:  # the id is not in the game
+                        if actor_id == 0 or (season in MISSING_PLAYERS and str(team_id) in MISSING_PLAYERS[season] and actor_name in MISSING_PLAYERS[season][str(team_id)]):  # the id is not in the game
                             try:
-                                actor_id = ActorName.get(**{'team_id': team_id, 'season': season, 'name': actor_name})
+                                actor = ActorName.get(**{'category': category, 'team_id': team_id, 'season': season, 'name': actor_name})
+                                actor_id = actor.id
                             except ActorName.DoesNotExist:
-                                raise Exception(f"'actor does not exist team_id': {team_id}, 'season': {season}, 'name': {actor_name} {game_id}")
-                        participants[stats_headers[k]] = actor_id
+                                raise Exception(f"'actor does not exist team_id': {team_id}, 'season': {season}, 'name': {actor_name}, 'category': {category} {game_id}")
+                        actors_stats['actor_id'] = actor_id
+                        actors_stats['category'] = category
+                        actors_stats[stats_headers[k]] = actor_name
+                    elif stats_headers[k] == 'Min':
+                        minutes, seconds = stat.text().split(':') if stat_value else (0, 0)
+                        actors_stats['Min'] = int(minutes) * 60 + int(seconds)
+                    elif stats_headers[k] == 'D+O':
+                        actors_stats['REBD'], actors_stats['REBO'] = stat.text().split('+') if stat_value else (0, 0)
+                        actors_stats['REBD'], actors_stats['REBO'] = int(actors_stats['REBD']), int(actors_stats['REBO'])
+                    elif stats_headers[k] == 'T1':
+                        actors_stats['T1'], actors_stats['T1_ATTEMPT'] = stat.text().split('/') if stat_value else (0, 0)
+                        actors_stats['T1'], actors_stats['T1_ATTEMPT'] = int(actors_stats['T1']), int(actors_stats['T1_ATTEMPT'])
+                    elif stats_headers[k] == 'T2':
+                        actors_stats['T2'], actors_stats['T2_ATTEMPT'] = stat.text().split('/') if stat_value else (0, 0)
+                        actors_stats['T2'], actors_stats['T2_ATTEMPT'] = int(actors_stats['T2']), int(actors_stats['T2_ATTEMPT'])
+                    elif stats_headers[k] == 'T3':
+                        actors_stats['T3'], actors_stats['T3_ATTEMPT'] = stat.text().split('/') if stat_value else (0, 0)
+                        actors_stats['T3'], actors_stats['T3_ATTEMPT'] = int(actors_stats['T3']), int(actors_stats['T3_ATTEMPT'])
+                    elif stats_headers[k] == 'D':
+                        if not stat_value or stat_value == 'E': # equipo or coach case
+                            actors_stats['D'] = None
+                        else:
+                            # `*` next to the number represents he's a starter
+                            actors_stats['is_starter'] = '*' in stat_value
+                            number = re.search('([0-9]+)', stat_value)
+                            if number:
+                                actors_stats['D'] = int(number.group(1))
                     else:
-                        participants[stats_headers[k]] = stat.text()
+                        if stats_headers[k] in HEADER_TO_DB:
+                            actors_stats[stats_headers[k]] = int(stat_value) if stat_value != '' else 0
+
+                actors_stats = _translate_headers_to_database_columns(actors_stats)
+                participants.append(actors_stats)
             return participants
 
+        def _get_referees(doc):
+            referees = []
+            content = doc("div[class='datos_arbitros bg_gris_claro colorweb_2 float-left roboto_light']").html()
+            raw_referees = re.findall(r'([0-9]+)">(.*?)</a>', content, re.DOTALL)
+            for referee_id, referee_name in raw_referees:
+                actor_id = referee_id
+                actor_id = int(actor_id)
+                if actor_id == 0:  # the id is not in the game
+                    try:
+                        actor = ActorName.get(**{'category': 'referee', 'team_id': 0, 'season': season.season, 'name': referee_name})
+                        actor_id = actor.id
+                    except ActorName.DoesNotExist:
+                        raise Exception(
+                            f"'referee does not exist'season': {season.season}, 'name': {referee_name} {game_id}")
+                stats = {'game_id': game.id, 'team_id': 0, 'category': 'referee', 'actor_id': actor_id, 'Nombre': referee_name}
+                stats = _translate_headers_to_database_columns(stats)
+                referees.append(stats)
+            return referees
+
         # Read game file
-        filename = os.path.join(season.GAMES_PATH, game_id + '.html')
-        content = open_or_download(file_path=filename)
+        filename = os.path.join(season.GAMES_PATH, str(game.id) + '.html')
+        file = File(filename)
+        content = file.open()
         doc = pq(content)
 
         # Stats headers
@@ -174,16 +258,26 @@ class Participant(BaseModel):
         # Participants stats
         home_participants = _get_participants_stats(doc=doc, is_home=True, team_id=home_team_id, season=season.season, stats_headers=stats_headers)
         away_participants = _get_participants_stats(doc=doc, is_home=False, team_id=away_team_id, season=season.season, stats_headers=stats_headers)
+        referees = _get_referees(doc=doc)
 
-        # referees =
+        def remove_duplicates(list_of_dictionaries):
+            result_list = list()
+            unique_players = set()
+            for p in list_of_dictionaries:
+                if p['actor_id'] in unique_players:
+                    continue
+                else:
+                    result_list.append(p)
+                    unique_players.add(p['actor_id'])
+            return result_list
 
+        home_participants = remove_duplicates(home_participants)
+        away_participants = remove_duplicates(away_participants)
+        referees = remove_duplicates(referees)
 
-
-
-
-
-        pass
-
+        Participant.insert_many(home_participants).execute()
+        Participant.insert_many(away_participants).execute()
+        Participant.insert_many(referees).execute()
 
     # @staticmethod
     # def create_instances(raw_game, game):
@@ -205,7 +299,7 @@ class Participant(BaseModel):
     #     """
     #     try:
     #         actor = Actor.get(Actor.display_name == actor_name)
-    #         actor.actor_acbid = actor_acbid
+    #         actor.actactor.actor_acbid = actor_acbid
     #         actor.is_coach=is_coach
     #         actor.save()
     #

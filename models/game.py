@@ -4,7 +4,6 @@ from pyquery import PyQuery as pq
 from models.basemodel import BaseModel, db
 from models.team import Team, TeamName
 from peewee import (PrimaryKeyField, IntegerField, DateTimeField, ForeignKeyField, BooleanField, CharField)
-from src.utils import get_current_season
 from tools.log import logger, init_logging
 from src.download import DownloadManager, File
 from tools.checkpoint import Checkpoint
@@ -48,11 +47,7 @@ class Game(BaseModel):
     venue = CharField(max_length=255, null=True)
     attendance = IntegerField(null=True)
     kickoff_time = DateTimeField(index=True)
-    referee_1 = CharField(max_length=255, null=True)
-    referee_2 = CharField(max_length=255, null=True)
-    referee_3 = CharField(max_length=255, null=True)
-    db_flag = BooleanField(null=True)
-
+    db_flag = BooleanField(null=True, default=False)
 
     @staticmethod
     def download(season):
@@ -84,8 +79,6 @@ class Game(BaseModel):
         # Download manager object
         dm = DownloadManager()
 
-        # TODO: En la implementacion anterior hay una distincion si la season es la actual o no. Por que?
-        # TODO: ver metodo Game.save_games()
         logger.info(f"Starting to download games for season {season.season}")
         games_ids = Game.get_games_ids(season, download_manager=dm)
         checkpoint = Checkpoint(length=len(games_ids), chunks=10, msg='already downloaded')
@@ -132,21 +125,44 @@ class Game(BaseModel):
 
             journeys_ids = doc("div[class='listado_elementos listado_jornadas bg_gris_claro']").eq(0)
             journeys_ids = journeys_ids('div')
+
+            journeys_numbers = [j.text() for j in journeys_ids.items() if j.attr('data-t2v-id')]
+            journeys_numbers = [int(j.split()[-1]) for j in journeys_numbers]
             journeys_ids = [j.attr('data-t2v-id') for j in journeys_ids.items() if j.attr('data-t2v-id')]
+            journeys_ids = dict(zip(journeys_numbers, journeys_ids))
+
+            def find_missing(lst):
+                return sorted(set(range(lst[0], lst[-1])) - set(lst))
+            missing_journeys = find_missing(journeys_numbers)
+
+            for n in missing_journeys:
+                journeys_ids[n] = None
+
             return journeys_ids
 
         # Get the journeys ids of the season
         journeys_ids = _get_journeys_ids(season)
         games_ids = list()
-        for i, journey_id in enumerate(journeys_ids, start=1):
+        for i, journey_id in journeys_ids.items():
+            if season.current_journey and i == season.current_journey:  # no info about current journey
+                break
+
             url = f"http://www.acb.com/resultados-clasificacion/ver/temporada_id/{season.season}/edicion_id/undefined/jornada_id/{journey_id}"
             logger.info(f"Retrieving games from {url}")
             filename = os.path.join(season.JOURNEYS_PATH, f"journey-{i}.html")
             file = File(filename)
             content = file.open_or_download(url=url, download_manager=download_manager)
-
             game_ids_journey = re.findall(r'<a href="/partido/estadisticas/id/([0-9]+)" title="Estadísticas">', content, re.DOTALL)
+
+            if len(game_ids_journey) == 0 and season.is_current_season():
+                file.delete()
+                season.current_journey = i
+                logger.warning(f"There are no new games for season {season.season} and journey {i}")
+                break
             games_ids.extend(game_ids_journey)
+        else:
+            season.current_journey = len(journeys_ids)
+
         return games_ids
 
     @staticmethod

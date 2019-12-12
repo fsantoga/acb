@@ -40,23 +40,34 @@ class File:
             return self.path
         return
 
-    def download(self, url, download_manager):
-        r = download_manager.session.get(url)
-        try:
-            r.raise_for_status()
-            if self.type == 'text':
-                with open(self.path, 'w', encoding="utf-8") as f:
-                    f.write(r.text)
-                return r.text
-            elif self.type == 'image':
-                i = Image.open(BytesIO(r.content))
-                i.save(self.path)
-                return self.path
-        except requests.exceptions.HTTPError as e:
-            logger.warning(e)
+    def delete(self):
+        if self.exists():
+            os.remove(self.path)
+
+    def download(self, url, download_manager, driver):
+        if driver and download_manager.driver:
+            download_manager.driver.get(url)
+            time.sleep(1)
+            with open(self.path, 'w', encoding="utf-8") as f:
+                f.write(download_manager.driver.page_source)
+            return download_manager.driver.page_source
+        else:
+            r = download_manager.session.get(url)
+            try:
+                r.raise_for_status()
+                if self.type == 'text':
+                    with open(self.path, 'w', encoding="utf-8") as f:
+                        f.write(r.text)
+                    return r.text
+                elif self.type == 'image':
+                    i = Image.open(BytesIO(r.content))
+                    i.save(self.path)
+                    return self.path
+            except requests.exceptions.HTTPError as e:
+                logger.warning(e)
         return
 
-    def open_or_download(self, url=None, download_manager=None):
+    def open_or_download(self, url=None, download_manager=None, driver=False):
         """
         Open or download a file.
 
@@ -66,16 +77,16 @@ class File:
         """
         if self.exists():
             return self.open()
-        elif url:
-            return self.download(url=url, download_manager=download_manager)
+        elif url and download_manager:
+            return self.download(url=url, download_manager=download_manager, driver=driver)
         else:
             raise FileNotFoundError(self.path)
 
 
-
 class DownloadManager:
-    def __init__(self):
+    def __init__(self, driver=None):
         self.session = Session()
+        self.driver = driver
 
     def send_request(self, url):
         self.session.get(url)
