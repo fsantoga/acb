@@ -7,6 +7,7 @@ from peewee import (PrimaryKeyField, IntegerField, DateTimeField, ForeignKeyFiel
 from tools.log import logger, init_logging
 from src.download import DownloadManager, File
 from tools.checkpoint import Checkpoint
+from collections import OrderedDict
 
 init_logging('game.log')
 
@@ -105,9 +106,10 @@ class Game(BaseModel):
         return home_team, away_team
 
     @staticmethod
-    def get_games_ids(season, download_manager=None):
+    def get_games_ids(season, download_manager=None, include_missing_journeys=False):
         """
         Get the games ids of a given season.
+        :param include_missing_journeys:
         :param season:
         :return:
         """
@@ -117,6 +119,10 @@ class Game(BaseModel):
             :param season:
             :return:
             """
+            def find_missing(lst):
+                """TODO: comment"""
+                return sorted(set(range(lst[0], lst[-1])) - set(lst))
+
             url = f"http://www.acb.com/resultados-clasificacion/ver/temporada_id/{season.season}/edicion_id/"
             filename = os.path.join(season.JOURNEYS_PATH, "journeys-ids.html")
             file = File(filename)
@@ -131,14 +137,11 @@ class Game(BaseModel):
             journeys_ids = [j.attr('data-t2v-id') for j in journeys_ids.items() if j.attr('data-t2v-id')]
             journeys_ids = dict(zip(journeys_numbers, journeys_ids))
 
-            def find_missing(lst):
-                return sorted(set(range(lst[0], lst[-1])) - set(lst))
             missing_journeys = find_missing(journeys_numbers)
-
             for n in missing_journeys:
                 journeys_ids[n] = None
 
-            return journeys_ids
+            return OrderedDict(sorted(journeys_ids.items()))
 
         # Get the journeys ids of the season
         journeys_ids = _get_journeys_ids(season)
@@ -146,6 +149,8 @@ class Game(BaseModel):
         for i, journey_id in journeys_ids.items():
             if season.current_journey and i == season.current_journey:  # no info about current journey
                 break
+            elif not journey_id:
+                continue
 
             url = f"http://www.acb.com/resultados-clasificacion/ver/temporada_id/{season.season}/edicion_id/undefined/jornada_id/{journey_id}"
             logger.info(f"Retrieving games from {url}")

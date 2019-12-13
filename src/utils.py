@@ -30,7 +30,7 @@ def cast_duples(tuples):
     if len(tuples) == 0:
         return []
     assert len(tuples[0]) == 2
-    return [(int(x[0]), str(x[1]).strip()) for x in tuples]
+    return [(str(x[0]), str(x[1]).strip()) for x in tuples]
 
 
 def find_all_indices(lst, item):

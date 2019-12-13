@@ -3,9 +3,14 @@ from models.basemodel import BaseModel, db
 from models.team import Team
 from models.actor import Actor
 from src.utils import convert_time, create_driver, get_driver_path
+from pyquery import PyQuery as pq
 from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField)
 import time
 from tools.checkpoint import Checkpoint
+from models.team import TeamName
+from models.game import Game
+from models.participant import Participant
+
 
 import ast
 from tools.log import logger
@@ -209,8 +214,8 @@ play_events_dict = {
 
 class Event(BaseModel):
     id = PrimaryKeyField()
-    events_game_acbid = IntegerField(index=True)
-    game_acbid = IntegerField(index=True)
+    game_event_id = IntegerField(index=True)
+    game_acb_id = IntegerField(index=True)
     team_id = ForeignKeyField(Team, index=False, null=True)
     legend = TextField(null=True)
     extra_info = TextField(null=True)
@@ -224,18 +229,6 @@ class Event(BaseModel):
 
     @staticmethod
     def download(season):
-        def get_events_ids(season, download_manager=None):
-            events_ids = []
-            for i in range(1, season.current_journey + 1):
-                url = f"http://jv.acb.com/historico.php?jornada={i}&cod_competicion=LACB&cod_edicion={season.season_id}"
-                filename = os.path.join(season.EVENTS_PATH, 'journeys', f"journey-{i}.html")
-                file = File(filename)
-                content = file.open_or_download(url=url, download_manager=download_manager)
-
-                fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
-                events_ids.extend(fls_ids)
-            return events_ids
-
         def _download_event_webpage(event_id, download_manager):
             """
             Downloads the event webpage.
@@ -243,7 +236,7 @@ class Event(BaseModel):
             :return:
             """
             url = f"http://www.fibalivestats.com/u/ACBS/{event_id}/pbp.html"
-            filename = os.path.join(season.EVENTS_PATH, str(event_id) + ".html")
+            filename = os.path.join(season.EVENTS_PATH, f"{str(event_id)}.html")
             file = File(filename)
             file.open_or_download(url=url, download_manager=download_manager, driver=True)
 
@@ -253,15 +246,225 @@ class Event(BaseModel):
         dm = DownloadManager(driver=driver)
 
         # Get the events ids. For the current season, only until current journey...
-        events_ids = get_events_ids(season, download_manager=dm)
+        events_ids = Event.get_events_ids(season, download_manager=dm)
 
         checkpoint = Checkpoint(length=len(events_ids), chunks=10, msg='already downloaded')
-        for event_id in events_ids:
+        for (_, event_id) in events_ids:
             _download_event_webpage(event_id, dm)
             next(checkpoint)
-        logger.info('Download finished!)\n')
+
+    @staticmethod
+    def get_events_ids(season, download_manager=None):
+        events_ids = []
+        for i in range(1, season.current_journey + 1):
+            url = f"http://jv.acb.com/historico.php?jornada={i}&cod_competicion=LACB&cod_edicion={season.season_id}"
+            filename = os.path.join(season.EVENTS_PATH, 'journeys', f"journey-{i}.html")
+            file = File(filename)
+            content = file.open_or_download(url=url, download_manager=download_manager)
+
+            fls_ids = re.findall(r'<div class="partido borde_azul" id="partido-([0-9]+)">', content, re.DOTALL)
+            fls_ids = [(i, fls) for fls in fls_ids]
+            events_ids.extend(fls_ids)
+        return events_ids
+
+    @staticmethod
+    def create_instances(season):
+        events_ids = Event.get_events_ids(season)
+        with db.atomic():
+            for (journey_id, event_id) in events_ids:
+                Event.create_instance(season, journey_id, event_id)
+
+    @staticmethod
+    def create_instance(season, journey_id, event_id):
+        # TODO comprobar que los eventos de ese partido ya se han metido en db
+        # TODO, seguramente crear un atributo como db_flag. Quizas reutilizar esE?
+
+        filename = os.path.join(season.EVENTS_PATH, event_id + '.html')
+        file = File(filename)
+        content = file.open()
+        doc = pq(content)
+
+        home_team = doc('span[class="id_aj_1_name"]').text()
+        away_team = doc('span[class="id_aj_2_name"]').text()
+        home_team_id = TeamName.get(name=home_team).team_id
+        away_team_id = TeamName.get(name=away_team).team_id
+        print(home_team, away_team, event_id)
+
+        game = Game.get(team_home_id=home_team_id, team_away_id=away_team_id, season=season.season, journey=journey_id)
+        game_id = game.id
+        print(game_id)
 
 
+        # If there are events for that game, we do not need to insert them
+        query = Event.select().where(Event.game_acb_id == game_id)
+        if query.exists():
+            return
+
+
+        home_actors = Participant.select().where(
+            (Participant.game == game_id) & (Participant.team == home_team_id))
+        print(home_actors)
+        home_actors = [a for a in home_actors]
+        print(home_actors)
+        # home_actors = {q.display_name: q.actor.id for q in home_actors}
+
+        away_actors = Participant.select(Participant.actor, Participant.display_name).where(
+            (Participant.game == game_id) & (Participant.team == away_team_id))
+        away_actors = {q.display_name: q.actor.id for q in away_actors}
+
+        playbyplay = doc('playbyplay')
+        actions = {}
+        cont = 1
+        events_with_errors = 0
+        home_score = away_score = 0
+
+        roster_home = []
+        roster_away = []
+
+        for elem in reversed(list(playbyplay('div').items())):
+            if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
+
+                tag = elem.attr['class']
+                team_id = home_team_id if "pbpt1" in tag else away_team_id if "pbpt2" in tag else None
+                actors = home_actors if team_id == home_team_id else away_actors if team_id == away_team_id else None
+
+
+
+                legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
+                period, boxscore = elem('.pbp-time').text().split(" ")
+                boxscore_search = re.search(r'([0-9]{2}:[0-9]{2})([0-9]+)-([0-9]+)', boxscore)
+                if boxscore_search:
+                    time, home_score, away_score = boxscore_search.groups()
+                else:
+                    time = re.search(r'([0-9]{2}:[0-9]{2})', boxscore).groups()[0]
+                jersey, display_name, _ = elem('.pbp-action').text().split(", ")
+                jersey = int(jersey)
+
+                if display_name in actors.keys():
+                    actor_id = actors[display_name]
+                else:
+                    # most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
+                    # query_actor_id = actors_names_ids[most_likely_actor]
+                    # logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
+                    raise Exception(f"{display_name}, {actors}")
+
+                # except:  # Cells without player associated (e.g. timeouts and missing info)
+                #     legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
+                #         elem.text().split("\n")[0]
+                #     time = elem.attr['id']
+                #     period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
+                #     jersey = -1
+                #     query_actor_id = None
+
+        raise Exception
+
+
+
+
+    @staticmethod
+    def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id, actors_home, actors_away):
+        actions = {}
+        cont = 1
+        events_with_errors=0
+        home_score = away_score = 0
+
+        roster_home=[]
+        roster_away=[]
+
+
+        for elem in reversed(list(playbyplay('div').items())):
+            if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
+
+                tag = elem.attr['class']
+                team_id = team_home_id if "pbpt1" in tag else team_away_id if "pbpt2" in tag else None
+
+                try:
+                    legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
+                    period, boxscore = elem('.pbp-time').text().split(" ")
+                    boxscore_search = re.search(r'([0-9]{2}:[0-9]{2})([0-9]+)-([0-9]+)', boxscore)
+                    if boxscore_search:
+                        time, home_score, away_score = boxscore_search.groups()
+                    else:
+                        time = re.search(r'([0-9]{2}:[0-9]{2})', boxscore).groups()[0]
+                    jersey, display_name, _ = elem('.pbp-action').text().split(", ")
+                    jersey = int(jersey)
+
+                    # Matching display_name with actor_id
+                    if team_id == team_home_id:
+                        actors_names_ids = actors_home
+                    elif team_id == team_away_id:
+                        actors_names_ids = actors_away
+                    else:
+                        actors_names_ids = None
+
+                    if display_name in actors_names_ids.keys():
+                        query_actor_id = actors_names_ids[display_name]
+                    else:
+                        most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
+                        query_actor_id = actors_names_ids[most_likely_actor]
+                        logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
+
+                except:  # Cells without player associated (e.g. timeouts and missing info)
+                    legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
+                    elem.text().split("\n")[0]
+                    time = elem.attr['id']
+                    period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
+                    jersey = -1
+                    query_actor_id=None
+
+                #roster home
+                if "pbpt1" in tag:
+                    if legend_dict[legend]=="sub_in":
+                        if query_actor_id not in roster_home:
+                            roster_home.append(query_actor_id)
+                    elif legend_dict[legend]=="sub_out":
+                        try:
+                            roster_home.remove(query_actor_id)
+                        except:
+                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_home))
+
+                #roster away
+                elif "pbpt2" in tag:
+                    if legend_dict[legend]=="sub_in":
+                        if query_actor_id not in roster_away:
+                            roster_away.append(query_actor_id)
+                    elif legend_dict[legend]=="sub_out":
+                        try:
+                            roster_away.remove(query_actor_id)
+                        except:
+                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_away))
+
+                if legend in play_events_dict:
+                    if len(roster_home) != 5:
+                        events_with_errors+=1
+                        logger.warning('Game: {} ({}). Roster home list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_home),roster_home,team_home_id,legend_dict[legend]))
+                    if len(roster_away) != 5:
+                        events_with_errors += 1
+                        logger.warning('Game: {} ({}). Roster away list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_away),roster_away,team_away_id,legend_dict[legend]))
+                    #if query_actor_id not in roster_home and query_actor_id not in roster_away:
+                        #if jersey is not -1:
+                        #logger.warning('Game: {} ({}). The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(game_acbid,events_game_acbid,query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
+
+                elapsed_time = convert_time(time, period[1:])
+                actions[cont] = {"events_game_acbid": events_game_acbid,
+                                 "game_acbid": game_acbid,
+                                 "team_id": team_id,
+                                 "actor_id": query_actor_id,
+                                 "legend": legend_dict[legend],
+                                 "extra_info": extra_legend_dict.setdefault(legend, None),
+                                 "elapsed_time": elapsed_time,
+                                 "jersey": jersey,
+                                 "home_score": home_score,
+                                 "away_score": away_score,
+                                 "roster_home": str(roster_home),
+                                 "roster_away": str(roster_away)}
+                cont+=1
+
+        with db.atomic():
+            for event in actions.values():
+                Event.create(**event)
+
+        return events_with_errors
     #
     # @staticmethod
     # def _fix_short_roster(game_acbid, roster_home_or_away, roster, list_include_actor, legend):
@@ -626,110 +829,5 @@ class Event(BaseModel):
     #
     #     Event._fix_short_roster(63108,1,"[226, 232, 234, 230]",[236],"miss3")
     #
-    # @staticmethod
-    # def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id, actors_home, actors_away):
-    #     logging.basicConfig(level=logging.INFO)
-    #     logger = logging.getLogger(__name__)
-    #
-    #     actions = {}
-    #     cont = 1
-    #     events_with_errors=0
-    #     home_score = away_score = 0
-    #
-    #     roster_home=[]
-    #     roster_away=[]
-    #
-    #     for elem in reversed(list(playbyplay('div').items())):
-    #         if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
-    #
-    #             tag = elem.attr['class']
-    #             team_id = team_home_id if "pbpt1" in tag else team_away_id if "pbpt2" in tag else None
-    #
-    #             try:
-    #                 legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
-    #                 period, marker = elem('.pbp-time').text().split(" ")
-    #                 marker_search = re.search(r'([0-9]{2}:[0-9]{2})([0-9]+)-([0-9]+)', marker)
-    #                 if marker_search:
-    #                     time, home_score, away_score = marker_search.groups()
-    #                 else:
-    #                     time = re.search(r'([0-9]{2}:[0-9]{2})', marker).groups()[0]
-    #                 jersey, display_name, _ = elem('.pbp-action').text().split(", ")
-    #                 jersey = int(jersey)
-    #
-    #                 # Matching display_name with actor_id
-    #                 if team_id == team_home_id:
-    #                     actors_names_ids = actors_home
-    #                 elif team_id == team_away_id:
-    #                     actors_names_ids = actors_away
-    #                 else:
-    #                     actors_names_ids = None
-    #
-    #                 if display_name in actors_names_ids.keys():
-    #                     query_actor_id = actors_names_ids[display_name]
-    #                 else:
-    #                     most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
-    #                     query_actor_id = actors_names_ids[most_likely_actor]
-    #                     logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
-    #
-    #             except:  # Cells without player associated (e.g. timeouts and missing info)
-    #                 legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
-    #                 elem.text().split("\n")[0]
-    #                 time = elem.attr['id']
-    #                 period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
-    #                 jersey = -1
-    #                 query_actor_id=None
-    #
-    #             #roster home
-    #             if "pbpt1" in tag:
-    #                 if legend_dict[legend]=="sub_in":
-    #                     if query_actor_id not in roster_home:
-    #                         roster_home.append(query_actor_id)
-    #                 elif legend_dict[legend]=="sub_out":
-    #                     try:
-    #                         roster_home.remove(query_actor_id)
-    #                     except:
-    #                         logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_home))
-    #
-    #             #roster away
-    #             elif "pbpt2" in tag:
-    #                 if legend_dict[legend]=="sub_in":
-    #                     if query_actor_id not in roster_away:
-    #                         roster_away.append(query_actor_id)
-    #                 elif legend_dict[legend]=="sub_out":
-    #                     try:
-    #                         roster_away.remove(query_actor_id)
-    #                     except:
-    #                         logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_away))
-    #
-    #             if legend in play_events_dict:
-    #                 if len(roster_home) != 5:
-    #                     events_with_errors+=1
-    #                     logger.warning('Game: {} ({}). Roster home list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_home),roster_home,team_home_id,legend_dict[legend]))
-    #                 if len(roster_away) != 5:
-    #                     events_with_errors += 1
-    #                     logger.warning('Game: {} ({}). Roster away list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_away),roster_away,team_away_id,legend_dict[legend]))
-    #                 #if query_actor_id not in roster_home and query_actor_id not in roster_away:
-    #                     #if jersey is not -1:
-    #                     #logger.warning('Game: {} ({}). The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(game_acbid,events_game_acbid,query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
-    #
-    #             elapsed_time = convert_time(time, period[1:])
-    #             actions[cont] = {"events_game_acbid": events_game_acbid,
-    #                              "game_acbid": game_acbid,
-    #                              "team_id": team_id,
-    #                              "actor_id": query_actor_id,
-    #                              "legend": legend_dict[legend],
-    #                              "extra_info": extra_legend_dict.setdefault(legend, None),
-    #                              "elapsed_time": elapsed_time,
-    #                              "jersey": jersey,
-    #                              "home_score": home_score,
-    #                              "away_score": away_score,
-    #                              "roster_home": str(roster_home),
-    #                              "roster_away": str(roster_away)}
-    #             cont+=1
-    #
-    #     with db.atomic():
-    #         for event in actions.values():
-    #             Event.create(**event)
-    #
-    #     return events_with_errors
+
     #

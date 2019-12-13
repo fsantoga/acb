@@ -51,8 +51,8 @@ class Participant(BaseModel):
     """
     id = AutoField(primary_key=True)
     game = ForeignKeyField(Game, related_name='participants', index=True)
-    team = ForeignKeyField(Team, index=True, null=True)
-    actor = ForeignKeyField(Actor, related_name='participations', index=True, null=True)
+    team = ForeignKeyField(Team, index=True)
+    actor = ForeignKeyField(Actor, related_name='participations', index=True)
     display_name = TextField(null=True)
     number = IntegerField(null=True)
     category = TextField(null=True)
@@ -153,6 +153,7 @@ class Participant(BaseModel):
             stats = doc(f"section[class='{tag}']")('tr')
             for i, stat_info in enumerate(stats.items()):
                 actors_stats = dict()
+                is_broken = False
                 actors_stats['game_id'] = game.id
                 actors_stats['team_id'] = team_id
                 if i == 0 or i==1:
@@ -165,23 +166,27 @@ class Participant(BaseModel):
                         actor_id = stat('a').attr('href')
                         actor_name = stat_value
                         if actor_name == '':  # ghost actor -. ejemplo: http://acb.com/partido/estadisticas/id/18287
+                            is_broken = True
                             break
                         if not actor_id and actor_name == 'Equipo':  # `Equipo` player
-                            actor_id = -1
+                            actor_id = '-1'
                             category = 'player'
                         elif stat.attr('class') == 'nombre entrenador':
                             actor_id = re.search(r'([0-9]+)', actor_id).group(1)
+                            if actor_id != '0':
+                                actor_id = 'C'+actor_id
                             category = 'coach'
                         elif stat.attr('class') == 'nombre jugador ellipsis':
                             actor_id = re.search(r'([0-9]+)', actor_id).group(1)
+                            if actor_id != '0':
+                                actor_id = 'P'+actor_id
                             category = 'player'
                         else:
                             raise NotImplementedError
-                        actor_id = int(actor_id)
-                        if actor_id == 0 or (season in MISSING_PLAYERS and str(team_id) in MISSING_PLAYERS[season] and actor_name in MISSING_PLAYERS[season][str(team_id)]):  # the id is not in the game
+                        if actor_id == '0' or (season in MISSING_PLAYERS and str(team_id) in MISSING_PLAYERS[season] and actor_name in MISSING_PLAYERS[season][str(team_id)]):  # the id is not in the game
                             try:
-                                actor = ActorName.get(**{'category': category, 'team_id': team_id, 'season': season, 'name': actor_name})
-                                actor_id = actor.id
+                                actor = ActorName.get(**{'team_id': team_id, 'season': season, 'name': actor_name})
+                                actor_id = actor.actor_id
                             except ActorName.DoesNotExist:
                                 raise Exception(f"'actor does not exist team_id': {team_id}, 'season': {season}, 'name': {actor_name}, 'category': {category} {game_id}")
                         actors_stats['actor_id'] = actor_id
@@ -215,8 +220,9 @@ class Participant(BaseModel):
                         if stats_headers[k] in HEADER_TO_DB:
                             actors_stats[stats_headers[k]] = int(stat_value) if stat_value != '' else 0
 
-                actors_stats = _translate_headers_to_database_columns(actors_stats)
-                participants.append(actors_stats)
+                if not is_broken:
+                    actors_stats = _translate_headers_to_database_columns(actors_stats)
+                    participants.append(actors_stats)
             return participants
 
         def _get_referees(doc):
@@ -224,15 +230,18 @@ class Participant(BaseModel):
             content = doc("div[class='datos_arbitros bg_gris_claro colorweb_2 float-left roboto_light']").html()
             raw_referees = re.findall(r'([0-9]+)">(.*?)</a>', content, re.DOTALL)
             for referee_id, referee_name in raw_referees:
-                actor_id = referee_id
-                actor_id = int(actor_id)
-                if actor_id == 0:  # the id is not in the game
+                if actor_id != '0':
+                    actor_id = 'R'+referee_id
+                else:
+                    actor_id = actor_id
+
+                if actor_id == '0':  # the id is not in the game
                     try:
-                        actor = ActorName.get(**{'category': 'referee', 'team_id': 0, 'season': season.season, 'name': referee_name})
+                        actor = ActorName.get(**{'team_id': 0, 'season': season.season, 'name': referee_name})
                         actor_id = actor.id
                     except ActorName.DoesNotExist:
                         raise Exception(
-                            f"'referee does not exist'season': {season.season}, 'name': {referee_name} {game_id}")
+                            f"'referee does not exist'season': {season.season}, 'name': {referee_name}")
                 stats = {'game_id': game.id, 'team_id': 0, 'category': 'referee', 'actor_id': actor_id, 'Nombre': referee_name}
                 stats = _translate_headers_to_database_columns(stats)
                 referees.append(stats)
@@ -253,7 +262,6 @@ class Participant(BaseModel):
         away_team_id = teams.eq(1)('a').attr('href')
         home_team_id = int(re.search(r'/id/([0-9]+)/', home_team_id).group(1))
         away_team_id = int(re.search(r'/id/([0-9]+)/', away_team_id).group(1))
-
 
         # Participants stats
         home_participants = _get_participants_stats(doc=doc, is_home=True, team_id=home_team_id, season=season.season, stats_headers=stats_headers)

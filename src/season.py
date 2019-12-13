@@ -65,6 +65,7 @@ class Season:
             self.SHOTCHART_PATH = os.path.join(self.SEASON_PATH, 'shotchart')
 
             validate_dir(self.EVENTS_PATH)
+            validate_dir(os.path.join(self.EVENTS_PATH, 'journeys'))
             validate_dir(self.SHOTCHART_PATH)
 
         #self.current_journey=self.get_current_journey(season)
@@ -133,6 +134,13 @@ class Season:
         :return:
         """
         Participant.create_instances(self)
+
+    def populate_events(self):
+        """
+        Populates the Event table for a season
+        :return:
+        """
+        Event.create_instances(self)
 
     #
     #
@@ -277,12 +285,13 @@ class Season:
 
 s = Season(2018)
 # s.download_teams()
-s.download_games()
+# s.download_games() # TODO, participants and events dependen de esta ejecucion
 # s.download_actors()
-s.download_events()
+# s.download_events()
 # s.populate_teams()
 # s.populate_games()
 # s.populate_actors()
-# s.populate_participants()
+s.populate_participants()
+s.populate_events()
 
 

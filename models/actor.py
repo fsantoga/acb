@@ -29,67 +29,67 @@ ACTORS_FOLDER_MAPPER = {
 MISSING_PLAYERS = {
     2017: {
            '2': {
-               'Reynolds, Jalen': 50000009, # invented, it's not in acb.com
+               'Reynolds, Jalen': 'P50000009', # invented, it's not in acb.com
            },
            '4': {
-               'Bentil, Ben': 50000010, # invented, it's not in acb.com
-               'Rebic, Nikola': 50000011,
+               'Bentil, Ben': 'P50000010', # invented, it's not in acb.com
+               'Rebic, Nikola': 'P50000011',
            },
            '7': {
-               'De la Iglesia, A.': 50000002, # invented, it's not in acb.com
+               'De la Iglesia, A.': 'P50000002', # invented, it's not in acb.com
            },
            '8': {
-                'Conger, Demitrius': 20212935,
+                'Conger, Demitrius': 'P20212935',
            },
            '9': {
-                 'Nakic, Mario': 20212744,
-                 'Pantzar, J.': 50000001,  # invented, it's not in acb.com
+                 'Nakic, Mario': 'P20212744',
+                 'Pantzar, J.': 'P50000001',  # invented, it's not in acb.com
                 },
            '14': {
-            'Jose Luis Ibañez': 50000006,  # invented, it's not in acb.com
-            'Jean-Charles, Livio': 50000007,  # invented, it's not in acb.com,
+            'Jose Luis Ibañez': 'P50000006',  # invented, it's not in acb.com
+            'Jean-Charles, Livio': 'P50000007',  # invented, it's not in acb.com,
             },
            '15': {
-               'Booker, Askia' : 20212936,
-               'Gacesa, Nikola': 50000004, # invented, it's not in acb.com
-               'Vlahovic, S.': 50000005, # invented, it's not in acb.com
+               'Booker, Askia' : 'P20212936',
+               'Gacesa, Nikola': 'P50000004', # invented, it's not in acb.com
+               'Vlahovic, S.': 'P50000005', # invented, it's not in acb.com
            },
            '16':{
-               'Stoll, Paul': 50000003, # invented, it's not in acb.com
+               'Stoll, Paul': 'P50000003', # invented, it's not in acb.com
 
            },
            '17': {
-               'Round, J.': 50000008,  # invented, it's not in acb.com,
+               'Round, J.': 'P50000008',  # invented, it's not in acb.com,
            },
 
             '22': {
-                'Sanè, Landing': 30000007,
+                'Sanè, Landing': 'P30000007',
             },
             '28': {
-                'Odiase, Tai': 50000012,
+                'Odiase, Tai': 'P50000012',
             }
     },
     2018: {'5': {
-        'Diop, Khalifa': 20212905,
-        'Casimiro, L.': 20300176,
+        'Diop, Khalifa': 'P20212905',
+        'Casimiro, L.': 'P20300176',
     },
         '6': {
-            'Giedraitis, Dovydas': 20212871,
-            'Arroyo, Ignacio': 20212736,
+            'Giedraitis, Dovydas': 'P20212871',
+            'Arroyo, Ignacio': 'P20212736',
         },
         '10': {
-            'Treviño, Pau': 20212992,
-            'Òrrit, David': 20212339,
-            'García, D.': 30000015,
+            'Treviño, Pau': 'P20212992',
+            'Òrrit, David': 'P20212339',
+            'García, D.': 'P30000015',
         },
-        '13': {'Pavelka, T.': 50000000,  # invented, it's not in acb.com
+        '13': {'Pavelka, T.': 'P50000000',  # invented, it's not in acb.com
                },
         '17': {
-            'Macoha, Rodijs': 20213018,
+            'Macoha, Rodijs': 'P20213018',
         },
         '22':
             {
-                'Landing Sané': 30000007,
+                'Landing Sané': 'P30000007',
             },
 
     }
@@ -101,8 +101,9 @@ class Actor(BaseModel):
     Class representing an Actor.
     An actor can be a `player`, `coach` or `referee`.
     """
-    id = IntegerField()
-    category = TextField()
+    id = TextField(primary_key=True)
+    acb_id = IntegerField(null=True)
+    category = TextField(null=True)
     display_name = TextField(index=True, null=True)
     full_name = TextField(null=True)
     nationality = TextField(null=True)
@@ -113,9 +114,6 @@ class Actor(BaseModel):
     license = TextField(null=True)
     twitter = TextField(null=True)
     instagram = TextField(null=True)
-
-    class Meta:
-        primary_key = CompositeKey('id', 'category')
 
     @staticmethod
     def download_actors(season):
@@ -131,7 +129,8 @@ class Actor(BaseModel):
             :return:
             """
             filename = os.path.join(PLAYERS_PATH, f"{player_id}.html")
-            url = os.path.join(f"http://www.acb.com/jugador/temporada-a-temporada/id/{player_id}")
+            print(player_id)
+            url = os.path.join(f"http://www.acb.com/jugador/temporada-a-temporada/id/{player_id[1:]}")
             file = File(filename)
             logger.info(f"Retrieving player webpage from: {url}")
             file.open_or_download(url=url, download_manager=dm)
@@ -143,7 +142,7 @@ class Actor(BaseModel):
             :return:
             """
             filename = os.path.join(COACHES_PATH, f"{coach_id}.html")
-            url = os.path.join(f"http://www.acb.com/entrenador/trayectoria-logros/id/{coach_id}")
+            url = os.path.join(f"http://www.acb.com/entrenador/trayectoria-logros/id/{coach_id[1:]}")
             file = File(filename)
             logger.info(f"Retrieving coach webpage from: {url}")
             file.open_or_download(url=url, download_manager=dm)
@@ -155,7 +154,7 @@ class Actor(BaseModel):
             :return:
             """
             filename = os.path.join(REFEREES_PATH, f"{referee_id}.html")
-            url = os.path.join(f"http://www.acb.com/arbitro/hitos-logros/id/{referee_id}")
+            url = os.path.join(f"http://www.acb.com/arbitro/hitos-logros/id/{referee_id[1:]}")
             file = File(filename)
             logger.info(f"Retrieving referee webpage from: {url}")
             file.open_or_download(url=url, download_manager=dm)
@@ -167,7 +166,7 @@ class Actor(BaseModel):
             :param folder:
             :return:
             """
-            filename = os.path.join(ACTORS_FOLDER_MAPPER['player'], str(player_id) + '.html')
+            filename = os.path.join(folder, str(actor_id) + '.html')
             file = File(filename)
             content = file.open()
             doc = pq(content)
@@ -238,31 +237,35 @@ class Actor(BaseModel):
 
         with db.atomic():
             # Special actor for Equipo
-            Actor.get_or_create(**{'id': -1, 'category': 'player', 'display_name': 'Equipo'})
+            Actor.get_or_create(**{'id': '-1', 'category': 'player', 'display_name': 'Equipo'})
 
+            # TODO: refactor this a un unique metodo
             # Insert referees
             for team_id, team_referees in referees.items():  # in this case team_id=0 for referees
+                category = 'referee'
                 for referee_id, referee_name in team_referees:
-                    assert referee_id != 0, (referee_id, referee_name)
-                    Actor.create_instance(actor_id=referee_id, category='referee')
+                    assert referee_id != '0', (referee_id, referee_name)
+                    Actor.create_instance(actor_id=referee_id, category=category)
                     if referee_name != '':  # sometimes you have the id but not the name
-                        ActorName.create_instance(actor_id=referee_id, category='referee', team_id=team_id, season=season.season, actor_name=referee_name)
+                        ActorName.create_instance(actor_id=referee_id, team_id=team_id, season=season.season, actor_name=referee_name)
 
             # Insert coaches
             for team_id, team_coaches in coaches.items():
+                category = 'coach'
                 for coach_id, coach_name in team_coaches:
-                    assert coach_id != 0, (coach_id, coach_name)
-                    Actor.create_instance(actor_id=coach_id, category='coach')
+                    assert coach_id != '0', (coach_id, coach_name)
+                    Actor.create_instance(actor_id=coach_id, category=category)
                     if coach_name != '':
-                        ActorName.create_instance(actor_id=coach_id, category='coach', team_id=team_id, season=season.season, actor_name=coach_name)
+                        ActorName.create_instance(actor_id=coach_id, team_id=team_id, season=season.season, actor_name=coach_name)
 
             # Insert players
             for team_id, team_players in players.items():
+                category = 'player'
                 for player_id, player_name in team_players:
-                    assert player_id != 0, (player_id, player_name)
-                    Actor.create_instance(actor_id=player_id, category='player')
+                    assert player_id != '0', (player_id, player_name)
+                    Actor.create_instance(actor_id=player_id, category=category)
                     if player_name != '':
-                        ActorName.create_instance(actor_id=player_id, category='player', team_id=team_id, season=season.season, actor_name=player_name)
+                        ActorName.create_instance(actor_id=player_id, team_id=team_id, season=season.season, actor_name=player_name)
 
     @staticmethod
     def create_instance(actor_id, category):
@@ -274,11 +277,7 @@ class Actor(BaseModel):
         :param category:
         :return:
         """
-        try:
-            actor, created = Actor.get_or_create(**{'id': actor_id, 'category': category})
-        except:
-            print(actor_id, category)
-            raise Exception
+        actor, created = Actor.get_or_create(**{'id': actor_id})
         if not created:  # If the actor exists, we do not need to insert it
             return
 
@@ -290,9 +289,9 @@ class Actor(BaseModel):
             logger.error(f"Ghost actor: {actor_id} category: {category}")
             return
 
-        personal_info = actor._get_personal_info(content)
-        twitter = actor._get_twitter(content)
-        instagram = actor._get_instagram(content)
+        personal_info = Actor._get_personal_info(content, category)
+        twitter = Actor._get_twitter(content)
+        instagram = Actor._get_instagram(content)
 
         if twitter:
             personal_info.update({'twitter': twitter})
@@ -301,7 +300,9 @@ class Actor(BaseModel):
 
         # The update query requires to specify the id
         # Otherwise it updates the whole table.
+        personal_info['acb_id'] = actor_id[1:]
         actor.update(**personal_info).where(Actor.id == actor.id).execute()
+        return
 
     @staticmethod
     def get_actors(season, unique=True):
@@ -332,7 +333,11 @@ class Actor(BaseModel):
                     p_id = p_id.group(1)
                 else:
                     p_id = 0
-                players.append((p_id, p_name))
+                if p_id != '0':
+                    players.append(('P'+p_id, p_name))
+                else:
+                    players.append((p_id, p_name))
+
 
             coaches = []
             coaches_doc = doc("td[class='nombre entrenador']")
@@ -347,12 +352,17 @@ class Actor(BaseModel):
                     p_id = p_id.group(1)
                 else:
                     p_id = 0
-                coaches.append((p_id, p_name))
+                if p_id != '0':
+                    coaches.append(('C'+p_id, p_name))
+                else:
+                    coaches.append((p_id, p_name))
+
 
             # Get the referees from the content, not from the team
             doc = pq(content)
             doc = doc("div[class='datos_arbitros bg_gris_claro colorweb_2 float-left roboto_light']")
             referees = re.findall(r'<a href=".*?([0-9]+)">(.*?)</a>', doc.html(), re.DOTALL)
+            referees = [('R'+r, name) if r !='0' else (r,name) for (r, name) in referees]
 
             players = cast_duples(players)
             coaches = cast_duples(coaches)
@@ -370,7 +380,10 @@ class Actor(BaseModel):
                 p_id = player('a').attr('href')
                 p_id = re.search(r'([0-9]+)', p_id).group(1)
                 p_name = player('a').attr('title')
-                players.append((p_id, p_name))
+                if p_id != '0':
+                    players.append(('P'+p_id, p_name))
+                else:
+                    players.append((p_id, p_name))
 
             # Categorias inferiores
             players_doc = doc("div[class='grid_plantilla']")
@@ -379,7 +392,10 @@ class Actor(BaseModel):
                 p_id = player('a').attr('href')
                 p_id = re.search(r'([0-9]+)', p_id).group(1)
                 p_name = player('a').attr('title')
-                players.append((p_id, p_name))
+                if p_id != '0':
+                    players.append(('P'+p_id, p_name))
+                else:
+                    players.append((p_id, p_name))
 
             # Dados de baja
             players_doc = doc("td[class='jugador primero']")
@@ -390,7 +406,10 @@ class Actor(BaseModel):
                     continue
                 p_id = p_id.group(1)
                 p_name = player("span[class='nombre_corto']").text()
-                players.append((p_id, p_name))
+                if p_id != '0':
+                    players.append(('P'+p_id, p_name))
+                else:
+                    players.append((p_id, p_name))
 
             # Coaches
             coaches = []
@@ -400,7 +419,10 @@ class Actor(BaseModel):
                 p_id = coach('a').attr('href')
                 p_id = re.search(r'([0-9]+)', p_id).group(1)
                 p_name = coach('a').attr('title')
-                coaches.append((p_id, p_name))
+                if p_id != '0':
+                    coaches.append(('C'+p_id, p_name))
+                else:
+                    coaches.append((p_id, p_name))
 
             # Dados de baja
             coaches_doc = doc("td[class='jugador primero']")
@@ -411,7 +433,10 @@ class Actor(BaseModel):
                     continue
                 p_id = p_id.group(1)
                 p_name = coach("span[class='nombre_corto']").text()
-                coaches.append((p_id, p_name))
+                if p_id != '0':
+                    coaches.append(('C' + p_id, p_name))
+                else:
+                    coaches.append((p_id, p_name))
 
             players = cast_duples(players)
             coaches = cast_duples(coaches)
@@ -440,20 +465,20 @@ class Actor(BaseModel):
 
                 # Distinguish actors with id=0 (invalid_actors) and actors with ids (correct_actors)
                 for actor_id, actor_name in team_actors:
-                    if actor_id != 0:
+                    if actor_id != '0':
                         # Case when missing name but already inside
                         if actor_name == '':
                             if any(a_id == actor_id and a_name != '' for a_id, a_name in team_actors):
                                 continue
                             else:
                                 try:
-                                    actor = ActorName.get(actor_id=actor_id, category=category)
+                                    actor = ActorName.get(actor_id=actor_id)
                                     correct_actors[actor.name] = actor_id
                                 except ActorName.DoesNotExist:
-                                    if actor_id == 20212251:
-                                        correct_actors['Pietras Bartlomiej'] = 20211440
+                                    if actor_id == 'P20212251':
+                                        correct_actors['Pietras Bartlomiej'] = 'P20211440'
                                     else:
-                                        raise MissingActorName(f"{actor_id} team {team_id} and category {category} {team_actors}")
+                                        raise MissingActorName(f"{actor_id} team {team_id}  {team_actors}")
                         else:
                             # Case duplicated actors
                             if season.season in MISSING_PLAYERS and team_id in MISSING_PLAYERS[season.season] and actor_name in MISSING_PLAYERS[season.season][team_id]:
@@ -478,8 +503,8 @@ class Actor(BaseModel):
                 # Check if the actor name exists in database for that team
                 for actor_name in invalid_actors:
                     try:
-                        actor = ActorName.get(name=actor_name, category=category, team_id=team_id)
-                        correct_actors[actor_name] = actor.actor_id
+                        actor = ActorName.get(name=actor_name, team_id=team_id)
+                        correct_actors[actor_name] = actor.actor_id.id
                         invalid_actors.remove(actor_name)
                     except ActorName.DoesNotExist:
                         pass
@@ -539,7 +564,8 @@ class Actor(BaseModel):
         else:
             return players_ids, coaches_ids, referees_ids
 
-    def _get_personal_info(self, content):
+    @staticmethod
+    def _get_personal_info(content, category):
         """
         Extracts the personal information of an actor.
 
@@ -550,7 +576,7 @@ class Actor(BaseModel):
 
         display_name = doc("h1[class='f-l-a-100 roboto_condensed_bold mayusculas']").text()
 
-        if self.category == 'player':
+        if category == 'player':
             birthday_html = "datos_secundarios fecha_nacimiento roboto_condensed"
         else:
             birthday_html = "datos_basicos fecha_nacimiento roboto_condensed"
@@ -567,7 +593,7 @@ class Actor(BaseModel):
         if birthplace.startswith(","): # example: , Reino Unido (for Abodunrin Gabriel Olaseni))
             birthplace = birthplace[2:]
 
-        if self.category == 'referee':
+        if category == 'referee':
             return {
                  'display_name': display_name,
                  'birth_date': birthdate,
@@ -580,7 +606,7 @@ class Actor(BaseModel):
         nationality = doc("div[class='datos_secundarios nacionalidad roboto_condensed']")
         nationality = nationality("span[class='roboto_condensed_bold']").text()
 
-        if self.category == 'coach':
+        if category == 'coach':
             return {
                 'full_name': full_name,
                 'display_name': display_name,
@@ -592,7 +618,6 @@ class Actor(BaseModel):
         # Only player data
         position = doc("div[class='datos_basicos posicion roboto_condensed']")
         position = position("span").text()
-
         height = doc("div[class='datos_basicos altura roboto_condensed']")
         height = height("span").text()
         height = height.split()[0]
@@ -614,7 +639,8 @@ class Actor(BaseModel):
         }
         return personal_info
 
-    def _get_twitter(self, content):
+    @staticmethod
+    def _get_twitter(content):
         """
         Get the twitter of an actor, if it exists.
         :param raw_doc: String
@@ -628,7 +654,8 @@ class Actor(BaseModel):
             return twitter
         return
 
-    def _get_instagram(self, content):
+    @staticmethod
+    def _get_instagram(content):
         """
         Get the instagram of an actor, if it exists.
         :param content: String
@@ -653,8 +680,7 @@ class ActorName(BaseModel):
     """
         Class representing a ActorName.
     """
-    actor_id = IntegerField()
-    category = TextField()
+    actor_id = ForeignKeyField(Actor)
     team_id = ForeignKeyField(Team)
     season = IntegerField()
     name = CharField(max_length=510)
@@ -663,7 +689,7 @@ class ActorName(BaseModel):
         primary_key = CompositeKey('actor_id', 'team_id', 'season', 'name')
 
     @staticmethod
-    def create_instance(actor_id, category, team_id, season, actor_name):
+    def create_instance(actor_id, team_id, season, actor_name):
         """
         Creates an ActorName object.
 
@@ -671,4 +697,4 @@ class ActorName(BaseModel):
         :param actor_name:
         :return:
         """
-        ActorName.get_or_create(**{'actor_id': actor_id, 'category': category, 'team_id': team_id, 'season': season, 'name': actor_name})
+        ActorName.get_or_create(**{'actor_id': actor_id, 'team_id': team_id, 'season': season, 'name': actor_name})
