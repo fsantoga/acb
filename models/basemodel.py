@@ -36,7 +36,7 @@ def create_schema(logging_level=logging.INFO):
     logging.basicConfig(level=logging_level)
     logger = logging.getLogger(__name__)
 
-    with open(SCHEMA_PATH,'rb') as f:
+    with open(SCHEMA_PATH, 'rb') as f:
         query = f.read()
 
     try:

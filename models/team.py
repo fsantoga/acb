@@ -189,5 +189,6 @@ class TeamName(BaseModel):
         :param season:
         :return:
         """
-        team_name_dict = {'team_id': team_id, 'name': team_name, 'season': season.season}
+        season_year = season if isinstance(season, int) else season.season
+        team_name_dict = {'team_id': team_id, 'name': team_name, 'season': season_year}
         TeamName.get_or_create(**team_name_dict)

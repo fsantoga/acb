@@ -71,9 +71,9 @@ def fill_dict(array):
 
 def convert_time(time, period):
     try:
-        period = int(period)
+        period = int(period[1:])
     except ValueError: # extra-time (only 5 minutes)
-        period = int(period[1:])//2 + 4
+        period = int(period[2:])//2 + 4
     minutes, seconds = list(map(int, time.split(":")))
     seconds = 60 - seconds if seconds != 0 else 0
     minutes = 10*(period-1) + 9 - minutes if seconds != 0 else 10*(period-1) + 10 - minutes # carry

@@ -17,8 +17,7 @@ from tools.log import logger
 from tools.checkpoint import Checkpoint
 from collections import OrderedDict
 from tools.exceptions import DuplicatedActorId, MissingActorName
-from fuzzywuzzy import process
-from fuzzywuzzy import fuzz
+from fuzzywuzzy import fuzz, process
 
 ACTORS_FOLDER_MAPPER = {
     'player': PLAYERS_PATH,
@@ -129,7 +128,6 @@ class Actor(BaseModel):
             :return:
             """
             filename = os.path.join(PLAYERS_PATH, f"{player_id}.html")
-            print(player_id)
             url = os.path.join(f"http://www.acb.com/jugador/temporada-a-temporada/id/{player_id[1:]}")
             file = File(filename)
             logger.info(f"Retrieving player webpage from: {url}")
@@ -332,9 +330,9 @@ class Actor(BaseModel):
                 if p_id:
                     p_id = p_id.group(1)
                 else:
-                    p_id = 0
+                    p_id = '0'
                 if p_id != '0':
-                    players.append(('P'+p_id, p_name))
+                    players.append(('P'+str(p_id), p_name))
                 else:
                     players.append((p_id, p_name))
 
@@ -351,9 +349,9 @@ class Actor(BaseModel):
                 if p_id:
                     p_id = p_id.group(1)
                 else:
-                    p_id = 0
+                    p_id = '0'
                 if p_id != '0':
-                    coaches.append(('C'+p_id, p_name))
+                    coaches.append(('C'+str(p_id), p_name))
                 else:
                     coaches.append((p_id, p_name))
 
@@ -496,7 +494,7 @@ class Actor(BaseModel):
                         else:
                             invalid_actors.add(actor_name)
 
-                # Do fuzzy search for each invalid referee
+                # Do fuzzy search for each invalid actors
                 invalid_actors = list(invalid_actors)
                 correct_actors_names = list(correct_actors.keys())
 

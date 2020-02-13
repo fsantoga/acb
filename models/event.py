@@ -5,14 +5,12 @@ from models.actor import Actor
 from src.utils import convert_time, create_driver, get_driver_path
 from pyquery import PyQuery as pq
 from peewee import (PrimaryKeyField, ForeignKeyField, CharField, TextField, IntegerField)
-import time
 from tools.checkpoint import Checkpoint
 from models.team import TeamName
 from models.game import Game
 from models.participant import Participant
-
-
-import ast
+from models.actor import ActorName
+from fuzzywuzzy import fuzz, process
 from tools.log import logger
 from src.download import DownloadManager, File
 
@@ -48,6 +46,7 @@ legend_dict = {
     'Falta personal': 'foul',
     'Falta recibida': 'foul_rv',
     'Falta técnica': 'foul',
+    'foul': 'foul',
     'Falta descalificante': 'foul',
     'Técnica al banquillo': 'foul',
     'Técnica al entrenador': 'foul',
@@ -69,15 +68,43 @@ legend_dict = {
     'Tiro libre 3/3 fallado': 'miss1',
     '2PT bandeja convertido': 'made2',
     '2PT bandeja fallado': 'miss2',
+    '2PT bandeja en penetración convertido': 'made2',
+    '2PT bandeja en penetración fallado': 'miss2',
     '2PT palmeo convertido': 'made2',
     '2PT palmeo fallado': 'miss2',
     '2PT tiro convertido': 'made2',
+    '2PT tiro sobre bote convertido': 'made2',
+    '2PT tiro sobre bote fallado': 'miss2',
+    '2PT tiro con paso atrás convertido': 'made2',
+    '2PT tiro con paso atrás fallado': 'miss2',
+    '2PT tiro elevado convertido': 'made2',
+    '2PT tiro elevado fallado': 'miss2',
     'Mate convertido': 'made2',
+    'Mate fallado': 'miss2',
     '2PT tiro fallado': 'miss2',
     '2PT Alley oop convertido': 'made2',
     '2PT Alley-oop convertido': 'made2',
+    '2PT Alley oop fallado': 'miss2',
+    '2PT gancho convertido': 'made2',
+    '2PT gancho fallado': 'miss2',
+    '2PT tiro a la media vuelta convertido': 'made2',
+    '2PT tiro a la media vuelta fallado': 'miss2',
+    '2PT Tiro en caída convertido': 'made2',
+    '2PT Tiro en caída fallado': 'miss2',
     '3PT convertido': 'made3',
+    '3PT tiro en suspensión convertido': 'made3',
     '3PT fallado': 'miss3',
+    '3PT tiro en suspensión fallado': 'miss3',
+    '3PT tiro elevado convertido': 'made3',
+    '3PT tiro elevado fallado': 'miss3',
+    '3PT tiro a la media vuelta convertido': 'made3',
+    '3PT tiro a la media vuelta fallado': 'miss3',
+    '3PT tiro en caída convertido': 'made3',
+    '3PT tiro en caída fallado': 'miss3',
+    '3PT tiro sobre bote convertido': 'made3',
+    '3PT tiro sobre bote fallado': 'miss3',
+    '3PT tiro con paso atrás convertido': 'made3',
+    '3PT tiro con paso atrás fallado': 'miss3',
     'Salto ganado': 'tipoff_won',
     'Salto perdido': 'tipoff_lost',
     'COMIENZA EL PARTIDO': 'game_start',
@@ -90,6 +117,7 @@ legend_dict = {
     'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'miss3',
     'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'miss2',
     'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT fallado': 'miss2',
+    'BASKETBALL_ACTION_TURNOVER_OTHER': 'turnover',
     'PERIODO FINALIZADO': 'quarter_end',
 
 }
@@ -133,89 +161,37 @@ extra_legend_dict = {
     'Tiro libre 3/3 fallado': '3/3',
     '2PT bandeja convertido': 'layup',
     '2PT bandeja fallado': 'layup',
+    '2PT bandeja en penetración convertido': 'layup',
+    '2PT bandeja en penetración fallado': 'layup',
     '2PT palmeo convertido': 'tip',
     '2PT palmeo fallado': 'tip',
+    '2PT tiro con paso atrás convertido': 'stepback',
+    '2PT tiro con paso atrás fallado': 'stepback',
     '2PT tiro convertido': 'jumpshot',
     '2PT Alley oop convertido': 'alleyhoop',
     '2PT Alley-oop convertido': 'alleyhoop',
+    '2PT Alley oop fallado': 'alleyhoop',
+    '2PT gancho convertido': 'hook',
+    '2PT gancho fallado': 'hook',
+    '2PT tiro a la media vuelta convertido': 'fadeway',
+    '2PT tiro a la media vuelta fallado': 'fadeway',
+    '3PT tiro a la media vuelta convertido': 'fadeway',
+    '3PT tiro a la media vuelta fallado': 'fadeway',
+    '3PT tiro con paso atrás fallado': 'stepback',
+    '3PT tiro con paso atrás convertido': 'stepback',
     'Mate convertido': 'dunk',
+    'Mate fallado': 'dunk',
     'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'stepback',
     'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'hookshot',
     'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'hookshot',
     'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT fallado': 'stepback',
 }
 
-play_events_dict = {
-    'Asistencia': 'assist',
-    'Tapón': 'block',
-    'Recuperación': 'steal',
-    'Pérdida': 'turnover',
-    'Pérdida en el manejo del balón': 'turnover',
-    'Pérdida por campo atrás': 'turnover',
-    'Pérdida por 3 segundos': 'turnover',
-    'Pérdida por 3seg.': 'turnover',
-    'Pérdida por 5 segundos': 'turnover',
-    'Pérdida por 5seg.': 'turnover',
-    'Pérdida por falta en ataque': 'turnover',
-    'Pérdida por fuera de banda': 'turnover',
-    'Pérdida por mal pase': 'turnover',
-    'Pérdida por pasos': 'turnover',
-    'Pérdida por interferencia en ataque': 'turnover',
-    'Pérdida por 24 segundos': 'turnover',
-    'Pérdida por 24seg.': 'turnover',
-    'Pérdida por 8 segundos': 'turnover',
-    'Pérdida por 8seg.': 'turnover',
-    'Pérdida por dobles': 'turnover',
-    'Salto balón retenido': 'salto',
-    'Falta antideportiva': 'foul',
-    'Falta en ataque': 'foul',
-    'Falta personal': 'foul',
-    'Falta recibida': 'foul_rv',
-    'Falta técnica': 'foul',
-    'Falta descalificante': 'foul',
-    'Técnica al banquillo': 'foul',
-    'Técnica al entrenador': 'foul',
-    'Rebote ofensivo': 'reb_off',
-    'Rebote defensivo': 'reb_def',
-    'Tiro libre 1/1 convertido': 'made1',
-    'Tiro libre 1/1 fallado': 'miss1',
-    'Tiro libre 1/2 convertido': 'made1',
-    'Tiro libre 1/2 fallado': 'miss1',
-    'Tiro libre 1/3 fallado': 'miss1',
-    'Tiro libre 1/3 convertido': 'made1',
-    'Tiro libre 2/2 convertido': 'made1',
-    'Tiro libre 2/2 fallado': 'miss1',
-    'Tiro libre 2/3 convertido': 'made1',
-    'Tiro libre 2/3 fallado': 'miss1',
-    'Tiro libre 3/3 convertido': 'made1',
-    'Tiro libre 3/3 fallado': 'miss1',
-    '2PT bandeja convertido': 'made2',
-    '2PT bandeja fallado': 'miss2',
-    '2PT palmeo convertido': 'made2',
-    '2PT palmeo fallado': 'miss2',
-    '2PT tiro convertido': 'made2',
-    'Mate convertido': 'made2',
-    '2PT tiro fallado': 'miss2',
-    '2PT Alley oop convertido': 'made2',
-    '2PT Alley-oop convertido': 'made2',
-    '3PT convertido': 'made3',
-    '3PT fallado': 'miss3',
-    'Salto ganado': 'tipoff_won',
-    'Salto perdido': 'tipoff_lost',
-    'jumpball.unclearposs': 'jumpball_unclearposs',
-    'BASKETBALL_ACTION_3PT_JUMPSHOT convertido': 'made3',
-    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT convertido': 'made2',
-    'BASKETBALL_ACTION_2PT_HOOKSHOT convertido': 'made2',
-    'BASKETBALL_ACTION_3PT_JUMPSHOT fallado': 'miss3',
-    'BASKETBALL_ACTION_2PT_HOOKSHOT fallado': 'miss2',
-    'BASKETBALL_ACTION_2PT_STEPBACKJUMPSHOT fallado': 'miss2',
-}
-
 
 class Event(BaseModel):
     id = PrimaryKeyField()
-    game_event_id = IntegerField(index=True)
-    game_acb_id = IntegerField(index=True)
+    event_id = IntegerField()
+    game_id = IntegerField(index=True)
     team_id = ForeignKeyField(Team, index=False, null=True)
     legend = TextField(null=True)
     extra_info = TextField(null=True)
@@ -224,8 +200,6 @@ class Event(BaseModel):
     actor_id = ForeignKeyField(Actor, index=False, null=True)
     home_score = IntegerField(null=True)
     away_score = IntegerField(null=True)
-    roster_home = CharField(null=True)
-    roster_away = CharField(null=True)
 
     @staticmethod
     def download(season):
@@ -286,185 +260,220 @@ class Event(BaseModel):
 
         home_team = doc('span[class="id_aj_1_name"]').text()
         away_team = doc('span[class="id_aj_2_name"]').text()
-        home_team_id = TeamName.get(name=home_team).team_id
-        away_team_id = TeamName.get(name=away_team).team_id
-        print(home_team, away_team, event_id)
+
+        if home_team == away_team == '':
+            teams = doc('meta[name="twitter:title"]').attr('content')
+            home_team, away_team = teams.split('v')
+            home_team = home_team.strip()
+            away_team = away_team.strip()
+        print(event_id, home_team)
+        home_team_id = TeamName.get(name=home_team).team_id.id
+        print(away_team)
+        away_team_id = TeamName.get(name=away_team).team_id.id
 
         game = Game.get(team_home_id=home_team_id, team_away_id=away_team_id, season=season.season, journey=journey_id)
         game_id = game.id
-        print(game_id)
 
+        print(home_team, home_team_id, away_team, away_team_id, event_id, game_id)
 
         # If there are events for that game, we do not need to insert them
-        query = Event.select().where(Event.game_acb_id == game_id)
+        query = Event.select().where(Event.game_id == game_id)
         if query.exists():
             return
 
-
-        home_actors = Participant.select().where(
+        home_actors = Participant.select(Participant.actor, Participant.display_name).where(
             (Participant.game == game_id) & (Participant.team == home_team_id))
-        print(home_actors)
-        home_actors = [a for a in home_actors]
-        print(home_actors)
-        # home_actors = {q.display_name: q.actor.id for q in home_actors}
+        home_actors = {q.display_name: q.actor.id for q in home_actors}
 
         away_actors = Participant.select(Participant.actor, Participant.display_name).where(
             (Participant.game == game_id) & (Participant.team == away_team_id))
         away_actors = {q.display_name: q.actor.id for q in away_actors}
 
-        playbyplay = doc('playbyplay')
-        actions = {}
-        cont = 1
-        events_with_errors = 0
-        home_score = away_score = 0
 
-        roster_home = []
-        roster_away = []
+        playbyplay = doc('div[id="playbyplay"]')
+        events = list()
+        home_score = away_score = 0
+        time = '10:00'
+        period = 'P1'
 
         for elem in reversed(list(playbyplay('div').items())):
-            if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
+            if not elem.attr['id'] or elem.attr['id'] in ['playbyplay', 'aj_pbp']:
+                continue
+            tag = elem.attr['class']
+            is_timeout = False
 
-                tag = elem.attr['class']
-                team_id = home_team_id if "pbpt1" in tag else away_team_id if "pbpt2" in tag else None
-                actors = home_actors if team_id == home_team_id else away_actors if team_id == away_team_id else None
+            if 'pbpa pbpt0' in tag:
+                is_timeout = True
+            elif 'pbpa pbpt1' in tag:
+                team_id = home_team_id
+                actors = home_actors
+            elif 'pbpa pbpt2' in tag:
+                team_id = away_team_id
+                actors = away_actors
+            else:
+                raise Exception
 
-
-
-                legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
-                period, boxscore = elem('.pbp-time').text().split(" ")
-                boxscore_search = re.search(r'([0-9]{2}:[0-9]{2})([0-9]+)-([0-9]+)', boxscore)
-                if boxscore_search:
-                    time, home_score, away_score = boxscore_search.groups()
+            # Remove last line of this type of events:
+            # 23, C. Evans, Mate convertido
+            # HERBALIFE GRAN CANARIA - gana por 1
+            if is_timeout:
+                legend = elem.text().split("\n")[0]
+                jersey = None
+                display_name = None
+                team_id = None
+            else:
+                legend = elem('.pbp-action').text().split("\n")[0]
+                if ',' in legend:
+                    jersey, display_name, legend = legend.split(", ")
                 else:
-                    time = re.search(r'([0-9]{2}:[0-9]{2})', boxscore).groups()[0]
-                jersey, display_name, _ = elem('.pbp-action').text().split(", ")
-                jersey = int(jersey)
+                    jersey, display_name, legend = None, None, legend
+                period = elem('.pbp-period').text()
+                time = elem.attr['id']
 
-                if display_name in actors.keys():
-                    actor_id = actors[display_name]
-                else:
-                    # most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
-                    # query_actor_id = actors_names_ids[most_likely_actor]
-                    # logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
-                    raise Exception(f"{display_name}, {actors}")
+            if elem('.pbpsc'):
+                home_score, away_score = elem('.pbpsc').text().split('-')
 
-                # except:  # Cells without player associated (e.g. timeouts and missing info)
-                #     legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
-                #         elem.text().split("\n")[0]
-                #     time = elem.attr['id']
-                #     period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
-                #     jersey = -1
-                #     query_actor_id = None
-
-        raise Exception
-
-
-
-
-    @staticmethod
-    def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id, actors_home, actors_away):
-        actions = {}
-        cont = 1
-        events_with_errors=0
-        home_score = away_score = 0
-
-        roster_home=[]
-        roster_away=[]
-
-
-        for elem in reversed(list(playbyplay('div').items())):
-            if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
-
-                tag = elem.attr['class']
-                team_id = team_home_id if "pbpt1" in tag else team_away_id if "pbpt2" in tag else None
-
+            if not display_name:
+                actor_id = None
+            elif display_name in actors.keys():
+                actor_id = actors[display_name]
+            else:
                 try:
-                    legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
-                    period, boxscore = elem('.pbp-time').text().split(" ")
-                    boxscore_search = re.search(r'([0-9]{2}:[0-9]{2})([0-9]+)-([0-9]+)', boxscore)
-                    if boxscore_search:
-                        time, home_score, away_score = boxscore_search.groups()
-                    else:
-                        time = re.search(r'([0-9]{2}:[0-9]{2})', boxscore).groups()[0]
-                    jersey, display_name, _ = elem('.pbp-action').text().split(", ")
-                    jersey = int(jersey)
+                    actor = ActorName.get(**{'team_id': team_id, 'season': season.season, 'name': display_name})
+                    actor_id = actor.actor_id.id
+                except ActorName.DoesNotExist:
+                    most_likely_coincide, threshold = process.extractOne(display_name, actors.keys(),
+                                                                         scorer=fuzz.token_set_ratio)
+                    logger.warning(
+                        f"actor {display_name} was match to {most_likely_coincide} with threshold {threshold}")
+                    assert threshold > 72, f"the threshold {threshold} is too low for {display_name} and match: {most_likely_coincide} {type(team_id)}{team_id} {actors.keys()}"
+                    actor_id = actors[most_likely_coincide]
+                    ActorName.create_instance(actor_id=actor_id, team_id=team_id, season=season.season, actor_name=display_name)
 
-                    # Matching display_name with actor_id
-                    if team_id == team_home_id:
-                        actors_names_ids = actors_home
-                    elif team_id == team_away_id:
-                        actors_names_ids = actors_away
-                    else:
-                        actors_names_ids = None
-
-                    if display_name in actors_names_ids.keys():
-                        query_actor_id = actors_names_ids[display_name]
-                    else:
-                        most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
-                        query_actor_id = actors_names_ids[most_likely_actor]
-                        logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
-
-                except:  # Cells without player associated (e.g. timeouts and missing info)
-                    legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else \
-                    elem.text().split("\n")[0]
-                    time = elem.attr['id']
-                    period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
-                    jersey = -1
-                    query_actor_id=None
-
-                #roster home
-                if "pbpt1" in tag:
-                    if legend_dict[legend]=="sub_in":
-                        if query_actor_id not in roster_home:
-                            roster_home.append(query_actor_id)
-                    elif legend_dict[legend]=="sub_out":
-                        try:
-                            roster_home.remove(query_actor_id)
-                        except:
-                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_home))
-
-                #roster away
-                elif "pbpt2" in tag:
-                    if legend_dict[legend]=="sub_in":
-                        if query_actor_id not in roster_away:
-                            roster_away.append(query_actor_id)
-                    elif legend_dict[legend]=="sub_out":
-                        try:
-                            roster_away.remove(query_actor_id)
-                        except:
-                            logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_away))
-
-                if legend in play_events_dict:
-                    if len(roster_home) != 5:
-                        events_with_errors+=1
-                        logger.warning('Game: {} ({}). Roster home list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_home),roster_home,team_home_id,legend_dict[legend]))
-                    if len(roster_away) != 5:
-                        events_with_errors += 1
-                        logger.warning('Game: {} ({}). Roster away list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_away),roster_away,team_away_id,legend_dict[legend]))
-                    #if query_actor_id not in roster_home and query_actor_id not in roster_away:
-                        #if jersey is not -1:
-                        #logger.warning('Game: {} ({}). The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(game_acbid,events_game_acbid,query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
-
-                elapsed_time = convert_time(time, period[1:])
-                actions[cont] = {"events_game_acbid": events_game_acbid,
-                                 "game_acbid": game_acbid,
-                                 "team_id": team_id,
-                                 "actor_id": query_actor_id,
-                                 "legend": legend_dict[legend],
-                                 "extra_info": extra_legend_dict.setdefault(legend, None),
-                                 "elapsed_time": elapsed_time,
-                                 "jersey": jersey,
-                                 "home_score": home_score,
-                                 "away_score": away_score,
-                                 "roster_home": str(roster_home),
-                                 "roster_away": str(roster_away)}
-                cont+=1
+            elapsed_time = convert_time(time, period)
+            events.append({"event_id": event_id,
+                           "game_id": game_id,
+                           "team_id": team_id,
+                           "actor_id": actor_id,
+                           "legend": legend_dict[legend],
+                           "extra_info": extra_legend_dict.setdefault(legend, None),
+                           "elapsed_time": elapsed_time,
+                           "jersey": jersey,
+                           "home_score": home_score,
+                           "away_score": away_score,
+                           })
 
         with db.atomic():
-            for event in actions.values():
+            for event in events:
                 Event.create(**event)
+        db.commit()
 
-        return events_with_errors
+
+
+    #
+    # @staticmethod
+    # def scrap_and_insert(events_game_acbid, game_acbid, playbyplay, team_home_id, team_away_id, actors_home, actors_away):
+    #     actions = {}
+    #     cont = 1
+    #     events_with_errors=0
+    #     home_score = away_score = 0
+    #
+    #     roster_home=[]
+    #     roster_away=[]
+    #
+    #
+    #     for elem in reversed(list(playbyplay('div').items())):
+    #         if elem.attr['class'] and elem.attr['class'].startswith("pbpa"):
+    #
+    #             tag = elem.attr['class']
+    #             team_id = team_home_id if "pbpt1" in tag else team_away_id if "pbpt2" in tag else None
+    #
+    #             try:
+    #                 legend = elem('.pbp-action').text().split(", ")[-1].split("\n")[0]
+    #                 period, boxscore = elem('.pbp-time').text().split(" ")
+    #                 boxscore_search = re.search(r'([0-9]{2}:[0-9]{2})([0-9]+)-([0-9]+)', boxscore)
+    #                 if boxscore_search:
+    #                     time, home_score, away_score = boxscore_search.groups()
+    #                 else:
+    #                     time = re.search(r'([0-9]{2}:[0-9]{2})', boxscore).groups()[0]
+    #                 jersey, display_name, _ = elem('.pbp-action').text().split(", ")
+    #                 jersey = int(jersey)
+    #
+    #                 # Matching display_name with actor_id
+    #                 if team_id == team_home_id:
+    #                     actors_names_ids = actors_home
+    #                 elif team_id == team_away_id:
+    #                     actors_names_ids = actors_away
+    #                 else:
+    #                     actors_names_ids = None
+    #
+    #                 if display_name in actors_names_ids.keys():
+    #                     query_actor_id = actors_names_ids[display_name]
+    #                 else:
+    #                     most_likely_actor = difflib.get_close_matches(display_name, actors_names_ids.keys(), 1, 0.4)[0]
+    #                     query_actor_id = actors_names_ids[most_likely_actor]
+    #                     logger.info('Actor {} has been matched to: {}'.format(display_name, most_likely_actor))
+    #
+    #             except:  # Cells without player associated (e.g. timeouts and missing info)
+    #                 legend = elem('.pbp-action').text() if elem('.pbp-action').text() != '' else elem.text().split("\n")[0]
+    #                 time = elem.attr['id']
+    #                 period = "P" + re.search(r'per_[a-z]?([a-z]?[0-9]+)', tag).groups()[0]
+    #                 jersey = -1
+    #                 query_actor_id=None
+    #
+    #             #roster home
+    #             if "pbpt1" in tag:
+    #                 if legend_dict[legend]=="sub_in":
+    #                     if query_actor_id not in roster_home:
+    #                         roster_home.append(query_actor_id)
+    #                 elif legend_dict[legend]=="sub_out":
+    #                     try:
+    #                         roster_home.remove(query_actor_id)
+    #                     except:
+    #                         logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_home))
+    #
+    #             #roster away
+    #             elif "pbpt2" in tag:
+    #                 if legend_dict[legend]=="sub_in":
+    #                     if query_actor_id not in roster_away:
+    #                         roster_away.append(query_actor_id)
+    #                 elif legend_dict[legend]=="sub_out":
+    #                     try:
+    #                         roster_away.remove(query_actor_id)
+    #                     except:
+    #                         logger.warning('Game: {} ({}). Cannot remove actor. Actor {} is not in list {}'.format(game_acbid, events_game_acbid, query_actor_id, roster_away))
+    #
+    #             if legend in play_events_dict:
+    #                 if len(roster_home) != 5:
+    #                     events_with_errors+=1
+    #                     logger.warning('Game: {} ({}). Roster home list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_home),roster_home,team_home_id,legend_dict[legend]))
+    #                 if len(roster_away) != 5:
+    #                     events_with_errors += 1
+    #                     logger.warning('Game: {} ({}). Roster away list length ({}) error: {} for team: {} and event: {}'.format(game_acbid,events_game_acbid,len(roster_away),roster_away,team_away_id,legend_dict[legend]))
+    #                 #if query_actor_id not in roster_home and query_actor_id not in roster_away:
+    #                     #if jersey is not -1:
+    #                     #logger.warning('Game: {} ({}). The actor: {} with jersey: {} is not in the field for event: {}. Roster home {}, Roster away: {}'.format(game_acbid,events_game_acbid,query_actor_id,jersey,legend_dict[legend],roster_home,roster_away))
+    #
+    #             elapsed_time = convert_time(time, period[1:])
+    #             actions[cont] = {"events_game_acbid": events_game_acbid,
+    #                              "game_acbid": game_acbid,
+    #                              "team_id": team_id,
+    #                              "actor_id": query_actor_id,
+    #                              "legend": legend_dict[legend],
+    #                              "extra_info": extra_legend_dict.setdefault(legend, None),
+    #                              "elapsed_time": elapsed_time,
+    #                              "jersey": jersey,
+    #                              "home_score": home_score,
+    #                              "away_score": away_score,
+    #                              "roster_home": str(roster_home),
+    #                              "roster_away": str(roster_away)}
+    #             cont+=1
+    #
+    #     with db.atomic():
+    #         for event in actions.values():
+    #             Event.create(**event)
+    #
+    #     return events_with_errors
     #
     # @staticmethod
     # def _fix_short_roster(game_acbid, roster_home_or_away, roster, list_include_actor, legend):

@@ -1,6 +1,6 @@
 from tools.log import logger
 from models.game import Game
-from models.team import Team
+from models.team import Team, TeamName
 from models.participant import Participant
 from models.actor import Actor
 from models.event import Event
@@ -283,15 +283,29 @@ class Season:
     #     current_journey = (re.findall('\d+', prox_journey))
     #     return int(current_journey[0])
 
-s = Season(2018)
+s = Season(2019)
 # s.download_teams()
-# s.download_games() # TODO, participants and events dependen de esta ejecucion
+s.download_games() # TODO, participants and events dependen de esta ejecucion
 # s.download_actors()
 # s.download_events()
 # s.populate_teams()
 # s.populate_games()
 # s.populate_actors()
+from models.actor import ActorName
+
+ActorName.create_instance(actor_id='P20212439', team_id=10, season=2018, actor_name='N. Dragovic')
+ActorName.create_instance(actor_id='P20213014', team_id=10, season=2018, actor_name='P. del Águila')
+ActorName.create_instance(actor_id='P20200366', team_id=25, season=2018, actor_name='R. Úriz')
+ActorName.create_instance(actor_id='P20212319', team_id=22, season=2018, actor_name='S. Campara')
+ActorName.create_instance(actor_id='P30000055', team_id=22, season=2019, actor_name='B. Sy')
+ActorName.create_instance(actor_id='P20212482', team_id=16, season=2019, actor_name='J. García Sánchez')
+ActorName.create_instance(actor_id='P20212469', team_id=549, season=2019, actor_name='M. García Calvo')
+TeamName.create_instance(team_name='BARÇA', team_id=2, season=2019)
+
+
 s.populate_participants()
 s.populate_events()
+
+
 
 
